@@ -13,7 +13,7 @@
     @media(max-width:620px){.shell{padding:0 10px 28px}.topbar{margin:0 -10px 12px;padding:12px 10px;align-items:flex-start}.brand p{display:none}.actions .btn{padding:8px}.btn span{display:none}.optimizer-controls,.lanes{grid-template-columns:1fr}.lane{min-height:92px}.grid3{grid-template-columns:1fr}.summary-strip{grid-template-columns:1fr 1fr}}
     .dragon-name,.dragon-meta{display:block}.habit-row{grid-template-columns:1fr 72px 72px}.impact-input{padding:7px 5px;text-align:center}
   </style>
-  <link rel="stylesheet" href="product.css?v=0.5.0">
+  <link rel="stylesheet" href="product.css?v=0.5.1">
 </head>
 <body>
 <div class="shell">
@@ -134,7 +134,7 @@
   <section class="onboarding-dialog" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
     <header class="onboarding-head"><div><div class="eyebrow">PRIVATE ROSTER SETUP · STEP 1</div><h2 id="onboardingTitle">Remove the dragons you do not own</h2><p>The commonly available roster starts selected. Tap a dragon to deselect it; you will customize stats after saving.</p></div><button class="icon-btn" id="closeOnboarding" aria-label="Close roster setup">×</button></header>
     <section class="limited-roster"><div class="onboarding-section-head"><div><b>Limited-release dragons</b><span>Off by default · select only if your account received them during beta.</span></div></div><div class="onboarding-grid limited-grid" id="onboardingLimitedGrid"></div></section>
-    <div class="onboarding-toolbar"><input class="input" id="onboardingSearch" placeholder="Find a dragon…"><select class="select" id="onboardingRarity"><option value="all">All rarities</option><option value="legendary">Legendary</option><option value="epic">Epic</option><option value="rare">Rare</option></select><button class="btn" id="selectVisible">Select visible</button><button class="btn ghost" id="clearSelection">Deselect all</button></div>
+    <div class="onboarding-toolbar"><input class="input" id="onboardingSearch" placeholder="Find a dragon…"><select class="select" id="onboardingRarity"><option value="all">All rarities</option><option value="legendary">Legendary</option><option value="epic">Epic</option><option value="rare">Rare</option></select><button class="btn ghost toggle-all" id="toggleAllCommon" aria-pressed="true">Deselect all</button></div>
     <div class="onboarding-section-head main-roster-head"><div><b>Common roster</b><span>Selected by default · filter and remove anything you have not unlocked.</span></div><div class="onboarding-defaults"><span>Legendary 1★ · Lv40 · 22k</span><span>Epic 2★ · Lv30 · 16k</span><span>Rare 3★ · Lv20 · 10k</span></div></div>
     <div class="onboarding-grid" id="onboardingGrid"></div>
     <footer class="onboarding-footer"><button class="btn" id="importOnboarding">Import a roster</button><div><span id="onboardingCount">31 selected</span><button class="btn primary" id="saveOnboarding">Continue with 31 dragons</button></div></footer>
@@ -326,6 +326,6 @@ function toast(msg,bad=false){let el=document.querySelector("#toast");el.textCon
 document.querySelector("#rosterList").addEventListener("change",e=>{if(e.target.dataset.i!=null)updateField(e.target)});document.querySelector("#search").addEventListener("input",renderRoster);document.querySelector("#optimizeBtn").addEventListener("click",()=>setTimeout(optimize,0));document.querySelector("#exportBtn").addEventListener("click",exportJSON);document.querySelector("#importBtn").addEventListener("click",()=>document.querySelector("#fileInput").click());document.querySelector("#fileInput").addEventListener("change",e=>{if(e.target.files[0])importJSON(e.target.files[0]);e.target.value=""});document.querySelector("#resetBtn").addEventListener("click",()=>{if(confirm("Restore the recommended starter roster? Your current browser roster will be replaced.")){roster=clone(DEFAULT_ROSTER);save();renderRoster();document.querySelector("#results").innerHTML=`<div class="empty"><div><div class="sigil">◈</div><h3>Starter roster restored</h3><p>31 common dragons are selected with estimated stats. Review the two limited-release dragons, then customize your strongest dragons.</p></div></div>`;document.dispatchEvent(new CustomEvent("roster-reset"))}});document.querySelector("#addBtn").addEventListener("click",()=>{let name=prompt("Dragon name");if(!name)return;roster.unshift(D(name,"rare","champion","control","tactical",10000,3,20,{cavalry:0,shieldbearers:0,archers:0,spearmen:0,siege:0}));save();renderRoster()});renderRoster();
 document.querySelector("#rosterList").addEventListener("blur",e=>{if(e.target.dataset.i!=null&&e.target.dataset.field&&e.target.type==="number")updateField(e.target)},true);
 </script>
-<script src="product.js?v=0.5.0"></script>
+<script src="product.js?v=0.5.1"></script>
 </body>
 </html>

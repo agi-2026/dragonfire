@@ -455,8 +455,12 @@
     document.querySelector("#onboardingGrid").innerHTML = dragons.map(onboardingCard).join("") || `<div class="onboarding-no-results">No common dragons match this filter.</div>`;
     const count = onboardingSelection.size;
     const limitedCount = roster.filter((dragon) => dragon.limited && onboardingSelection.has(dragon.id)).length;
+    const commonDragons = roster.filter((dragon) => !dragon.limited);
+    const allCommonSelected = commonDragons.every((dragon) => onboardingSelection.has(dragon.id));
     document.querySelector("#onboardingCount").textContent = `${count} selected${limitedCount ? ` · ${limitedCount} limited` : ""}`;
     document.querySelector("#saveOnboarding").textContent = count ? `Continue with ${count} dragons` : "Continue with empty roster";
+    document.querySelector("#toggleAllCommon").textContent = allCommonSelected ? "Deselect all" : "Select all";
+    document.querySelector("#toggleAllCommon").setAttribute("aria-pressed", String(allCommonSelected));
   }
 
   function openOnboarding() {
@@ -484,8 +488,12 @@
   }));
   document.querySelector("#onboardingSearch").addEventListener("input", renderOnboarding);
   document.querySelector("#onboardingRarity").addEventListener("change", renderOnboarding);
-  document.querySelector("#selectVisible").addEventListener("click", () => { onboardingDragons().forEach((dragon) => onboardingSelection.add(dragon.id)); renderOnboarding(); });
-  document.querySelector("#clearSelection").addEventListener("click", () => { onboardingSelection.clear(); renderOnboarding(); });
+  document.querySelector("#toggleAllCommon").addEventListener("click", () => {
+    const commonDragons = roster.filter((dragon) => !dragon.limited);
+    const allCommonSelected = commonDragons.every((dragon) => onboardingSelection.has(dragon.id));
+    commonDragons.forEach((dragon) => allCommonSelected ? onboardingSelection.delete(dragon.id) : onboardingSelection.add(dragon.id));
+    renderOnboarding();
+  });
   document.querySelector("#closeOnboarding").addEventListener("click", () => closeOnboarding());
   document.querySelector("#onboarding").addEventListener("click", (event) => { if (event.target.id === "onboarding") closeOnboarding(); });
   document.querySelector("#saveOnboarding").addEventListener("click", () => {
