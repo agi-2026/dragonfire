@@ -14,7 +14,7 @@ Open `http://127.0.0.1:4173`. The site has no frontend build step or account sys
 
 1. **Battle Lab** compares two three-dragon formations over a seeded Monte Carlo run.
 2. **Rankings** exhaustively score all 5,456 maxed trios across six lane orders and four PvP troop types, independent of personal rosters.
-3. **Team Builder** turns the roster into disjoint PvP, siege, and development squads.
+3. **Team Builder** turns the roster into disjoint PvP, siege, and development squads. Its compact dragon grid supports desktop hover previews and a focused editor drawer for Power, Stars, level, ownership, and Habit ranks.
 4. **Dragon Library** exposes the data and confidence behind each recommendation.
 
 ## Private-by-default roster setup

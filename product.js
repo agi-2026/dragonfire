@@ -676,7 +676,7 @@
     localStorage.setItem(ONBOARDING_KEY, "1");
     const first = roster.find((dragon) => dragon.active);
     document.querySelector("#search").value = "";
-    renderRoster(first?.id);
+    renderRoster();
     closeOnboarding(false);
     routeTo("builder");
     toast(first ? `Roster saved. Starter estimates are applied—customize your strongest dragons next.` : "Empty roster saved. Choose dragons whenever you are ready.");
