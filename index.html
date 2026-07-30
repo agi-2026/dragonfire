@@ -334,7 +334,15 @@ document.querySelector("#rosterList").addEventListener("blur",e=>{if(e.target.da
 <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   window.va("beforeSend", function (event) {
-    try { var url = new URL(event.url); url.search = ""; url.hash = ""; return Object.assign({}, event, { url: url.toString() }); }
+    try {
+      var url = new URL(event.url);
+      var route = url.hash.replace(/^#/, "");
+      var publicRoutes = ["battle", "rankings", "builder", "dragons", "roadmap"];
+      url.pathname = publicRoutes.indexOf(route) >= 0 ? "/" + route : "/";
+      url.search = "";
+      url.hash = "";
+      return Object.assign({}, event, { url: url.toString() });
+    }
     catch (_) { return event; }
   });
 </script>

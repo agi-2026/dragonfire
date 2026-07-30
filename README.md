@@ -31,7 +31,7 @@ Roster data is stored only in browser `localStorage` under `dragonfire-war-counc
 
 Visitor measurement and roster research are deliberately separate:
 
-1. In the Vercel project, open **Analytics**, enable **Web Analytics**, and redeploy. The included `/_vercel/insights/script.js` integration counts privacy-friendly page views and unique visitors. It strips query strings and URL fragments before sending events.
+1. In the Vercel project, open **Analytics**, enable **Web Analytics**, and redeploy. The included `/_vercel/insights/script.js` integration counts privacy-friendly page views and unique visitors. It converts the known app tabs to clean paths such as `/battle` and `/rankings`, while stripping query strings and arbitrary URL fragments.
 2. For opt-in roster snapshots, add a Postgres provider such as Neon from the Vercel Marketplace, run [`schema.sql`](./schema.sql), and confirm that Vercel exposes `DATABASE_URL` to Production and Preview deployments. Redeploy after adding the variable.
 3. The **Contribute roster snapshot** button is the only upload path. It shows a confirmation and sends active dragon name, rarity, Power, Stars, level, Habit levels, the starter-estimate marker, consent version, and model version to `/api/contribute-roster`.
 
