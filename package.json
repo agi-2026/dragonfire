@@ -1,7 +1,7 @@
 {
   "name": "dragonfire-war-council",
   "private": true,
-  "version": "0.7.0",
+  "version": "0.7.1",
   "type": "module",
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1"
