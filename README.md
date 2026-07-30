@@ -8,7 +8,7 @@ An original, static-first PvP research tool for Dragonfire players. The current 
 python3 -m http.server 4173
 ```
 
-Open `http://127.0.0.1:4173`. The site has no build step, backend, account system, analytics, or external asset dependency. A Vercel project can point directly at this directory with the framework preset set to “Other.”
+Open `http://127.0.0.1:4173`. The site has no build step, backend, account system, or analytics. Dragon portraits load from official `gotdragonfire.com` and `news.gotdragonfire.com` image URLs with a local SVG fallback. A Vercel project can point directly at this directory with the framework preset set to “Other.”
 
 ## Product loop
 
@@ -19,16 +19,15 @@ Open `http://127.0.0.1:4173`. The site has no build step, backend, account syste
 
 ## Private-by-default roster setup
 
-New visitors begin with the public dragon catalog and no selected dragons, power values, Habit ranks, or formations. The safe catalog defaults are:
+New visitors begin with the 31 commonly available catalog dragons selected. Sheepstealer and Vermax are separated as limited-release dragons and remain off unless the player opts in. Starter estimates make the simulator usable immediately:
 
-- Legendary: 1 Star, level 40
-- Epic: 2 Stars, level 30
-- Rare: 3 Stars, level 20
-- Power: unset until the player enters it
+- Legendary: 1 Star, level 40, 22,000 estimated power
+- Epic: 2 Stars, level 30, 16,000 estimated power
+- Rare: 3 Stars, level 20, 10,000 estimated power
 
-Roster data is stored only in browser `localStorage` under `dragonfire-war-council-v2`. Restore Defaults returns to this empty, rarity-based catalog. Import/export remains the portable backup mechanism; there is no cloud synchronization.
+Roster data is stored only in browser `localStorage` under `dragonfire-war-council-v3`. Restore Defaults returns to this recommended starter roster. Import/export remains the portable backup mechanism; there is no cloud synchronization. The Team Builder labels estimated power and prompts the player to replace it with in-game values for accurate results.
 
-Dragon portraits are original, deterministic SVG artwork generated locally from each dragon name and rarity. The app does not ship or hotlink official game art.
+Published dragon portraits are displayed from Warner Bros. Games' official Dragonfire catalog and news site. The limited-release dragons retain an original deterministic SVG fallback because no matching portrait is currently published in the official catalog. This implementation includes attribution but does not imply an artwork license or official affiliation.
 
 This follows the useful product loop popularized by matchup simulators such as PvPoke, while keeping the Dragonfire implementation, visual identity, data model, and code original.
 
@@ -71,4 +70,4 @@ Store the mechanics dataset separately from player rosters and tag every rule wi
 - **Growth:** shareable profiles, guild tools, counters and team coverage, supporter page.
 - **Expansion:** heirlooms, upgrade costs, troops, commanders, progression planner.
 
-Do not copy game or third-party site artwork without permission. Original presentation and source-backed data are more defensible for donations, advertising, or an eventual developer partnership.
+Before monetization, obtain written permission or a fan-content license for continued use of official portrait artwork. Attribution alone is not a substitute for licensing.

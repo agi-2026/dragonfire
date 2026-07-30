@@ -441,18 +441,22 @@
   function onboardingDragons() {
     const query = document.querySelector("#onboardingSearch").value.trim().toLowerCase();
     const rarity = document.querySelector("#onboardingRarity").value;
-    return roster.filter((dragon) => (!query || dragon.name.toLowerCase().includes(query)) && (rarity === "all" || dragon.rarity === rarity));
+    return roster.filter((dragon) => !dragon.limited && (!query || dragon.name.toLowerCase().includes(query)) && (rarity === "all" || dragon.rarity === rarity));
+  }
+
+  function onboardingCard(dragon) {
+    const selected = onboardingSelection.has(dragon.id);
+    return `<button class="onboarding-dragon ${selected ? "selected" : ""} ${dragon.limited ? "limited" : ""}" data-onboarding-id="${dragon.id}" aria-pressed="${selected}">${dragonAvatar(dragon,"onboarding-avatar")}<span><b>${esc(dragon.name)}</b><small>${dragon.rarity} · ${dragon.starRank}★ · Lv ${dragon.reignLevel} · ${fmt(dragon.power)} est.</small></span><i>${selected ? "✓" : "+"}</i></button>`;
   }
 
   function renderOnboarding() {
     const dragons = onboardingDragons();
-    document.querySelector("#onboardingGrid").innerHTML = dragons.map((dragon) => {
-      const selected = onboardingSelection.has(dragon.id);
-      return `<button class="onboarding-dragon ${selected ? "selected" : ""}" data-onboarding-id="${dragon.id}" aria-pressed="${selected}">${dragonAvatar(dragon,"onboarding-avatar")}<span><b>${esc(dragon.name)}</b><small>${dragon.rarity} · ${dragon.starRank}★ · Lv ${dragon.reignLevel}</small></span><i>${selected ? "✓" : "+"}</i></button>`;
-    }).join("") || `<div class="onboarding-no-results">No dragons match this search.</div>`;
+    document.querySelector("#onboardingLimitedGrid").innerHTML = roster.filter((dragon) => dragon.limited).map(onboardingCard).join("");
+    document.querySelector("#onboardingGrid").innerHTML = dragons.map(onboardingCard).join("") || `<div class="onboarding-no-results">No common dragons match this filter.</div>`;
     const count = onboardingSelection.size;
-    document.querySelector("#onboardingCount").textContent = `${count} selected`;
-    document.querySelector("#saveOnboarding").textContent = count ? `Save ${count} & edit stats` : "Save empty roster";
+    const limitedCount = roster.filter((dragon) => dragon.limited && onboardingSelection.has(dragon.id)).length;
+    document.querySelector("#onboardingCount").textContent = `${count} selected${limitedCount ? ` · ${limitedCount} limited` : ""}`;
+    document.querySelector("#saveOnboarding").textContent = count ? `Continue with ${count} dragons` : "Continue with empty roster";
   }
 
   function openOnboarding() {
@@ -471,13 +475,13 @@
     if (markSeen) localStorage.setItem(ONBOARDING_KEY, "1");
   }
 
-  document.querySelector("#onboardingGrid").addEventListener("click", (event) => {
+  ["onboardingGrid", "onboardingLimitedGrid"].forEach((gridId) => document.querySelector(`#${gridId}`).addEventListener("click", (event) => {
     const button = event.target.closest("[data-onboarding-id]");
     if (!button) return;
     const id = button.dataset.onboardingId;
     if (onboardingSelection.has(id)) onboardingSelection.delete(id); else onboardingSelection.add(id);
     renderOnboarding();
-  });
+  }));
   document.querySelector("#onboardingSearch").addEventListener("input", renderOnboarding);
   document.querySelector("#onboardingRarity").addEventListener("change", renderOnboarding);
   document.querySelector("#selectVisible").addEventListener("click", () => { onboardingDragons().forEach((dragon) => onboardingSelection.add(dragon.id)); renderOnboarding(); });
@@ -493,13 +497,13 @@
     renderRoster(first?.id);
     closeOnboarding(false);
     routeTo("builder");
-    toast(first ? `${onboardingSelection.size} dragons selected. Add power and Habit levels next.` : "Empty roster saved. Choose dragons whenever you are ready.");
+    toast(first ? `Roster saved. Starter estimates are applied—customize your strongest dragons next.` : "Empty roster saved. Choose dragons whenever you are ready.");
   });
   document.querySelector("#importOnboarding").addEventListener("click", () => document.querySelector("#fileInput").click());
   document.querySelector("#setupRosterBtn").addEventListener("click", openOnboarding);
   document.querySelector("#emptySetupBtn").addEventListener("click", openOnboarding);
   document.addEventListener("click", (event) => { if (event.target.closest(".open-roster-setup")) openOnboarding(); });
-  document.querySelector("#resetBtn").addEventListener("click", () => setTimeout(() => { if (roster.every((dragon) => !dragon.active && dragon.power === 0)) { localStorage.removeItem(ONBOARDING_KEY); openOnboarding(); } }, 0));
+  document.addEventListener("roster-reset", () => { localStorage.removeItem(ONBOARDING_KEY); openOnboarding(); });
   document.querySelector("#fileInput").addEventListener("change", (event) => { if (event.target.files[0]) { localStorage.setItem(ONBOARDING_KEY, "1"); closeOnboarding(false); } });
 
   const initialRoute = ROUTES.has(location.hash.slice(1)) ? location.hash.slice(1) : "home";
