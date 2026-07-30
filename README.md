@@ -29,6 +29,8 @@ npm run check       # validate the catalog and JavaScript syntax
 
 The factual snapshot uses the public [Wyrmtable dragon API](https://wyrmtable.com/api/dragons) and the [official Dragon guide](https://news.gotdragonfire.com/a-guide-to-dragons/) for system semantics. No competing site's interface, code, ranking algorithm, or branding is copied. Unknown mechanic formulas use the publication policy `exclude-from-competitive-ranking`.
 
+The feature-parity boundary and implementation sequence are documented in [`docs/competitive-parity.md`](./docs/competitive-parity.md).
+
 ## Private-by-default roster setup
 
 New visitors begin with the 31 commonly available catalog dragons selected. Sheepstealer and Vermax are separated as limited-release dragons and remain off unless the player opts in. Starter estimates make the simulator usable immediately:

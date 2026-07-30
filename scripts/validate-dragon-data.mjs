@@ -1,10 +1,16 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import vm from "node:vm";
 
 const path = resolve("data/dragon-catalog.v1.json");
 const catalog = JSON.parse(await readFile(path, "utf8"));
+const html = await readFile(resolve("index.html"), "utf8");
 const errors = [];
 const expectedUnlocks = [2, 4, 6, 8, 10];
+const habitSourceMatch = html.match(/const HN=(\{[\s\S]*?\});\nconst HD=/);
+const embeddedHabitNames = habitSourceMatch ? vm.runInNewContext(`(${habitSourceMatch[1]})`) : {};
+
+if (!habitSourceMatch) errors.push("Could not find the embedded English Habit-name fallback");
 
 if (catalog.schema !== "dragonfire-war-council/dragon-catalog-v1") errors.push("Unexpected catalog schema");
 if (catalog.dragons?.length !== 33) errors.push(`Expected 33 dragons, got ${catalog.dragons?.length ?? 0}`);
@@ -22,6 +28,7 @@ for (const dragon of catalog.dragons || []) {
   if (dragon.habits?.length !== 5) errors.push(`${dragon.name}: expected 5 Habits`);
   dragon.habits?.forEach((habit, index) => {
     if (habit.slot !== index + 1 || habit.unlockStar !== expectedUnlocks[index]) errors.push(`${dragon.name}: invalid Habit ${index + 1} unlock`);
+    if (habit.name !== embeddedHabitNames[dragon.name]?.[index]) errors.push(`${dragon.name}: embedded Habit ${index + 1} does not match the canonical English name`);
   });
 }
 

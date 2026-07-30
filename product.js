@@ -20,6 +20,10 @@
       if (!Array.isArray(catalog.dragons) || catalog.dragons.length !== 33) throw new Error("Catalog failed its 33-dragon integrity check");
       canonicalCatalog = catalog;
       canonicalByName = new Map(catalog.dragons.map((dragon) => [dragon.name, dragon]));
+      catalog.dragons.forEach((dragon) => {
+        HN[dragon.name] = dragon.habits.map((habit) => habit.name);
+      });
+      renderRoster();
     } catch (error) {
       canonicalCatalogError = error;
     }
@@ -557,7 +561,7 @@
     button.disabled = true;
     status.textContent = "Sending…";
     try {
-      const response = await fetch("/api/contribute-roster", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modelVersion: "0.8.0", consentVersion: "2026-07-29", roster: active }) });
+      const response = await fetch("/api/contribute-roster", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modelVersion: "0.8.1", consentVersion: "2026-07-29", roster: active }) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Contribution service is not connected yet");
       status.textContent = "Thank you — snapshot received.";

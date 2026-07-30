@@ -13,7 +13,7 @@
     @media(max-width:620px){.shell{padding:0 10px 28px}.topbar{margin:0 -10px 12px;padding:12px 10px;align-items:flex-start}.brand p{display:none}.actions .btn{padding:8px}.btn span{display:none}.optimizer-controls,.lanes{grid-template-columns:1fr}.lane{min-height:92px}.grid3{grid-template-columns:1fr}.summary-strip{grid-template-columns:1fr 1fr}}
     .dragon-name,.dragon-meta{display:block}.habit-row{grid-template-columns:1fr 72px 72px}.impact-input{padding:7px 5px;text-align:center}
   </style>
-  <link rel="stylesheet" href="product.css?v=0.8.0">
+  <link rel="stylesheet" href="product.css?v=0.8.1">
 </head>
 <body>
 <div class="shell">
@@ -160,39 +160,39 @@ const TROOPS={cavalry:"🐎 Cavalry",shieldbearers:"🛡️ Shieldbearers",arche
 const POSITIONS=["Left flank","Vanguard","Right flank"];
 const RARITY_WEIGHT={legendary:1.12,epic:1.06,rare:1};
 const HN={
+  Antares:["Blazing Onslaught","Dragon's Flair","Fiery Precision","Dragon's Intellect","Redemption"],
+  Arrax:["Headlong Into Danger","Stone Bulwark","Adaptive Guard","Fire Ward","Turn the Line"],
+  Arulix:["Hypnotic Helix","Battle Cunning","Spiral Surge","Iron Shell","Mimicry"],
+  Bevlorin:["Fire Ward","Dragon's Fury","Renewal","Vital Essence","Bountiful Gifts"],
+  Caraxes:["Battle Dread","Dragon's Flair","Crippling Inferno","Mass Enfeeble","Blood Wyrm"],
+  Crimson:["Enervate","Dragon's Intellect","Bloodscale Fury","Unlikely Hero","Vermin's Bane"],
+  Daemoros:["Instill Fear","Powerful Reflexes","Shroud of Shadows","Darkening Fear","Phantom's Veil"],
+  Dawnseeker:["Tactical Inferno","Unbroken Devotion","Sunbreak","Wind's Favor","First Light"],
+  Feskar:["Resilient Bond","Insightful Allies","Emerald Inferno","Quick-Witted","Unyielding Grasp"],
+  Jagadrix:["Enervate","Second Wind","Whispering Sabotage","Quick-Witted","Echoes of Deceit"],
+  Kalspire:["Robust Insight","Battle Cunning","Tactical Assault","Dragon's Insight","Radiant Conqueror"],
+  Malachite:["Forest's Instinct","Wise Vigor","Thunderous Roar","Collective Might","Lightning Strike"],
+  Nyrena:["Battle Dread","Mindful Synergy","Deepen the Breach","Dragon's Ire","The Long Siege"],
+  Rhysarion:["Ebbing Fury","Sharp Resolve","Echoing Melody","Unbroken Devotion","Inspiring Melody"],
+  Seasmoke:["Clever Maneuver","Wind's Favor","Infectious Wrath","Cunning Ferocity","Loyal Bond"],
+  Shadowrend:["Midnight Aura","Nimble Resilience","Fueled by Darkness","Midnight Mastery","Event Horizon"],
+  Shadowsong:["Ensnare","Blazing Onslaught","Scorched Earth","Dragon's Intellect","Blazing Conductor"],
+  Sheepstealer:["Stolen Flock","Dragon's Cunning","Baited Kill","Wary Beast","Savage Claim"],
+  Shimmer:["Crushing Force","Dragon's Insight","Loyal Shield","Unbroken Devotion","Sneak Attack"],
+  Solstryker:["Steady Erosion","Energy Drain","Oppressive Onslaught","Robust Insight","Amplified Drain"],
   Sunfyre:["Radiant Majesty","Extinguish","The King's Ire","Unbroken Splendor","Adaptive Glory"],
-  Tairax:["Whisper of Ash","Sunder","Gleamstrike","Gift of Fire","Moonlit Hunt"],
-  Tessarion:["Sharpened Beauty","Blazing Leader","Molten Armor","Clever Maneuver","The Blue Queen"],
-  Vhagar:["Ancestral Shield","Battle Leader","Eclipse Cover","Flaming Assault","Titan of the Sky"],
-  Kalspire:["Sturdy Insight","Battle Cunning","Tactical Assault","Dragon Insight","Radiant Conqueror"],
-  Venator:["Hunter's Bane","Dragon Power","Feral Precision","Armor Break","Desperate Ambush"],
   Syrax:["Mindful Synergy","Flight Mastery","Strategic Revival","Tactical Inferno","Mother's Mercy"],
-  Shadowsong:["Ensnare","Flaming Assault","Scorched Earth","Dragon Intellect","Flame Conductor"],
-  Crimson:["Enervate","Dragon Intellect","Bloodscale Fury","Unlikely Hero","Scourge of Vermin"],
-  Zivern:["Battle Mastery","Sharp Instinct","Fearsome Reach","Steel Veil","Mantle of Terror"],
-  Vaeldra:["Dragon's Valor","Ensnare","Tempting Distraction","Inner Strength","Siren's Call"],
-  Caraxes:["Battle Dread","Dragon Style","Crippling Inferno","Mass Enfeeblement","Blood Wyvern"],
-  Malachite:["Forest's Instinct","Wise Vigor","Thunderous Roar","Collective Power","Lightning"],
-  Seasmoke:["Steady Suppression","Dragon Insight","Protective Counter","Allied Resistance","Lasting Bulwark"],
-  Tashix:["Enervate","Dragon Cunning","Clever Ruse","War Stratagem","Veiled Ambush"],
-  Feskar:["Resilient Bond","Insightful Allies","Emerald Inferno","Resourceful","Unbreakable Grip"],
-  Rhysarion:["Waning Fury","Keen Resolve","Resonant Melody","Unwavering Devotion","Inspiring Melody"],
-  Shadowrend:["Midnight Aura","Agile Resilience","Darkness-Fueled","Midnight Mastery","Event Horizon"],
-  Nyrena:["Battle Terror","Mindful Synergy","Widen the Breach","Dragon's Wrath","The Long Siege"],
-  Jagadrix:["Enervate","Second Wind","Whispered Sabotage","Resourceful","Echoes of Deceit"],
-  Daemoros:["Instill Fear","Powerful Reflexes","Veil of Shadows","Shadowed Fear","Phantom Veil"],
-  Vesper:["Strategic Leader","Dragon Insight","Savior's Waltz","Insightful Allies","Midnight Charge"],
-  Dawnseeker:["Tactical Inferno","Unwavering Devotion","Sunbeam","Wind's Favor","First Light"],
-  Shimmer:["Crushing Strength","Dragon Insight","Loyal Shield","Unwavering Devotion","Sneak Attack"],
-  Thunderstrike:["Battle Stampede","Dragon Power","Barbed Whip","Armor Break","Overwhelming Assault"],
-  Arrax:["Rush Into Danger","Stone Bulwark","Adaptive Guard","Fire Protection","Line Change"],
-  Antares:["Flaming Assault","Dragon Style","Burning Precision","Dragon Intellect","Redemption"],
-  Arulix:["Hypnotic Helix","Battle Cunning","Spiral Surge","Iron Carapace","Mimicry"],
-  Bevlorin:["Fire Protection","Dragon Fury","Renewal","Vital Essence","Bountiful Gifts"],
-  Velar:["Strategic Leader","Quick Reflexes","Gale of Power","Fierce Unity","Breath of Renewal"],
-  Solstryker:["Constant Erosion","Energy Drain","Oppressive Charge","Sturdy Insight","Amplified Drain"],
-  Vermax:["Trial by Fire","Reactive Instinct","Unifying Flame","Dragon's Valor","Steadfast Resolve"],
-  Sheepstealer:["Stolen Flock","Dragon Cunning","Baited Slaughter","Cautious Beast","Wild Claim"]
+  Tairax:["Whisper of Ash","Sunder","Gleamstrike","Gift of Fire","Moonlit Hunt"],
+  Tashix:["Enervate","Dragon's Cunning","Cunning Ruse","Battle Guile","Veiled Ambush"],
+  Tessarion:["Sharpened Beauty","Blazing Leader","Molten Armor","Clever Maneuver","The Blue Queen"],
+  Thunderstrike:["Battle Rush","Dragon's Might","Barbed Lash","Armor Break","Staggering Assault"],
+  Vaeldra:["Dragon's Valor","Ensnare","Tempting Distraction","Infernal Force","Siren's Call"],
+  Velar:["Strategic Leader","Quick Reflexes","Gales of Power","Fierce Unity","Breath of Renewal"],
+  Venator:["Hunter's Bane","Dragon's Might","Feral Precision","Armor Break","Desperate Ambush"],
+  Vermax:["Trial by Flame","Reactive Instincts","Rallying Flame","Dragon's Valor","Unyielding Resolve"],
+  Vesper:["Strategic Leader","Dragon Insight","Savior's Waltz","Insightful Allies","Midnight Onslaught"],
+  Vhagar:["Ancestral Shield","Battle Leader","Eclipse Cover","Blazing Onslaught","Skyward Titan"],
+  Zivern:["Battle Mastery","Keen Instinct","Fearsome Reach","Steel Shroud","Cloak of Terror"]
 };
 const HD={
   "Vhagar:0":"Rounds 1–3 physical/tactical mitigation; improved recovery from round 4.","Vhagar:1":"Buffs one right-flank physical ally for the full combat.",
@@ -385,6 +385,6 @@ document.querySelector("#search").addEventListener("input",()=>{hideDragonHover(
   });
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
-<script src="product.js?v=0.8.0"></script>
+<script src="product.js?v=0.8.1"></script>
 </body>
 </html>
