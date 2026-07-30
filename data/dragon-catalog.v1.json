@@ -1,0 +1,2262 @@
+{
+  "schema": "dragonfire-war-council/dragon-catalog-v1",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-30T06:31:42.255Z",
+  "gameDataAsOf": "2026-07-29",
+  "policy": {
+    "unknownMechanics": "exclude-from-competitive-ranking",
+    "playerModifiersIncluded": false,
+    "notes": "Base attributes are community-sourced level-one values. Stronghold, Heirloom, Realm, Star, and Reign-level modifiers are not included."
+  },
+  "sources": [
+    {
+      "id": "wyrmtable-public-api",
+      "type": "community-database",
+      "url": "https://wyrmtable.com/api/dragons",
+      "fields": [
+        "identity",
+        "rarity",
+        "breed",
+        "baseStats",
+        "affinities",
+        "habitNames",
+        "vanguardText"
+      ],
+      "verification": "Source states that values were checked against live game data; Dragonfire War Council has not independently reproduced every value."
+    },
+    {
+      "id": "official-dragon-guide",
+      "type": "official-mechanics-guide",
+      "url": "https://news.gotdragonfire.com/a-guide-to-dragons/",
+      "fields": [
+        "statSemantics",
+        "commands",
+        "habits",
+        "reignLevel",
+        "starRank"
+      ],
+      "verification": "Authoritative for system semantics, not a complete numeric dragon table."
+    }
+  ],
+  "dragons": [
+    {
+      "id": "caraxes",
+      "name": "Caraxes",
+      "rarity": "Legendary",
+      "breed": "Hunter",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 51,
+        "instinct": 37,
+        "intelligence": 67,
+        "initiative": 57
+      },
+      "affinities": {
+        "positive": [
+          "spearmen",
+          "cavalry"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Fire Dmg +16% | Strength +20, Initiative +20 to Right Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Battle Dread",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Dragon's Flair",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Crippling Inferno",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Mass Enfeeble",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Blood Wyrm",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "crimson",
+      "name": "Crimson",
+      "rarity": "Legendary",
+      "breed": "Hunter",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 55,
+        "instinct": 51,
+        "intelligence": 63,
+        "initiative": 50
+      },
+      "affinities": {
+        "positive": [
+          "spearmen",
+          "archers",
+          "siege"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Recovery +20%, Intelligence +25 | Physical Dmg +10% to Right Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Enervate",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Dragon's Intellect",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Bloodscale Fury",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Unlikely Hero",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Vermin's Bane",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "kalspire",
+      "name": "Kalspire",
+      "rarity": "Legendary",
+      "breed": "Champion",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 61,
+        "instinct": 63,
+        "intelligence": 41,
+        "initiative": 47
+      },
+      "affinities": {
+        "positive": [
+          "cavalry",
+          "shieldbearers",
+          "siege"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Strength +15, Intelligence +15, Instinct +15 | Dmg Received -8% to Right Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Robust Insight",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Battle Cunning",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Tactical Assault",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Dragon's Insight",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Radiant Conqueror",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "malachite",
+      "name": "Malachite",
+      "rarity": "Legendary",
+      "breed": "Sentinel",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 52,
+        "instinct": 61,
+        "intelligence": 48,
+        "initiative": 55
+      },
+      "affinities": {
+        "positive": [
+          "cavalry",
+          "shieldbearers"
+        ],
+        "negative": [
+          "siege"
+        ]
+      },
+      "vanguard": {
+        "text": "Recovery +15%, Instinct +25 | Fire Dmg +16% to Left Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Forest's Instinct",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Wise Vigor",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Thunderous Roar",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Collective Might",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Lightning Strike",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "seasmoke",
+      "name": "Seasmoke",
+      "rarity": "Legendary",
+      "breed": "Champion",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 52,
+        "instinct": 49,
+        "intelligence": 57,
+        "initiative": 60
+      },
+      "affinities": {
+        "positive": [
+          "cavalry",
+          "archers"
+        ],
+        "negative": [
+          "siege"
+        ]
+      },
+      "vanguard": {
+        "text": "Strength +15, Intelligence +15, Instinct +15 | Dmg Received -8 to Right Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Clever Maneuver",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Wind's Favor",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Infectious Wrath",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Cunning Ferocity",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Loyal Bond",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "sheepstealer",
+      "name": "Sheepstealer",
+      "rarity": "Legendary",
+      "breed": "Hunter",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 56,
+        "instinct": 45,
+        "intelligence": 62,
+        "initiative": 52
+      },
+      "affinities": {
+        "positive": [
+          "cavalry",
+          "archers"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Recovery Received +20%, Intelligence +25 | Physical Dmg +10% to Right Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Stolen Flock",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Dragon's Cunning",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Baited Kill",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Wary Beast",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Savage Claim",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "sunfyre",
+      "name": "Sunfyre",
+      "rarity": "Legendary",
+      "breed": "Sentinel",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 45,
+        "instinct": 62,
+        "intelligence": 57,
+        "initiative": 51
+      },
+      "affinities": {
+        "positive": [
+          "spearmen",
+          "cavalry"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Strength +18, Dmg Dealt +12% | Strength +22 to Right Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Radiant Majesty",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Extinguish",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "The King's Ire",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Unbroken Splendor",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Adaptive Glory",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "syrax",
+      "name": "Syrax",
+      "rarity": "Legendary",
+      "breed": "Sentinel",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 41,
+        "instinct": 59,
+        "intelligence": 50,
+        "initiative": 64
+      },
+      "affinities": {
+        "positive": [
+          "spearmen",
+          "archers"
+        ],
+        "negative": [
+          "siege"
+        ]
+      },
+      "vanguard": {
+        "text": "Tactical Dmg +16% | Instinct +20, Initiative +20 to Left Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Mindful Synergy",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Flight Mastery",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Strategic Revival",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Tactical Inferno",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Mother's Mercy",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "venator",
+      "name": "Venator",
+      "rarity": "Legendary",
+      "breed": "Warrior",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 64,
+        "instinct": 48,
+        "intelligence": 45,
+        "initiative": 53
+      },
+      "affinities": {
+        "positive": [
+          "spearmen",
+          "shieldbearers"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Physical Dmg (Command & Habits) +16% | Instinct +20, Initiative +20 to Left Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Hunter's Bane",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Dragon's Might",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Feral Precision",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Armor Break",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Desperate Ambush",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "vhagar",
+      "name": "Vhagar",
+      "rarity": "Legendary",
+      "breed": "Warrior",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 60,
+        "instinct": 63,
+        "intelligence": 44,
+        "initiative": 50
+      },
+      "affinities": {
+        "positive": [
+          "shieldbearers",
+          "archers",
+          "siege"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Dmg Received -8% | Tactical Dmg +16 to Left Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Ancestral Shield",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Battle Leader",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Eclipse Cover",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Blazing Onslaught",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Skyward Titan",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "daemoros",
+      "name": "Daemoros",
+      "rarity": "Epic",
+      "breed": "Warrior",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 62,
+        "instinct": 48,
+        "intelligence": 41,
+        "initiative": 55
+      },
+      "affinities": {
+        "positive": [
+          "archers"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Physical Dmg +16% | Instinct +20, Initiative +20 to Left Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Instill Fear",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Powerful Reflexes",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Shroud of Shadows",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Darkening Fear",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Phantom's Veil",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "feskar",
+      "name": "Feskar",
+      "rarity": "Epic",
+      "breed": "Champion",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 34,
+        "instinct": 58,
+        "intelligence": 58,
+        "initiative": 58
+      },
+      "affinities": {
+        "positive": [
+          "cavalry"
+        ],
+        "negative": [
+          "siege"
+        ]
+      },
+      "vanguard": {
+        "text": "Strength +15, Intelligence +15, Instinct +15 | Dmg Received -8% to Right Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Resilient Bond",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Insightful Allies",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Emerald Inferno",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Quick-Witted",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Unyielding Grasp",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "rhysarion",
+      "name": "Rhysarion",
+      "rarity": "Epic",
+      "breed": "Champion",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 59,
+        "instinct": 47,
+        "intelligence": 61,
+        "initiative": 41
+      },
+      "affinities": {
+        "positive": [
+          "spearmen",
+          "shieldbearers",
+          "siege"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Recovery +15%, Initiative +25 | Dmg Dealt +8% to Right Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Ebbing Fury",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Sharp Resolve",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Echoing Melody",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Unbroken Devotion",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Inspiring Melody",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "shadowsong",
+      "name": "Shadowsong",
+      "rarity": "Epic",
+      "breed": "Hunter",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 52,
+        "instinct": 46,
+        "intelligence": 61,
+        "initiative": 47
+      },
+      "affinities": {
+        "positive": [
+          "cavalry"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Fire Dmg +16% | Strength +20, Initiative +20 to Right Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Ensnare",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Blazing Onslaught",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Scorched Earth",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Dragon's Intellect",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Blazing Conductor",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "tairax",
+      "name": "Tairax",
+      "rarity": "Epic",
+      "breed": "Hunter",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 57,
+        "instinct": 36,
+        "intelligence": 64,
+        "initiative": 48
+      },
+      "affinities": {
+        "positive": [
+          "cavalry",
+          "shieldbearers",
+          "siege"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Fire Dmg +10% | Intelligence +12 to Left Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Whisper of Ash",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Sunder",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Gleamstrike",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Gift of Fire",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Moonlit Hunt",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "tashix",
+      "name": "Tashix",
+      "rarity": "Epic",
+      "breed": "Hunter",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 49,
+        "instinct": 37,
+        "intelligence": 60,
+        "initiative": 60
+      },
+      "affinities": {
+        "positive": [
+          "archers"
+        ],
+        "negative": [
+          "siege"
+        ]
+      },
+      "vanguard": {
+        "text": "Recovery Received +20%, Intelligence +25 | Physical Dmg +10% to Right Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Enervate",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Dragon's Cunning",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Cunning Ruse",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Battle Guile",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Veiled Ambush",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "tessarion",
+      "name": "Tessarion",
+      "rarity": "Epic",
+      "breed": "Champion",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 55,
+        "instinct": 48,
+        "intelligence": 56,
+        "initiative": 50
+      },
+      "affinities": {
+        "positive": [
+          "cavalry",
+          "spearmen",
+          "siege"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Strength +15, Intelligence +15, Instinct +15 | Dmg Received -8% to Right Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Sharpened Beauty",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Blazing Leader",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Molten Armor",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Clever Maneuver",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "The Blue Queen",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "vaeldra",
+      "name": "Vaeldra",
+      "rarity": "Epic",
+      "breed": "Warrior",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 59,
+        "instinct": 56,
+        "intelligence": 45,
+        "initiative": 49
+      },
+      "affinities": {
+        "positive": [
+          "spearmen"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Dmg Received -8% | Tactical Dmg +16% to Left Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Dragon's Valor",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Ensnare",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Tempting Distraction",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Infernal Force",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Siren's Call",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "velar",
+      "name": "Velar",
+      "rarity": "Epic",
+      "breed": "Sentinel",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 43,
+        "instinct": 60,
+        "intelligence": 49,
+        "initiative": 55
+      },
+      "affinities": {
+        "positive": [
+          "shieldbearers"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Tactical Dmg +16% | Instinct +20, Initiative +20 to Left Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Strategic Leader",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Quick Reflexes",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Gales of Power",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Fierce Unity",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Breath of Renewal",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "vermax",
+      "name": "Vermax",
+      "rarity": "Epic",
+      "breed": "Warrior",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 60,
+        "instinct": 45,
+        "intelligence": 43,
+        "initiative": 58
+      },
+      "affinities": {
+        "positive": [
+          "cavalry",
+          "shieldbearers"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Physical Dmg (Command & Habits) +16% | Instinct & Initiative +20 to Left Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Trial by Flame",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Reactive Instincts",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Rallying Flame",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Dragon's Valor",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Unyielding Resolve",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "zivern",
+      "name": "Zivern",
+      "rarity": "Epic",
+      "breed": "Sentinel",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 46,
+        "instinct": 63,
+        "intelligence": 53,
+        "initiative": 45
+      },
+      "affinities": {
+        "positive": [
+          "archers",
+          "siege"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Tactical Dmg +16% | Instinct +20, Initiative +20 to Left Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Battle Mastery",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Keen Instinct",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Fearsome Reach",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Steel Shroud",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Cloak of Terror",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "antares",
+      "name": "Antares",
+      "rarity": "Rare",
+      "breed": "Hunter",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 48,
+        "instinct": 35,
+        "intelligence": 57,
+        "initiative": 55
+      },
+      "affinities": {
+        "positive": [
+          "archers"
+        ],
+        "negative": [
+          "siege"
+        ]
+      },
+      "vanguard": {
+        "text": "Fire Dmg +16% | Strength +20, Initiative +20 to Right Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Blazing Onslaught",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Dragon's Flair",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Fiery Precision",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Dragon's Intellect",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Redemption",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "arrax",
+      "name": "Arrax",
+      "rarity": "Rare",
+      "breed": "Warrior",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 53,
+        "instinct": 54,
+        "intelligence": 42,
+        "initiative": 48
+      },
+      "affinities": {
+        "positive": [
+          "shieldbearers",
+          "archers"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Dmg Received -8% | Tactical Dmg +16% to Left Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Headlong Into Danger",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Stone Bulwark",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Adaptive Guard",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Fire Ward",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Turn the Line",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "arulix",
+      "name": "Arulix",
+      "rarity": "Rare",
+      "breed": "Champion",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 55,
+        "instinct": 58,
+        "intelligence": 38,
+        "initiative": 43
+      },
+      "affinities": {
+        "positive": [
+          "cavalry"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Strength, Intelligence, Instinct +15 | Dmg Received -8% to Right Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Hypnotic Helix",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Battle Cunning",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Spiral Surge",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Iron Shell",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Mimicry",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "bevlorin",
+      "name": "Bevlorin",
+      "rarity": "Rare",
+      "breed": "Champion",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 55,
+        "instinct": 38,
+        "intelligence": 58,
+        "initiative": 46
+      },
+      "affinities": {
+        "positive": [
+          "spearmen"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Dmg Received -8% | Tactical Dmg +16% to Left Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Fire Ward",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Dragon's Fury",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Renewal",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Vital Essence",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Bountiful Gifts",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "dawnseeker",
+      "name": "Dawnseeker",
+      "rarity": "Rare",
+      "breed": "Sentinel",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 44,
+        "instinct": 54,
+        "intelligence": 42,
+        "initiative": 56
+      },
+      "affinities": {
+        "positive": [
+          "spearmen"
+        ],
+        "negative": [
+          "siege"
+        ]
+      },
+      "vanguard": {
+        "text": "Recovery +15%, Instinct +25 | Fire Dmg +16% to Left Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Tactical Inferno",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Unbroken Devotion",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Sunbreak",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Wind's Favor",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "First Light",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "jagadrix",
+      "name": "Jagadrix",
+      "rarity": "Rare",
+      "breed": "Hunter",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 37,
+        "instinct": 45,
+        "intelligence": 59,
+        "initiative": 53
+      },
+      "affinities": {
+        "positive": [
+          "spearmen"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Fire Dmg +16% | Strength +20, Initiative +20 to Right Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Enervate",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Second Wind",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Whispering Sabotage",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Quick-Witted",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Echoes of Deceit",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "nyrena",
+      "name": "Nyrena",
+      "rarity": "Rare",
+      "breed": "Champion",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 55,
+        "instinct": 58,
+        "intelligence": 38,
+        "initiative": 43
+      },
+      "affinities": {
+        "positive": [
+          "shieldbearers",
+          "siege"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Strength, Intelligence, Instinct +15 | Dmg Received -8% to Right Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Battle Dread",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Mindful Synergy",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Deepen the Breach",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Dragon's Ire",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "The Long Siege",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "shadowrend",
+      "name": "Shadowrend",
+      "rarity": "Rare",
+      "breed": "Warrior",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 57,
+        "instinct": 57,
+        "intelligence": 41,
+        "initiative": 41
+      },
+      "affinities": {
+        "positive": [
+          "shieldbearers",
+          "siege"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Fire Dmg +16% | Instinct +20, Initiative +20 to Left Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Midnight Aura",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Nimble Resilience",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Fueled by Darkness",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Midnight Mastery",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Event Horizon",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "shimmer",
+      "name": "Shimmer",
+      "rarity": "Rare",
+      "breed": "Sentinel",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 47,
+        "instinct": 60,
+        "intelligence": 45,
+        "initiative": 42
+      },
+      "affinities": {
+        "positive": [
+          "cavalry",
+          "siege"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Recovery +15%, Instinct +25 | Fire Dmg +16% to Left Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Crushing Force",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Dragon's Insight",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Loyal Shield",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Unbroken Devotion",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Sneak Attack",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "solstryker",
+      "name": "Solstryker",
+      "rarity": "Rare",
+      "breed": "Champion",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 53,
+        "instinct": 57,
+        "intelligence": 39,
+        "initiative": 46
+      },
+      "affinities": {
+        "positive": [
+          "archers"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Strength +15, Intelligence +15, Instinct +15 | Dmg Received -8% to Right Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Steady Erosion",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Energy Drain",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Oppressive Onslaught",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Robust Insight",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Amplified Drain",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "thunderstrike",
+      "name": "Thunderstrike",
+      "rarity": "Rare",
+      "breed": "Warrior",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 58,
+        "instinct": 43,
+        "intelligence": 39,
+        "initiative": 52
+      },
+      "affinities": {
+        "positive": [
+          "cavalry"
+        ],
+        "negative": []
+      },
+      "vanguard": {
+        "text": "Physical Dmg (Command & Habits) +16% | Instinct +20, Initiative +20 to Left Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Battle Rush",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Dragon's Might",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Barbed Lash",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Armor Break",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Staggering Assault",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    },
+    {
+      "id": "vesper",
+      "name": "Vesper",
+      "rarity": "Rare",
+      "breed": "Sentinel",
+      "baseLevel": 1,
+      "baseStats": {
+        "strength": 40,
+        "instinct": 57,
+        "intelligence": 44,
+        "initiative": 55
+      },
+      "affinities": {
+        "positive": [
+          "shieldbearers"
+        ],
+        "negative": [
+          "siege"
+        ]
+      },
+      "vanguard": {
+        "text": "Tactical Dmg +16% | Instinct +20, Initiative +20 to Left Flank",
+        "structuredEffectsStatus": "unverified"
+      },
+      "command": {
+        "text": null,
+        "structuredEffectsStatus": "missing"
+      },
+      "habits": [
+        {
+          "slot": 1,
+          "name": "Strategic Leader",
+          "unlockStar": 2,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 2,
+          "name": "Dragon Insight",
+          "unlockStar": 4,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 3,
+          "name": "Savior's Waltz",
+          "unlockStar": 6,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 4,
+          "name": "Insightful Allies",
+          "unlockStar": 8,
+          "levelEffectsStatus": "unverified"
+        },
+        {
+          "slot": 5,
+          "name": "Midnight Onslaught",
+          "unlockStar": 10,
+          "levelEffectsStatus": "unverified"
+        }
+      ],
+      "evidence": {
+        "confidence": "community-sourced",
+        "sourceIds": [
+          "wyrmtable-public-api"
+        ],
+        "independentlyVerified": false
+      }
+    }
+  ]
+}

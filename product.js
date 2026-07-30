@@ -6,8 +6,26 @@
   };
   const battleOverrides = { a: null, b: null };
   const SAVED_FORMATIONS_KEY = "dragonfire-saved-formations-v1";
-  let metaBenchmarkCache = null;
+  const CATALOG_URL = "/data/dragon-catalog.v1.json?v=1";
+  let canonicalCatalog = null;
+  let canonicalCatalogError = null;
+  let canonicalByName = new Map();
   let onboardingSelection = new Set();
+
+  async function loadCanonicalCatalog() {
+    try {
+      const response = await fetch(CATALOG_URL, { headers: { accept: "application/json" } });
+      if (!response.ok) throw new Error(`Catalog request failed (${response.status})`);
+      const catalog = await response.json();
+      if (!Array.isArray(catalog.dragons) || catalog.dragons.length !== 33) throw new Error("Catalog failed its 33-dragon integrity check");
+      canonicalCatalog = catalog;
+      canonicalByName = new Map(catalog.dragons.map((dragon) => [dragon.name, dragon]));
+    } catch (error) {
+      canonicalCatalogError = error;
+    }
+    if (document.body.dataset.route === "rankings") renderRankings();
+    if (document.body.dataset.route === "dragons") renderLibrary();
+  }
 
   function routeTo(route, updateHash = true) {
     if (!ROUTES.has(route)) route = "home";
@@ -137,6 +155,7 @@
   }
 
   function applyFormation(side, formation) {
+    if (formation.mode === "maxed") return toast("Maxed projections are paused until rarity Power curves are verified", true);
     const sources = formation.dragonNames.map((name) => (formation.mode === "maxed" ? DEFAULT_ROSTER : roster).find((dragon) => dragon.name === name)).filter(Boolean);
     if (sources.length !== 3) return toast("One or more dragons are unavailable", true);
     battleState[side] = sources.map((dragon) => dragon.name);
@@ -429,100 +448,63 @@
 
   document.querySelector("#runBattle").addEventListener("click", simulateMatchup);
 
-  function buildMetaBenchmark() {
-    if (metaBenchmarkCache) return metaBenchmarkCache;
-    const pool = DEFAULT_ROSTER.map(maxedDragon);
-    const troops = Object.keys(TROOPS).filter((troop) => troop !== "siege");
-    const formations = [];
-    for (let first = 0; first < pool.length - 2; first += 1) {
-      for (let second = first + 1; second < pool.length - 1; second += 1) {
-        for (let third = second + 1; third < pool.length; third += 1) {
-          const trio = [pool[first], pool[second], pool[third]];
-          let best = null;
-          for (const permutation of PERMS) {
-            const order = permutation.map((index) => trio[index]);
-            for (const troop of troops) {
-              const score = scoreOrder(order, troop, "pvp", false).score;
-              if (!best || score > best.score) best = { dragons: order, troop, score };
-            }
-          }
-          formations.push(best);
-        }
-      }
-    }
-    formations.sort((a, b) => b.score - a.score);
-    const top100 = formations.slice(0, 100);
-    const rows = pool.map((dragon) => {
-      const containing = formations.filter((formation) => formation.dragons.some((member) => member.name === dragon.name));
-      const top = containing.slice(0, 25);
-      const best = containing[0];
-      const topAppearances = top100.filter((formation) => formation.dragons.some((member) => member.name === dragon.name)).length;
-      const averageTop = top.reduce((sum, formation) => sum + formation.score, 0) / Math.max(1, top.length);
-      const index = best.score * 0.45 + averageTop * 0.45 + topAppearances * 1200;
-      const known = Array.from({ length: 5 }, (_, habit) => Boolean(HD[`${dragon.name}:${habit}`])).filter(Boolean).length;
-      return { dragon, best, bestScore: best.score, averageTop, topAppearances, index, known };
-    });
-    const maximum = Math.max(...rows.map((item) => item.index), 1);
-    rows.forEach((item) => { item.rating = item.index / maximum * 1000; });
-    metaBenchmarkCache = { formations, rows };
-    return metaBenchmarkCache;
-  }
-
-  function rankingRows() {
-    const data = [...buildMetaBenchmark().rows];
+  function evidenceRows() {
+    if (!canonicalCatalog) return [];
+    const data = [...canonicalCatalog.dragons];
     const query = document.querySelector("#rankSearch").value.trim().toLowerCase();
-    const role = document.querySelector("#rankRole").value;
     const rarity = document.querySelector("#rankRarity").value;
     const sort = document.querySelector("#rankSort").value;
-    return data.filter(({ dragon }) => (!query || dragon.name.toLowerCase().includes(query)) && (role === "all" || dragon.role === role) && (rarity === "all" || dragon.rarity === rarity)).sort((a, b) => {
-      if (sort === "appearances") return b.topAppearances - a.topAppearances || b.rating - a.rating;
-      if (sort === "best") return b.bestScore - a.bestScore || b.rating - a.rating;
-      return b.rating - a.rating;
-    });
+    return data.filter((dragon) => (!query || `${dragon.name} ${dragon.breed}`.toLowerCase().includes(query)) && (rarity === "all" || dragon.rarity.toLowerCase() === rarity)).sort((a, b) => sort === "name" ? a.name.localeCompare(b.name) : b.baseStats[sort] - a.baseStats[sort] || a.name.localeCompare(b.name));
   }
 
-  function renderMetaFormations() {
-    const formations = buildMetaBenchmark().formations.slice(0, 6);
-    document.querySelector("#metaFormations").innerHTML = formations.map((formation, index) => `<article class="panel meta-formation-card">
-      <div class="meta-rank"><span>#${index + 1}</span><b>${fmt(formation.score)}</b><small>formation index</small></div>
-      <div class="meta-lanes">${formation.dragons.map((dragon, lane) => `<div><small>${POSITIONS[lane]}</small>${dragonAvatar(dragon,"rank-avatar")}<b>${esc(dragon.name)}</b></div>`).join("")}</div>
-      <div class="meta-card-foot"><span>${TROOPS[formation.troop]} · 10★ · H5</span><button class="btn compact-btn test-meta" data-names="${esc(formation.dragons.map((dragon) => dragon.name).join("|"))}" data-troop="${formation.troop}">Test in Battle Lab</button></div>
-    </article>`).join("");
+  function renderEvidenceMilestones() {
+    if (!canonicalCatalog) return;
+    const dragons = canonicalCatalog.dragons;
+    const sourcedVanguards = dragons.filter((dragon) => dragon.vanguard.text).length;
+    const namedHabits = dragons.reduce((sum, dragon) => sum + dragon.habits.filter((habit) => habit.name).length, 0);
+    const verifiedCommands = dragons.filter((dragon) => dragon.command.structuredEffectsStatus === "verified").length;
+    const verifiedEffects = verifiedCommands + dragons.filter((dragon) => dragon.vanguard.structuredEffectsStatus === "verified").length + dragons.flatMap((dragon) => dragon.habits).filter((habit) => habit.levelEffectsStatus === "verified").length;
+    document.querySelector("#catalogProfileCount").textContent = dragons.length;
+    document.querySelector("#catalogStatCount").textContent = dragons.length * 4;
+    document.querySelector("#catalogMechanicCount").textContent = verifiedEffects;
+    document.querySelector("#metaFormations").innerHTML = [
+      ["Base attributes", `${dragons.length}/33`, "Strength, Instinct, Intelligence, and Initiative sourced at level one", dragons.length / 33],
+      ["Vanguard descriptions", `${sourcedVanguards}/33`, "Source text collected; structured effects still require review", sourcedVanguards / 33],
+      ["Habit identities", `${namedHabits}/165`, "Names and Star unlocks sourced; level scaling remains unverified", namedHabits / 165],
+      ["Verified Commands", `${verifiedCommands}/33`, "Competitive publication remains blocked until Commands are encoded", verifiedCommands / 33],
+    ].map(([label, value, copy, progress]) => `<article class="panel evidence-milestone"><span>${esc(label)}</span><b>${esc(value)}</b><p>${esc(copy)}</p><div><i style="width:${Math.round(progress * 100)}%"></i></div></article>`).join("");
   }
 
   function renderRankings() {
-    const roleSelect = document.querySelector("#rankRole");
-    if (roleSelect.options.length === 1) {
-      [...new Set(DEFAULT_ROSTER.map((dragon) => dragon.role))].sort().forEach((role) => roleSelect.insertAdjacentHTML("beforeend", `<option value="${esc(role)}">${esc(role[0].toUpperCase() + role.slice(1))}</option>`));
+    if (canonicalCatalogError) {
+      document.querySelector("#metaFormations").innerHTML = `<div class="panel data-load-error"><b>Catalog unavailable</b><span>${esc(canonicalCatalogError.message)}</span></div>`;
+      document.querySelector("#rankingsBody").innerHTML = `<tr><td colspan="8">Evidence catalog could not be loaded.</td></tr>`;
+      return;
     }
-    renderMetaFormations();
-    const rows = rankingRows();
-    document.querySelector("#rankingsBody").innerHTML = rows.map((item, index) => {
-      const { dragon } = item;
-      const confidence = item.known >= 4 ? "high" : item.known >= 1 ? "medium" : "low";
-      const confidenceLabel = confidence === "high" ? "Documented" : confidence === "medium" ? "Partial" : "Modeled";
-      const partners = item.best.dragons.filter((member) => member.name !== dragon.name).map((member) => member.name).join(" + ");
-      return `<tr><td class="rank-num">${index + 1}</td><td><span class="rank-dragon">${dragonAvatar(dragon,"rank-avatar")}<span><b>${esc(dragon.name)}</b><small>${dragon.rarity} · ${dragon.damageType}</small></span></span></td><td><span class="rating">${Math.round(item.rating)}</span><div class="rating-bar"><i style="width:${Math.max(5, item.rating / 10)}%"></i></div></td><td><span class="best-trio">${esc(partners)}</span></td><td>${TROOPS[item.best.troop]}</td><td><b>${item.topAppearances}</b> / 100</td><td style="text-transform:capitalize">${esc(dragon.role)}</td><td><span class="confidence ${confidence}">${confidenceLabel}</span></td></tr>`;
+    if (!canonicalCatalog) {
+      document.querySelector("#rankingsBody").innerHTML = `<tr><td colspan="8">Loading sourced catalog…</td></tr>`;
+      return;
+    }
+    renderEvidenceMilestones();
+    const rows = evidenceRows();
+    document.querySelector("#rankingsBody").innerHTML = rows.map((dragon, index) => {
+      const rosterDragon = DEFAULT_ROSTER.find((item) => item.name === dragon.name);
+      const mechanicCount = Number(dragon.command.structuredEffectsStatus === "verified") + Number(dragon.vanguard.structuredEffectsStatus === "verified") + dragon.habits.filter((habit) => habit.levelEffectsStatus === "verified").length;
+      return `<tr><td class="rank-num">${index + 1}</td><td><span class="rank-dragon">${rosterDragon ? dragonAvatar(rosterDragon,"rank-avatar") : ""}<span><b>${esc(dragon.name)}</b><small>${esc(dragon.rarity)} · ${esc(dragon.breed)} · Lv1 base</small></span></span></td><td><b class="base-stat str">${dragon.baseStats.strength}</b></td><td><b class="base-stat inst">${dragon.baseStats.instinct}</b></td><td><b class="base-stat int">${dragon.baseStats.intelligence}</b></td><td><b class="base-stat init">${dragon.baseStats.initiative}</b></td><td><span class="mechanic-coverage ${mechanicCount ? "partial" : "pending"}">${mechanicCount}/7 verified</span></td><td><a class="source-link" href="https://wyrmtable.com/dragons" target="_blank" rel="noreferrer">Community source ↗</a></td></tr>`;
     }).join("") || `<tr><td colspan="8">No dragons match these filters.</td></tr>`;
   }
 
-  ["rankSearch", "rankRole", "rankRarity", "rankSort"].forEach((id) => document.querySelector(`#${id}`).addEventListener(id === "rankSearch" ? "input" : "change", renderRankings));
+  ["rankSearch", "rankRarity", "rankSort"].forEach((id) => document.querySelector(`#${id}`).addEventListener(id === "rankSearch" ? "input" : "change", renderRankings));
   document.querySelector("#rankExport").addEventListener("click", () => {
-    const lines = [["Rank", "Dragon", "Meta rating", "Best trio partners", "Best troop", "Top-100 appearances", "Role"]];
-    rankingRows().forEach((item, index) => lines.push([index + 1, item.dragon.name, Math.round(item.rating), item.best.dragons.filter((dragon) => dragon.name !== item.dragon.name).map((dragon) => dragon.name).join(" + "), TROOPS[item.best.troop].replace(/^\S+\s/, ""), item.topAppearances, item.dragon.role]));
+    if (!canonicalCatalog) return toast("Evidence catalog is still loading", true);
+    const lines = [["Dragon", "Rarity", "Breed", "Level-one Strength", "Level-one Instinct", "Level-one Intelligence", "Level-one Initiative", "Evidence confidence", "Source"]];
+    evidenceRows().forEach((dragon) => lines.push([dragon.name, dragon.rarity, dragon.breed, dragon.baseStats.strength, dragon.baseStats.instinct, dragon.baseStats.intelligence, dragon.baseStats.initiative, dragon.evidence.confidence, "https://wyrmtable.com/api/dragons"]));
     const csv = lines.map((line) => line.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(",")).join("\n");
     const link = document.createElement("a");
     link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-    link.download = "dragonfire-rankings.csv";
+    link.download = "dragonfire-evidence-catalog.csv";
     link.click();
     setTimeout(() => URL.revokeObjectURL(link.href), 500);
-  });
-
-  document.querySelector("#metaFormations").addEventListener("click", (event) => {
-    const button = event.target.closest(".test-meta");
-    if (!button) return;
-    applyFormation("b", { dragonNames: button.dataset.names.split("|"), troop: button.dataset.troop, mode: "maxed" });
-    toast("Maxed meta formation loaded into B");
   });
 
   function saveFormationData(dragonNames, troop, mode = "personal") {
@@ -575,7 +557,7 @@
     button.disabled = true;
     status.textContent = "Sending…";
     try {
-      const response = await fetch("/api/contribute-roster", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modelVersion: "0.6.0", consentVersion: "2026-07-29", roster: active }) });
+      const response = await fetch("/api/contribute-roster", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modelVersion: "0.8.0", consentVersion: "2026-07-29", roster: active }) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Contribution service is not connected yet");
       status.textContent = "Thank you — snapshot received.";
@@ -592,20 +574,34 @@
     const query = document.querySelector("#librarySearch").value.trim().toLowerCase();
     const filter = document.querySelector("#libraryFilter").value;
     const dragons = [...roster].filter((dragon) => {
-      const habits = (HN[dragon.name] || []).join(" ").toLowerCase();
-      if (query && !`${dragon.name} ${dragon.role} ${dragon.damageType} ${habits}`.toLowerCase().includes(query)) return false;
+      const evidence = canonicalByName.get(dragon.name);
+      const habits = (evidence?.habits || HN[dragon.name] || []).map((habit) => typeof habit === "string" ? habit : habit.name).join(" ");
+      if (query && !`${dragon.name} ${dragon.role} ${dragon.damageType} ${evidence?.breed || dragon.breed} ${habits}`.toLowerCase().includes(query)) return false;
       if (filter === "active" && !dragon.active) return false;
       if (filter === "ready" && unlockedCount(dragon) < 2) return false;
-      if (filter === "needs-data" && Array.from({ length: unlockedCount(dragon) }, (_, index) => HD[`${dragon.name}:${index}`]).every(Boolean)) return false;
+      const mechanicsVerified = evidence && evidence.command.structuredEffectsStatus === "verified" && evidence.vanguard.structuredEffectsStatus === "verified" && evidence.habits.every((habit) => habit.levelEffectsStatus === "verified");
+      if (filter === "needs-data" && mechanicsVerified) return false;
       return true;
     }).sort((a, b) => b.power - a.power);
     document.querySelector("#libraryCount").textContent = `${dragons.length} shown / ${roster.length}`;
     document.querySelector("#dragonLibrary").innerHTML = dragons.map((dragon) => {
+      const evidence = canonicalByName.get(dragon.name);
       const unlocked = unlockedCount(dragon);
-      const habitRows = Array.from({ length: Math.max(1, unlocked) }, (_, index) => `<div class="library-habit"><b>H${index + 1} · ${esc(habitName(dragon, index))} ${unlocked ? `Lv ${habitRank(dragon, index)}` : "Locked"}</b><br><span>${esc(habitDesc(dragon, index))}</span></div>`).join("");
+      const habitRows = Array.from({ length: Math.max(1, unlocked) }, (_, index) => {
+        const sourcedHabit = evidence?.habits[index];
+        return `<div class="library-habit"><b>H${index + 1} · ${esc(sourcedHabit?.name || habitName(dragon, index))} ${unlocked ? `Lv ${habitRank(dragon, index)}` : "Locked"}</b><br><span>${esc(habitDesc(dragon, index))}</span><small>${sourcedHabit ? `Unlocks at ${sourcedHabit.unlockStar}★ · effect formula ${sourcedHabit.levelEffectsStatus}` : "Source identity pending"}</small></div>`;
+      }).join("");
       const missing = Array.from({ length: unlocked }, (_, index) => HD[`${dragon.name}:${index}`]).filter((value) => !value).length;
       const affinity = Object.entries(dragon.affinity || {}).filter(([troop]) => troop !== "siege").map(([troop, value]) => `<span class="${value === "+" ? "plus" : ""}">${TROOPS[troop].split(" ")[0]} ${value || "·"}</span>`).join("");
-      return `<article class="panel library-card"><div class="library-top"><div class="library-name">${dragonAvatar(dragon,"library-avatar")}<span><h3>${esc(dragon.name)}</h3><small>${dragon.rarity} · ${dragon.breed} · ${dragon.role}</small></span></div><div class="library-power">${dragon.power ? fmt(dragon.power) : "Not set"}<small>${dragon.starRank}★ · Lv ${dragon.reignLevel}</small></div></div><div class="kit-tags">${(dragon.tags || []).slice(0, 7).map((tag) => `<span class="kit-tag">${esc(tag)}</span>`).join("") || `<span class="kit-tag">kit data pending</span>`}</div><div class="habit-list">${habitRows}</div><div class="affinity-strip">${affinity}</div>${missing ? `<div class="data-gap">${missing} unlocked Habit description${missing > 1 ? "s" : ""} still use conservative model values.</div>` : ""}</article>`;
+      const stats = evidence?.baseStats;
+      const baseStats = [
+        ["STR", stats?.strength, "str"],
+        ["INST", stats?.instinct, "inst"],
+        ["INT", stats?.intelligence, "int"],
+        ["INIT", stats?.initiative, "init"],
+      ].map(([label, value, type]) => `<span><small>${label}</small><b class="base-stat ${type}">${value ?? "—"}</b></span>`).join("");
+      const sourceStatus = evidence ? "Community-sourced" : canonicalCatalog ? "Catalog match missing" : "Catalog loading";
+      return `<article class="panel library-card"><div class="library-top"><div class="library-name">${dragonAvatar(dragon,"library-avatar")}<span><h3>${esc(dragon.name)}</h3><small>${esc(evidence?.rarity || dragon.rarity)} · ${esc(evidence?.breed || dragon.breed)} · ${esc(dragon.role)}</small></span></div><div class="library-power">${dragon.power ? fmt(dragon.power) : "Not set"}<small>Your roster · ${dragon.starRank}★ · Lv ${dragon.reignLevel}</small></div></div><div class="library-base-stats">${baseStats}</div><div class="library-evidence"><span><b>Level-one base</b><small>Player modifiers excluded</small></span><span class="evidence-badge ${evidence ? "sourced" : "pending"}">${sourceStatus}</span></div>${evidence?.vanguard.text ? `<div class="library-vanguard"><b>Vanguard source text</b><span>${esc(evidence.vanguard.text)}</span><small>Not yet encoded in the competitive engine</small></div>` : ""}<div class="kit-tags">${(dragon.tags || []).slice(0, 7).map((tag) => `<span class="kit-tag">${esc(tag)}</span>`).join("") || `<span class="kit-tag">kit data pending</span>`}</div><div class="habit-list">${habitRows}</div><div class="affinity-strip">${affinity}</div>${missing ? `<div class="data-gap">${missing} unlocked Habit description${missing > 1 ? "s" : ""} still use conservative model values.</div>` : ""}${evidence ? `<a class="library-source source-link" href="https://wyrmtable.com/dragons" target="_blank" rel="noreferrer">Inspect community source ↗</a>` : ""}</article>`;
     }).join("") || `<div class="panel battle-empty"><h3>No matching dragons</h3><p>Try a broader filter.</p></div>`;
   }
 
@@ -690,6 +686,7 @@
 
   renderSavedFormations();
   enhanceBuilderResults();
+  loadCanonicalCatalog();
   const initialRoute = ROUTES.has(location.hash.slice(1)) ? location.hash.slice(1) : "home";
   routeTo(initialRoute, false);
   if (SHOULD_OPEN_ONBOARDING) setTimeout(openOnboarding, 180);

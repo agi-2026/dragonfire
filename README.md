@@ -1,6 +1,6 @@
 # Dragonfire War Council
 
-An original, static-first PvP research tool for Dragonfire players. The current alpha combines a seeded battle simulator, a global maxed formation index, reusable formations, a multi-army team builder, and a versionable dragon/Habit library.
+An original, static-first PvP research tool for Dragonfire players. The current alpha combines a versioned evidence catalog, a clearly labeled prototype battle engine, reusable formations, a multi-army team builder, and a private-by-default roster.
 
 ## Run locally
 
@@ -13,9 +13,21 @@ Open `http://127.0.0.1:4173`. The site has no frontend build step or account sys
 ## Product loop
 
 1. **Battle Lab** compares two three-dragon formations over a seeded Monte Carlo run.
-2. **Rankings** exhaustively score all 5,456 maxed trios across six lane orders and four PvP troop types, independent of personal rosters.
+2. **Data Lab** exposes sourced level-one attributes and mechanic coverage. Competitive rankings are intentionally unpublished until power curves, Commands, Vanguards, Habit scaling, and battle outcomes are validated.
 3. **Team Builder** turns the roster into disjoint PvP, siege, and development squads. Its compact dragon grid supports desktop hover previews and a focused editor drawer for Power, Stars, level, ownership, and Habit ranks.
 4. **Dragon Library** exposes the data and confidence behind each recommendation.
+
+## Canonical game-data pipeline
+
+The public catalog lives in [`data/dragon-catalog.v1.json`](./data/dragon-catalog.v1.json). It currently contains all 33 known dragons and 132 level-one Strength, Instinct, Intelligence, and Initiative values. Each record retains source and verification metadata; community-sourced values are never relabeled as independently verified.
+
+```bash
+npm run sync:data   # refresh the versioned snapshot from the public Wyrmtable API
+npm run check:data  # enforce 33 unique dragons, four stats, and five Habit slots
+npm run check       # validate the catalog and JavaScript syntax
+```
+
+The factual snapshot uses the public [Wyrmtable dragon API](https://wyrmtable.com/api/dragons) and the [official Dragon guide](https://news.gotdragonfire.com/a-guide-to-dragons/) for system semantics. No competing site's interface, code, ranking algorithm, or branding is copied. Unknown mechanic formulas use the publication policy `exclude-from-competitive-ranking`.
 
 ## Private-by-default roster setup
 
@@ -71,7 +83,7 @@ This follows the useful product loop popularized by matchup simulators such as P
 
 ## What is not yet confirmed
 
-The game does not expose a complete public combat formula. Command coefficients, troop-capacity conversion, defense curves, exact targeting priorities, resistance, status chances, and several Habit descriptions are still modeled conservatively. UI output labels that uncertainty instead of presenting the result as an official tier list.
+The game does not expose a complete public combat formula. Command coefficients, troop-capacity conversion, defense curves, exact targeting priorities, resistance, status chances, and several Habit descriptions are still modeled conservatively. Battle Lab output is a formation hypothesis, not a predicted win rate, and the competitive leaderboard stays gated until those mechanics are validated.
 
 ## Calibration plan
 

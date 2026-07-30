@@ -1,8 +1,13 @@
 {
   "name": "dragonfire-war-council",
   "private": true,
-  "version": "0.7.2",
+  "version": "0.8.0",
   "type": "module",
+  "scripts": {
+    "sync:data": "node scripts/sync-dragon-data.mjs",
+    "check:data": "node scripts/validate-dragon-data.mjs",
+    "check": "npm run check:data && node --check product.js"
+  },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1"
   }
