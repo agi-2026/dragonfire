@@ -17,6 +17,19 @@ Open `http://127.0.0.1:4173`. The site has no build step, backend, account syste
 3. **Team Builder** turns the roster into disjoint PvP, siege, and development squads.
 4. **Dragon Library** exposes the data and confidence behind each recommendation.
 
+## Private-by-default roster setup
+
+New visitors begin with the public dragon catalog and no selected dragons, power values, Habit ranks, or formations. The safe catalog defaults are:
+
+- Legendary: 1 Star, level 40
+- Epic: 2 Stars, level 30
+- Rare: 3 Stars, level 20
+- Power: unset until the player enters it
+
+Roster data is stored only in browser `localStorage` under `dragonfire-war-council-v2`. Restore Defaults returns to this empty, rarity-based catalog. Import/export remains the portable backup mechanism; there is no cloud synchronization.
+
+Dragon portraits are original, deterministic SVG artwork generated locally from each dragon name and rarity. The app does not ship or hotlink official game art.
+
 This follows the useful product loop popularized by matchup simulators such as PvPoke, while keeping the Dragonfire implementation, visual identity, data model, and code original.
 
 ## What the alpha models

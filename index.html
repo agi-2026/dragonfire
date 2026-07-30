@@ -13,7 +13,7 @@
     @media(max-width:620px){.shell{padding:0 10px 28px}.topbar{margin:0 -10px 12px;padding:12px 10px;align-items:flex-start}.brand p{display:none}.actions .btn{padding:8px}.btn span{display:none}.optimizer-controls,.lanes{grid-template-columns:1fr}.lane{min-height:92px}.grid3{grid-template-columns:1fr}.summary-strip{grid-template-columns:1fr 1fr}}
     .dragon-name,.dragon-meta{display:block}.habit-row{grid-template-columns:1fr 72px 72px}.impact-input{padding:7px 5px;text-align:center}
   </style>
-  <link rel="stylesheet" href="product.css?v=0.3.3">
+  <link rel="stylesheet" href="product.css?v=0.4.1">
 </head>
 <body>
 <div class="shell">
@@ -33,7 +33,7 @@
   <section class="product-view active" data-view="home">
     <div class="hero panel">
       <div class="hero-copy">
-        <div class="eyebrow">COMMUNITY COMBAT LAB · MODEL v0.3</div>
+        <div class="eyebrow">COMMUNITY COMBAT LAB · MODEL v0.4</div>
         <h2>Stop guessing.<br><span>Test the formation.</span></h2>
         <p>Simulate three-dragon battles, understand why a matchup swings, and build teams around Habits—not just the biggest power number.</p>
         <div class="hero-actions"><button class="btn primary" data-go="battle">Run a battle</button><button class="btn" data-go="builder">Build my teams</button></div>
@@ -42,8 +42,8 @@
       <div class="hero-visual" aria-label="Three-lane battle preview">
         <div class="arena-glow"></div>
         <div class="versus-mark">VS</div>
-        <div class="preview-side preview-a"><small>YOUR FORMATION</small><b>Sunfyre</b><b>Vhagar</b><b>Venator</b></div>
-        <div class="preview-side preview-b"><small>META TEST</small><b>Tairax</b><b>Kalspire</b><b>Tessarion</b></div>
+        <div class="preview-side preview-a"><small>YOUR FORMATION</small><b>Left flank</b><b>Vanguard</b><b>Right flank</b></div>
+        <div class="preview-side preview-b"><small>OPPONENT</small><b>Left flank</b><b>Vanguard</b><b>Right flank</b></div>
         <div class="model-chip">Example matchup · run to calculate</div>
       </div>
     </div>
@@ -91,7 +91,8 @@
   <section class="product-view" data-view="builder">
   <main class="layout">
     <section class="panel">
-      <div class="panel-head"><h2>Your dragons</h2><span class="count" id="rosterCount"></span></div>
+      <div class="panel-head"><h2>Your dragons</h2><div class="roster-head-actions"><span class="count" id="rosterCount"></span><button class="btn compact-btn" id="setupRosterBtn">Choose dragons</button></div></div>
+      <div class="roster-setup-banner" id="rosterSetupBanner"><div><b>Build your private roster</b><span>Select dragons you own, then enter power, Stars, level, and Habit levels.</span></div><button class="btn primary" id="emptySetupBtn">Start setup</button></div>
       <div class="roster-tools"><input class="input" id="search" placeholder="Search dragons…"><button class="btn" id="addBtn">+ Custom</button></div>
       <div class="roster-list" id="rosterList"></div>
     </section>
@@ -129,6 +130,15 @@
 </div>
 <input id="fileInput" class="hidden" type="file" accept="application/json,.json">
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="onboarding" id="onboarding" hidden>
+  <section class="onboarding-dialog" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+    <header class="onboarding-head"><div><div class="eyebrow">PRIVATE ROSTER SETUP</div><h2 id="onboardingTitle">Which dragons do you own?</h2><p>Nothing is selected by default. Your choices stay in this browser unless you export them.</p></div><button class="icon-btn" id="closeOnboarding" aria-label="Close roster setup">×</button></header>
+    <div class="onboarding-toolbar"><input class="input" id="onboardingSearch" placeholder="Search dragons…"><select class="select" id="onboardingRarity"><option value="all">All rarities</option><option value="legendary">Legendary</option><option value="epic">Epic</option><option value="rare">Rare</option></select><button class="btn" id="selectVisible">Select visible</button><button class="btn ghost" id="clearSelection">Clear</button></div>
+    <div class="onboarding-defaults"><b>Safe starting values</b><span>Legendary: 1★ · Lv40</span><span>Epic: 2★ · Lv30</span><span>Rare: 3★ · Lv20</span><span>Power: enter yours</span></div>
+    <div class="onboarding-grid" id="onboardingGrid"></div>
+    <footer class="onboarding-footer"><button class="btn" id="importOnboarding">Import a roster</button><div><span id="onboardingCount">0 selected</span><button class="btn primary" id="saveOnboarding">Save selection & edit stats</button></div></footer>
+  </section>
+</div>
 <script>
 const TROOPS={cavalry:"🐎 Cavalry",shieldbearers:"🛡️ Shieldbearers",archers:"🏹 Archers",spearmen:"🔱 Spearmen",siege:"🔥 Siege"};
 const POSITIONS=["Left flank","Vanguard","Right flank"];
@@ -184,54 +194,69 @@ const HD={
   "Seasmoke:0":"Conservative suppressor value; edit via JSON when exact values are confirmed."
 };
 function D(name,rarity,breed,role,damageType,power,starRank,reignLevel,affinity,tags=[],vanguard={},habitRanks=[],active=true){return{id:"dragon-"+name.toLowerCase().replace(/[^a-z0-9]+/g,"-"),name,rarity,breed,role,damageType,power,starRank,reignLevel,affinity,tags,vanguard,habitRanks,habitImpact:[],active}}
+function C(name,rarity,breed,role,damageType,affinity,tags=[],vanguard={}){let defaults={legendary:{starRank:1,reignLevel:40},epic:{starRank:2,reignLevel:30},rare:{starRank:3,reignLevel:20}}[rarity];return D(name,rarity,breed,role,damageType,0,defaults.starRank,defaults.reignLevel,affinity,tags,vanguard,[],false)}
 const DEFAULT_ROSTER=[
- D("Sunfyre","legendary","sentinel","healer","tactical",33520,3,43,{cavalry:"+",shieldbearers:0,archers:0,spearmen:"+",siege:0},["burn","debuff","recovery","cleanse","mitigation","advantage","scaling"],{},[2]),
- D("Tairax","epic","hunter","control","fire",35420,6,44,{cavalry:"+",shieldbearers:"+",archers:0,spearmen:0,siege:"+"},["burn","vulnerable","overwhelm","debuff","resistance","evasion","wantsControl","scaling"],{},[1,1,2]),
- D("Tessarion","epic","champion","fire","fire",29380,4,45,{cavalry:"+",shieldbearers:0,archers:0,spearmen:"+",siege:"+"},["burn","debuff","evasion","advantage"],{leftFire:.1},[2,2]),
- D("Vermax","epic","warrior","physical","physical",0,3,15,{cavalry:"+",shieldbearers:"+",archers:0,spearmen:0,siege:0},["firstStrike"],{},[],false),
- D("Sheepstealer","legendary","hunter","fire","fire",0,3,15,{cavalry:"+",shieldbearers:0,archers:"+",spearmen:0,siege:0},["burn","evasion","scaling"],{leftFire:.08},[],false),
- D("Arrax","rare","warrior","physical","physical",11800,4,26,{cavalry:0,shieldbearers:"+",archers:"+",spearmen:0,siege:0}),
- D("Dawnseeker","rare","sentinel","healer","tactical",10300,4,22,{cavalry:0,shieldbearers:0,archers:0,spearmen:"+",siege:"-"},["heal","cleanse"]),
- D("Nyrena","rare","champion","control","fire",11700,5,22,{cavalry:0,shieldbearers:"+",archers:0,spearmen:0,siege:"+"},["burn","debuff"]),
- D("Arulix","rare","champion","control","tactical",10300,4,22,{cavalry:"+",shieldbearers:0,archers:0,spearmen:0,siege:0},["debuff"]),
- D("Vesper","rare","sentinel","healer","tactical",11000,4,24,{cavalry:0,shieldbearers:"+",archers:0,spearmen:0,siege:"-"},["mitigation","resistance"]),
- D("Thunderstrike","rare","warrior","physical","physical",11800,4,26,{cavalry:"+",shieldbearers:0,archers:0,spearmen:0,siege:0},["stun"]),
- D("Shadowrend","rare","warrior","physical","physical",14950,6,25,{cavalry:0,shieldbearers:"+",archers:0,spearmen:0,siege:"+"},["panic","advantage"]),
- D("Bevlorin","rare","champion","control","tactical",14400,5,29,{cavalry:0,shieldbearers:0,archers:0,spearmen:"+",siege:0},["confusion","recovery","mitigation"]),
- D("Jagadrix","rare","hunter","fire","fire",21150,6,40,{cavalry:0,shieldbearers:0,archers:0,spearmen:"+",siege:0},["panic"]),
- D("Shimmer","rare","sentinel","healer","tactical",10000,4,21,{cavalry:"+",shieldbearers:0,archers:0,spearmen:0,siege:"+"},["recovery","resistance"]),
- D("Antares","rare","hunter","fire","fire",10000,4,21,{cavalry:0,shieldbearers:0,archers:"+",spearmen:0,siege:"-"},["burn"]),
- D("Solstryker","rare","champion","control","physical",10700,4,23,{cavalry:0,shieldbearers:0,archers:"+",spearmen:0,siege:0},["debuff","mitigation"]),
- D("Zivern","epic","sentinel","tactical","tactical",34820,6,43,{cavalry:0,shieldbearers:0,archers:"+",spearmen:0,siege:"+"},["panic","debuff"],{leftTactical:.06},[1,2,2]),
- D("Velar","epic","sentinel","healer","tactical",13540,2,26,{cavalry:0,shieldbearers:"+",archers:0,spearmen:0,siege:0},["heal","recovery","cleanse","advantage","firstStrike"],{leftTactical:.08}),
- D("Vaeldra","epic","warrior","tank","physical",23980,4,37,{cavalry:0,shieldbearers:0,archers:0,spearmen:"+",siege:0},["taunt","mitigation","wantsBurn"],{selfDR:.05,rightPhysical:.08},[2,1]),
- D("Tashix","epic","hunter","fire","fire",26580,4,41,{cavalry:0,shieldbearers:0,archers:"+",spearmen:0,siege:"-"},["mirage","wantsControl","scaling"]),
- D("Shadowsong","epic","hunter","fire","fire",29380,4,45,{cavalry:"+",shieldbearers:0,archers:0,spearmen:0,siege:0},["burn","vulnerable","wantsPanic"],{rightPhysical:.08,leftFire:.1},[2,2]),
- D("Rhysarion","epic","champion","fire","fire",22580,4,35,{cavalry:0,shieldbearers:"+",archers:0,spearmen:"+",siege:"+"},["heal","recovery","wantsControl"]),
- D("Feskar","epic","champion","tactical","tactical",24580,4,39,{cavalry:"+",shieldbearers:0,archers:0,spearmen:0,siege:"-"},["debuff","mitigation"]),
- D("Daemoros","epic","warrior","physical","physical",17140,3,30,{cavalry:0,shieldbearers:0,archers:"+",spearmen:0,siege:0},["burn","panic","confusion","debuff"]),
- D("Venator","legendary","warrior","physical","physical",35520,3,45,{cavalry:0,shieldbearers:"+",archers:0,spearmen:"+",siege:0},["debuff","doubleStrike","scaling"],{},[2]),
- D("Malachite","legendary","sentinel","healer","tactical",22400,1,35,{cavalry:"+",shieldbearers:"+",archers:0,spearmen:0,siege:"-"},["heal","mitigation","advantage","firstStrike"]),
- D("Kalspire","legendary","champion","tank","tactical",39540,4,45,{cavalry:"+",shieldbearers:"+",archers:0,spearmen:0,siege:"+"},["debuff","mitigation","resistance"],{selfDR:.07},[2,2]),
- D("Crimson","legendary","hunter","control","fire",32120,2,44,{cavalry:0,shieldbearers:0,archers:"+",spearmen:"+",siege:"+"},["burn","stun","debuff"],{rightPhysical:.1},[2]),
- D("Seasmoke","legendary","champion","control","tactical",31620,2,44,{cavalry:"+",shieldbearers:0,archers:"+",spearmen:0,siege:"-"},["debuff","mitigation","resistance"],{selfDR:.06}),
- D("Caraxes","legendary","hunter","fire","fire",33120,2,45,{cavalry:"+",shieldbearers:0,archers:0,spearmen:"+",siege:0},["burn","firstStrike"]),
- D("Vhagar","legendary","warrior","tank","physical",43340,5,45,{cavalry:0,shieldbearers:"+",archers:"+",spearmen:0,siege:"+"},["taunt","debuff","mitigation","wantsBurn"],{selfDR:.08,rightPhysical:.12,leftTactical:.16},[2,2]),
- D("Syrax","legendary","sentinel","healer","tactical",35520,3,45,{cavalry:0,shieldbearers:0,archers:"+",spearmen:"+",siege:"-"},["heal","advantage","firstStrike"],{leftTactical:.1},[2])
+ C("Sunfyre","legendary","sentinel","healer","tactical",{cavalry:"+",shieldbearers:0,archers:0,spearmen:"+",siege:0},["burn","debuff","recovery","cleanse","mitigation","advantage","scaling"]),
+ C("Tairax","epic","hunter","control","fire",{cavalry:"+",shieldbearers:"+",archers:0,spearmen:0,siege:"+"},["burn","vulnerable","overwhelm","debuff","resistance","evasion","wantsControl","scaling"]),
+ C("Tessarion","epic","champion","fire","fire",{cavalry:"+",shieldbearers:0,archers:0,spearmen:"+",siege:"+"},["burn","debuff","evasion","advantage"],{leftFire:.1}),
+ C("Vermax","epic","warrior","physical","physical",{cavalry:"+",shieldbearers:"+",archers:0,spearmen:0,siege:0},["firstStrike"]),
+ C("Sheepstealer","legendary","hunter","fire","fire",{cavalry:"+",shieldbearers:0,archers:"+",spearmen:0,siege:0},["burn","evasion","scaling"],{leftFire:.08}),
+ C("Arrax","rare","warrior","physical","physical",{cavalry:0,shieldbearers:"+",archers:"+",spearmen:0,siege:0}),
+ C("Dawnseeker","rare","sentinel","healer","tactical",{cavalry:0,shieldbearers:0,archers:0,spearmen:"+",siege:"-"},["heal","cleanse"]),
+ C("Nyrena","rare","champion","control","fire",{cavalry:0,shieldbearers:"+",archers:0,spearmen:0,siege:"+"},["burn","debuff"]),
+ C("Arulix","rare","champion","control","tactical",{cavalry:"+",shieldbearers:0,archers:0,spearmen:0,siege:0},["debuff"]),
+ C("Vesper","rare","sentinel","healer","tactical",{cavalry:0,shieldbearers:"+",archers:0,spearmen:0,siege:"-"},["mitigation","resistance"]),
+ C("Thunderstrike","rare","warrior","physical","physical",{cavalry:"+",shieldbearers:0,archers:0,spearmen:0,siege:0},["stun"]),
+ C("Shadowrend","rare","warrior","physical","physical",{cavalry:0,shieldbearers:"+",archers:0,spearmen:0,siege:"+"},["panic","advantage"]),
+ C("Bevlorin","rare","champion","control","tactical",{cavalry:0,shieldbearers:0,archers:0,spearmen:"+",siege:0},["confusion","recovery","mitigation"]),
+ C("Jagadrix","rare","hunter","fire","fire",{cavalry:0,shieldbearers:0,archers:0,spearmen:"+",siege:0},["panic"]),
+ C("Shimmer","rare","sentinel","healer","tactical",{cavalry:"+",shieldbearers:0,archers:0,spearmen:0,siege:"+"},["recovery","resistance"]),
+ C("Antares","rare","hunter","fire","fire",{cavalry:0,shieldbearers:0,archers:"+",spearmen:0,siege:"-"},["burn"]),
+ C("Solstryker","rare","champion","control","physical",{cavalry:0,shieldbearers:0,archers:"+",spearmen:0,siege:0},["debuff","mitigation"]),
+ C("Zivern","epic","sentinel","tactical","tactical",{cavalry:0,shieldbearers:0,archers:"+",spearmen:0,siege:"+"},["panic","debuff"],{leftTactical:.06}),
+ C("Velar","epic","sentinel","healer","tactical",{cavalry:0,shieldbearers:"+",archers:0,spearmen:0,siege:0},["heal","recovery","cleanse","advantage","firstStrike"],{leftTactical:.08}),
+ C("Vaeldra","epic","warrior","tank","physical",{cavalry:0,shieldbearers:0,archers:0,spearmen:"+",siege:0},["taunt","mitigation","wantsBurn"],{selfDR:.05,rightPhysical:.08}),
+ C("Tashix","epic","hunter","fire","fire",{cavalry:0,shieldbearers:0,archers:"+",spearmen:0,siege:"-"},["mirage","wantsControl","scaling"]),
+ C("Shadowsong","epic","hunter","fire","fire",{cavalry:"+",shieldbearers:0,archers:0,spearmen:0,siege:0},["burn","vulnerable","wantsPanic"],{rightPhysical:.08,leftFire:.1}),
+ C("Rhysarion","epic","champion","fire","fire",{cavalry:0,shieldbearers:"+",archers:0,spearmen:"+",siege:"+"},["heal","recovery","wantsControl"]),
+ C("Feskar","epic","champion","tactical","tactical",{cavalry:"+",shieldbearers:0,archers:0,spearmen:0,siege:"-"},["debuff","mitigation"]),
+ C("Daemoros","epic","warrior","physical","physical",{cavalry:0,shieldbearers:0,archers:"+",spearmen:0,siege:0},["burn","panic","confusion","debuff"]),
+ C("Venator","legendary","warrior","physical","physical",{cavalry:0,shieldbearers:"+",archers:0,spearmen:"+",siege:0},["debuff","doubleStrike","scaling"]),
+ C("Malachite","legendary","sentinel","healer","tactical",{cavalry:"+",shieldbearers:"+",archers:0,spearmen:0,siege:"-"},["heal","mitigation","advantage","firstStrike"]),
+ C("Kalspire","legendary","champion","tank","tactical",{cavalry:"+",shieldbearers:"+",archers:0,spearmen:0,siege:"+"},["debuff","mitigation","resistance"],{selfDR:.07}),
+ C("Crimson","legendary","hunter","control","fire",{cavalry:0,shieldbearers:0,archers:"+",spearmen:"+",siege:"+"},["burn","stun","debuff"],{rightPhysical:.1}),
+ C("Seasmoke","legendary","champion","control","tactical",{cavalry:"+",shieldbearers:0,archers:"+",spearmen:0,siege:"-"},["debuff","mitigation","resistance"],{selfDR:.06}),
+ C("Caraxes","legendary","hunter","fire","fire",{cavalry:"+",shieldbearers:0,archers:0,spearmen:"+",siege:0},["burn","firstStrike"]),
+ C("Vhagar","legendary","warrior","tank","physical",{cavalry:0,shieldbearers:"+",archers:"+",spearmen:0,siege:"+"},["taunt","debuff","mitigation","wantsBurn"],{selfDR:.08,rightPhysical:.12,leftTactical:.16}),
+ C("Syrax","legendary","sentinel","healer","tactical",{cavalry:0,shieldbearers:0,archers:"+",spearmen:"+",siege:"-"},["heal","advantage","firstStrike"],{leftTactical:.1})
 ];
+const STORAGE_KEY="dragonfire-war-council-v2",LEGACY_STORAGE_KEY="dragonfire-war-council-v1",ONBOARDING_KEY="dragonfire-war-council-onboarded-v2";
+const SHOULD_OPEN_ONBOARDING=!localStorage.getItem(ONBOARDING_KEY);
 let roster=loadRoster();
 function clone(x){return JSON.parse(JSON.stringify(x))}
 function normalizeDragon(x){let name=x.name||"Custom Dragon";let d=D(name,(x.rarity||"rare").toLowerCase(),(x.breed||"champion").toLowerCase(),x.role||"control",(x.damageType||"tactical").toLowerCase(),Number(x.power)||0,Math.max(1,Math.min(10,Number(x.starRank)||1)),Math.max(1,Math.min(50,Number(x.reignLevel)||1)),Object.assign({cavalry:0,shieldbearers:0,archers:0,spearmen:0,siege:0},x.affinity||{}),x.tags||[],x.vanguard||{},x.habitRanks||[],x.active!==false);d.id=x.id||d.id;d.habitImpact=x.habitImpact||[];return d}
-function loadRoster(){try{let saved=localStorage.getItem("dragonfire-war-council-v1");if(saved)return JSON.parse(saved).map(normalizeDragon)}catch(e){}return clone(DEFAULT_ROSTER)}
-function save(){localStorage.setItem("dragonfire-war-council-v1",JSON.stringify(roster))}
+function loadRoster(){try{localStorage.removeItem(LEGACY_STORAGE_KEY);let saved=localStorage.getItem(STORAGE_KEY);if(saved)return JSON.parse(saved).map(normalizeDragon)}catch(e){}return clone(DEFAULT_ROSTER)}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(roster))}
 function unlockedCount(d){return Math.min(5,Math.floor(Number(d.starRank)/2))}
 function habitName(d,i){return (HN[d.name]||[])[i]||`Habit ${i+1}`}
 function habitRank(d,i){return i<unlockedCount(d)?Math.max(1,Math.min(5,Number(d.habitRanks?.[i])||1)):0}
 function habitDesc(d,i){return HD[`${d.name}:${i}`]||"Conservative passive value until its exact effect is entered or verified."}
 function fmt(n){return Math.round(n).toLocaleString()}
 function initials(name){return name.split(/\s+/).map(x=>x[0]).join("").slice(0,2).toUpperCase()}
+function dragonAvatar(d,size=""){let hue=[...d.name].reduce((n,c)=>(n*31+c.charCodeAt(0))%360,27);return `<span class="dragon-avatar ${d.rarity} ${size}" style="--avatar-h:${hue}" aria-hidden="true"><svg viewBox="0 0 64 64"><path class="avatar-wings" d="M25 25 9 14l5 17-8 10 19-5m14-11 16-11-5 17 8 10-19-5"/><path class="avatar-horns" d="m26 21-9-14 13 9m8 5 9-14-13 9"/><path class="avatar-head" d="M32 14c-8 5-12 13-10 24l5 13 5 6 5-6 5-13c2-11-2-19-10-24Z"/><path class="avatar-snout" d="m24 38 8 5 8-5-3 13H27Z"/><path class="avatar-eye" d="m25 30 5 2-5 2m14-4-5 2 5 2"/></svg><i></i></span>`}
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c])}
-function renderRoster(openId){let q=document.querySelector("#search").value.trim().toLowerCase();let list=roster.map((d,i)=>({d,i})).filter(x=>x.d.name.toLowerCase().includes(q));document.querySelector("#rosterCount").textContent=`${roster.filter(d=>d.active).length} active / ${roster.length}`;document.querySelector("#rosterList").innerHTML=list.map(({d,i})=>{let aff=Object.entries(d.affinity||{}).map(([k,v])=>`<span class="aff ${v==="+"?"pos":v==="-"?"neg":""}">${TROOPS[k]?.split(" ")[0]||""} ${v||"·"}</span>`).join("");let habits=Array.from({length:5},(_,h)=>{let unlocked=h<unlockedCount(d),rank=habitRank(d,h),impact=d.habitImpact?.[h]??"";return `<div class="habit-row ${unlocked?"":"locked"}"><div><div class="habit-name">${h+1}. ${esc(habitName(d,h))} ${unlocked?"":"· locked at "+((h+1)*2)+"★"}</div><div class="habit-desc">${esc(habitDesc(d,h))}</div></div><select class="select" title="Habit level" data-i="${i}" data-habit="${h}" ${unlocked?"":"disabled"}>${[1,2,3,4,5].map(r=>`<option ${r===rank?"selected":""}>Lv ${r}</option>`).join("")}</select><input class="input impact-input" title="Optional manual team-equivalent impact percent" aria-label="${esc(habitName(d,h))} manual impact percent" type="number" step="0.1" placeholder="Auto %" data-i="${i}" data-habit-impact="${h}" value="${impact}" ${unlocked?"":"disabled"}></div>`}).join("");return `<details class="dragon" data-dragon-id="${d.id}"><summary><span class="orb ${d.rarity}">${initials(d.name)}</span><span><span class="dragon-name">${esc(d.name)}</span><span class="dragon-meta">${d.rarity} · ${d.breed} · ${d.starRank}★ · Lv ${d.reignLevel}</span></span><span><span class="power">${fmt(d.power)}</span><input aria-label="Include ${esc(d.name)}" class="active-toggle" type="checkbox" data-i="${i}" data-field="active" ${d.active?"checked":""}></span></summary><div class="edit"><div class="grid3"><div class="field"><label>Power</label><input class="input" type="number" min="0" data-i="${i}" data-field="power" value="${d.power}"></div><div class="field"><label>Stars</label><input class="input" type="number" min="1" max="10" data-i="${i}" data-field="starRank" value="${d.starRank}"></div><div class="field"><label>Reign level</label><input class="input" type="number" min="1" max="50" data-i="${i}" data-field="reignLevel" value="${d.reignLevel}"></div></div><div class="affinities">${aff}</div><div class="habits">${habits}</div></div></details>`}).join("")||`<div class="empty"><p>No matching dragons.</p></div>`;if(openId){let opened=document.querySelector(`[data-dragon-id="${openId}"]`);if(opened)opened.open=true}}
+function renderRoster(openId){
+ let q=document.querySelector("#search").value.trim().toLowerCase(),activeCount=roster.filter(d=>d.active).length;
+ let list=roster.map((d,i)=>({d,i})).filter(x=>x.d.name.toLowerCase().includes(q)).sort((a,b)=>Number(b.d.active)-Number(a.d.active)||b.d.power-a.d.power||a.d.name.localeCompare(b.d.name));
+ document.querySelector("#rosterCount").textContent=`${activeCount} selected / ${roster.length}`;
+ document.querySelector("#rosterSetupBanner").classList.toggle("hidden",activeCount>0);
+ document.querySelector("#rosterList").innerHTML=list.map(({d,i})=>{
+  let aff=Object.entries(d.affinity||{}).map(([k,v])=>`<span class="aff ${v==="+"?"pos":v==="-"?"neg":""}">${TROOPS[k]?.split(" ")[0]||""} ${v||"·"}</span>`).join("");
+  let habits=Array.from({length:5},(_,h)=>{let unlocked=h<unlockedCount(d),rank=habitRank(d,h),impact=d.habitImpact?.[h]??"";return `<div class="habit-row ${unlocked?"":"locked"}"><div><div class="habit-name">${h+1}. ${esc(habitName(d,h))} ${unlocked?"":"· locked at "+((h+1)*2)+"★"}</div><div class="habit-desc">${esc(habitDesc(d,h))}</div></div><select class="select" title="Habit level" data-i="${i}" data-habit="${h}" ${unlocked?"":"disabled"}>${[1,2,3,4,5].map(r=>`<option ${r===rank?"selected":""}>Lv ${r}</option>`).join("")}</select><input class="input impact-input" title="Optional manual team-equivalent impact percent" aria-label="${esc(habitName(d,h))} manual impact percent" type="number" step="0.1" placeholder="Auto %" data-i="${i}" data-habit-impact="${h}" value="${impact}" ${unlocked?"":"disabled"}></div>`}).join("");
+  return `<details class="dragon ${d.active?"owned":""}" data-dragon-id="${d.id}"><summary>${dragonAvatar(d,"roster-avatar")}<span><span class="dragon-name">${esc(d.name)}</span><span class="dragon-meta">${d.rarity} · ${d.breed} · ${d.starRank}★ · Lv ${d.reignLevel}</span><span class="edit-hint">Open to edit Power, Stars, level & Habits</span></span><span class="roster-status"><span class="power ${d.power?"":"missing-power"}">${d.power?fmt(d.power):"Add power"}</span><input aria-label="Include ${esc(d.name)}" class="active-toggle" type="checkbox" data-i="${i}" data-field="active" ${d.active?"checked":""}></span></summary><div class="edit"><div class="grid3"><div class="field"><label>Current power</label><input class="input" type="number" min="0" data-i="${i}" data-field="power" value="${d.power}" placeholder="Enter power"></div><div class="field"><label>Stars</label><input class="input" type="number" min="1" max="10" data-i="${i}" data-field="starRank" value="${d.starRank}"></div><div class="field"><label>Reign level</label><input class="input" type="number" min="1" max="50" data-i="${i}" data-field="reignLevel" value="${d.reignLevel}"></div></div><div class="edit-section-label">Troop affinity</div><div class="affinities">${aff}</div><div class="edit-section-label">Habit levels · unlocked by Stars</div><div class="habits">${habits}</div></div></details>`
+ }).join("")||`<div class="empty"><p>No matching dragons.</p></div>`;
+ if(openId){let opened=document.querySelector(`[data-dragon-id="${openId}"]`);if(opened)opened.open=true}
+}
 function addReason(arr,points,text,warn=false){if(points>0.1)arr.push({points,text,warn})}
 function rankVal(values,rank){return values[Math.max(0,rank-1)]}
 function baseHabitContribution(d,i,rank,reasons){let p=d.power,manual=d.habitImpact?.[i];if(manual!==undefined&&manual!==null&&manual!==""){let points=p*Number(manual)/100;addReason(reasons,points,`${d.name} · ${habitName(d,i)} Lv ${rank} (manual ${manual}%)`);return points}let points=p*(.0045+.0025*rank);let special={
@@ -257,13 +282,13 @@ function chooseBudgetSiege(pool,count){let teams=[];let remaining=[...pool];for(
 function developmentTeam(pool,mode="future"){if(pool.length<3)return null;let best=null;for(let i=0;i<pool.length-2;i++)for(let j=i+1;j<pool.length-1;j++)for(let k=j+1;k<pool.length;k++){let trio=[pool[i],pool[j],pool[k]],potential=trio.reduce((s,d)=>{let locked=5-unlockedCount(d),levelNeed=Math.max(0,45-d.reignLevel);if(mode==="xp")return s+levelNeed*1800+d.power*.35;let ceiling={legendary:50000,epic:30000,rare:10000}[d.rarity]||10000;return s+ceiling+d.power*.4+locked*2000+Math.min(10,levelNeed)*600-(levelNeed===0?4000:0)},0);let hasFront=trio.some(d=>["tank","control"].includes(d.role)),hasSupport=trio.some(d=>d.role==="healer"),hasDamage=trio.some(d=>["fire","physical","tactical"].includes(d.role)||["fire","physical"].includes(d.damageType));if(hasFront&&hasSupport&&hasDamage)potential+=7500;let centerIndex=trio.findIndex(d=>["tank","control"].includes(d.role));if(centerIndex<0)centerIndex=1;let center=trio.splice(centerIndex,1)[0],leftIndex=trio.findIndex(d=>d.role==="healer");if(leftIndex<0)leftIndex=0;let left=trio.splice(leftIndex,1)[0],order=[left,center,trio[0]];let value=potential+scoreOrder(order,"archers","pvp",false).bonus*.15;if(!best||value>best.score)best={ids:order.map(d=>d.id),troop:"training",score:value,goal:"development"}}return best}
 function optimize(){let active=roster.filter(d=>d.active&&d.power>0);let pvpN=Number(document.querySelector("#pvpCount").value),siegeN=Number(document.querySelector("#siegeCount").value),devMode=document.querySelector("#development").value,siegePolicy=document.querySelector("#siegePolicy").value;if(active.length<3){toast("Activate at least three powered dragons");return}let pvp=chooseDisjoint(active,pvpN,"pvp"),pvpUsed=new Set(pvp.flatMap(t=>t.ids)),siegePool=active.filter(d=>!pvpUsed.has(d.id)),siege=siegePolicy==="budget"?chooseBudgetSiege(siegePool,siegeN):chooseDisjoint(siegePool,siegeN,"siege"),used=new Set([...pvp,...siege].flatMap(t=>t.ids)),remaining=active.filter(d=>!used.has(d.id)),dev=devMode!=="0"?developmentTeam(remaining,devMode):null;if(dev)dev.ids.forEach(id=>used.add(id));renderResults([...pvp,...siege,...(dev?[dev]:[])],active.filter(d=>!used.has(d.id)));toast(`Built ${pvp.length} PvP, ${siege.length} Siege${dev?" and 1 development":""} army`)}
 function renderResults(teams,benched){if(!teams.length)return;let total=teams.reduce((s,t)=>s+(t.goal==="development"?0:scoreOrder(resolveTeam(t),t.troop,t.goal,true).score),0);let deployed=new Set(teams.flatMap(t=>t.ids)).size,html=`<div class="summary-strip"><div class="stat"><b>${fmt(total)}</b><span>Modeled combat score</span></div><div class="stat"><b>${deployed}</b><span>Dragons deployed</span></div><div class="stat"><b>${teams.filter(t=>t.goal==="pvp").length}</b><span>PvP formations</span></div><div class="stat"><b>${teams.filter(t=>t.goal==="siege").length}</b><span>Siege formations</span></div></div>`;let counters={pvp:0,siege:0,development:0};for(let t of teams){let order=resolveTeam(t),kind=t.goal,c=++counters[kind],model=kind==="development"?scoreOrder(order,"archers","pvp",true):scoreOrder(order,t.troop,kind,true),label=kind==="pvp"?`PvP ${c}`:kind==="siege"?`Siege ${c}`:"Development",troop=kind==="development"?"Training / choose tile counter":TROOPS[t.troop],uplift=model.raw?model.bonus/model.raw*100:0;html+=`<article class="army"><div class="army-head"><div class="army-title"><b>${label}</b><span class="goal-pill">${kind}</span><span class="troop-pill">${troop}</span></div><div class="score"><b>${fmt(kind==="development"?t.score:model.score)}</b><small>${kind==="development"?"future potential":`+${uplift.toFixed(1)}% modeled uplift`}</small></div></div><div class="lanes">${order.map((d,i)=>`<div class="lane ${i===1?"center":""}"><div class="lane-label">${POSITIONS[i]}</div><div class="lane-name">${esc(d.name)}</div><div class="lane-sub">${d.starRank}★ · Lv ${d.reignLevel} · ${d.role} · ${d.damageType}</div><div class="lane-power">${fmt(d.power)}</div></div>`).join("")}</div><div class="why"><h4>${kind==="development"?"Why level these dragons":"Why this works"}</h4>${(kind==="development"?[...order].sort((a,b)=>(45-b.reignLevel)-(45-a.reignLevel)).map(d=>({points:(45-d.reignLevel)*420+d.power*(RARITY_WEIGHT[d.rarity]-1),text:`${d.name}: ${d.rarity} ceiling, ${Math.max(0,45-d.reignLevel)} levels available`})):model.reasons.slice(0,8)).map(r=>`<div class="reason ${r.warn?"warn":""}"><strong>+${fmt(r.points)}</strong><span>${esc(r.text)}</span></div>`).join("")}</div></article>`}if(benched.length)html+=`<div class="bench"><b>Available bench:</b> ${benched.sort((a,b)=>b.power-a.power).map(d=>`${esc(d.name)} (${fmt(d.power)})`).join(" · ")}</div>`;document.querySelector("#results").innerHTML=html}
-function updateField(el){let i=Number(el.dataset.i),d=roster[i];if(!d)return;if(el.dataset.habitImpact!=null){let h=Number(el.dataset.habitImpact);d.habitImpact=d.habitImpact||[];d.habitImpact[h]=el.value===""?null:Number(el.value)}else if(el.dataset.habit!=null){let h=Number(el.dataset.habit);d.habitRanks=d.habitRanks||[];d.habitRanks[h]=Number(el.value.replace(/\D/g,""))||1}else{let f=el.dataset.field;if(f==="active")d.active=el.checked;else if(["power","starRank","reignLevel"].includes(f)){let old=Number(d[f]),next=Number(el.value)||0;if((f==="starRank"||f==="reignLevel")&&old&&next&&d.power){let oldFactor=f==="starRank"?.8+.2*old:.9655+.0345*old,newFactor=f==="starRank"?.8+.2*next:.9655+.0345*next;d.power=Math.max(1,Math.round(d.power*newFactor/oldFactor))}d[f]=next}}save();renderRoster(d.id)}
-function exportJSON(){let payload={schema:"dragonfire-war-council/v1",updatedAt:new Date().toISOString(),roster};let blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="dragonfire-war-council-roster.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);toast("Roster exported")}
+function updateField(el){let i=Number(el.dataset.i),d=roster[i];if(!d)return;if(el.dataset.habitImpact!=null){let h=Number(el.dataset.habitImpact);d.habitImpact=d.habitImpact||[];d.habitImpact[h]=el.value===""?null:Number(el.value)}else if(el.dataset.habit!=null){let h=Number(el.dataset.habit);d.habitRanks=d.habitRanks||[];d.habitRanks[h]=Number(el.value.replace(/\D/g,""))||1}else{let f=el.dataset.field;if(f==="active")d.active=el.checked;else if(["power","starRank","reignLevel"].includes(f))d[f]=Number(el.value)||0}save();renderRoster(d.id)}
+function exportJSON(){let payload={schema:"dragonfire-war-council/v2",updatedAt:new Date().toISOString(),roster};let blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="dragonfire-war-council-roster.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);toast("Roster exported")}
 function importJSON(file){let reader=new FileReader();reader.onload=()=>{try{let parsed=JSON.parse(reader.result),items=Array.isArray(parsed)?parsed:parsed.roster;if(!Array.isArray(items))throw Error("No roster array");roster=items.map(normalizeDragon);save();renderRoster();toast(`Imported ${roster.length} dragons`)}catch(e){toast("That JSON does not contain a valid roster",true)}};reader.readAsText(file)}
 function toast(msg,bad=false){let el=document.querySelector("#toast");el.textContent=msg;el.style.background=bad?"var(--red)":"var(--green)";el.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove("show"),2200)}
-document.querySelector("#rosterList").addEventListener("change",e=>{if(e.target.dataset.i!=null)updateField(e.target)});document.querySelector("#search").addEventListener("input",renderRoster);document.querySelector("#optimizeBtn").addEventListener("click",()=>setTimeout(optimize,0));document.querySelector("#exportBtn").addEventListener("click",exportJSON);document.querySelector("#importBtn").addEventListener("click",()=>document.querySelector("#fileInput").click());document.querySelector("#fileInput").addEventListener("change",e=>{if(e.target.files[0])importJSON(e.target.files[0]);e.target.value=""});document.querySelector("#resetBtn").addEventListener("click",()=>{if(confirm("Restore the included default roster? Your current browser roster will be replaced.")){roster=clone(DEFAULT_ROSTER);save();renderRoster();document.querySelector("#results").innerHTML=`<div class="empty"><div><div class="sigil">◈</div><h3>Default roster restored</h3><p>Review your dragons, then optimize when ready.</p></div></div>`}});document.querySelector("#addBtn").addEventListener("click",()=>{let name=prompt("Dragon name");if(!name)return;roster.unshift(D(name,"rare","champion","control","tactical",0,1,1,{cavalry:0,shieldbearers:0,archers:0,spearmen:0,siege:0}));save();renderRoster()});renderRoster();
+document.querySelector("#rosterList").addEventListener("change",e=>{if(e.target.dataset.i!=null)updateField(e.target)});document.querySelector("#search").addEventListener("input",renderRoster);document.querySelector("#optimizeBtn").addEventListener("click",()=>setTimeout(optimize,0));document.querySelector("#exportBtn").addEventListener("click",exportJSON);document.querySelector("#importBtn").addEventListener("click",()=>document.querySelector("#fileInput").click());document.querySelector("#fileInput").addEventListener("change",e=>{if(e.target.files[0])importJSON(e.target.files[0]);e.target.value=""});document.querySelector("#resetBtn").addEventListener("click",()=>{if(confirm("Clear your roster and restore the safe rarity-based starting values?")){roster=clone(DEFAULT_ROSTER);save();renderRoster();document.querySelector("#results").innerHTML=`<div class="empty"><div><div class="sigil">◈</div><h3>Roster cleared</h3><p>Select your dragons, then enter your own stats.</p></div></div>`}});document.querySelector("#addBtn").addEventListener("click",()=>{let name=prompt("Dragon name");if(!name)return;roster.unshift(D(name,"rare","champion","control","tactical",0,1,1,{cavalry:0,shieldbearers:0,archers:0,spearmen:0,siege:0}));save();renderRoster()});renderRoster();
 document.querySelector("#rosterList").addEventListener("blur",e=>{if(e.target.dataset.i!=null&&e.target.dataset.field&&e.target.type==="number")updateField(e.target)},true);
 </script>
-<script src="product.js?v=0.3.2"></script>
+<script src="product.js?v=0.4.1"></script>
 </body>
 </html>

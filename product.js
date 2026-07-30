@@ -1,9 +1,10 @@
 (() => {
   const ROUTES = new Set(["home", "battle", "rankings", "builder", "dragons", "roadmap"]);
   const battleState = {
-    a: ["Sunfyre", "Vhagar", "Venator"],
-    b: ["Tairax", "Kalspire", "Tessarion"],
+    a: [null, null, null],
+    b: [null, null, null],
   };
+  let onboardingSelection = new Set();
 
   function routeTo(route, updateHash = true) {
     if (!ROUTES.has(route)) route = "home";
@@ -28,7 +29,7 @@
   document.querySelector("#optimizeBtn").addEventListener("click", () => routeTo("builder"));
 
   function poweredRoster() {
-    return roster.filter((dragon) => dragon.power > 0);
+    return roster.filter((dragon) => dragon.active && dragon.power > 0);
   }
 
   function troopOptions(selected, includeSiege = false) {
@@ -48,7 +49,7 @@
   function slotMarkup(side, lane, name) {
     const dragon = roster.find((item) => item.name === name) || poweredRoster()[0];
     return `<div class="battle-slot" data-side="${side}" data-lane="${lane}">
-      <div class="slot-info"><span class="slot-avatar">${initials(dragon?.name || "?")}</span><span><span class="slot-lane">${POSITIONS[lane]}</span><b class="dragon-name">${esc(dragon?.name || "Unknown")}</b><small class="dragon-meta">${dragon ? `${dragon.starRank}★ · ${dragon.role}` : ""}</small></span></div>
+      <div class="slot-info"><span class="slot-avatar">${dragon ? dragonAvatar(dragon,"battle-avatar") : ""}</span><span><span class="slot-lane">${POSITIONS[lane]}</span><b class="dragon-name">${esc(dragon?.name || "Unknown")}</b><small class="dragon-meta">${dragon ? `${dragon.starRank}★ · ${dragon.role}` : ""}</small></span></div>
       <select class="select battle-dragon-select" aria-label="${POSITIONS[lane]} dragon">${battleDragonOptions(dragon?.name)}</select>
       <span class="power">${fmt(dragon?.power || 0)}</span>
     </div>`;
@@ -56,18 +57,23 @@
 
   function renderBattleSetup() {
     const available = poweredRoster();
-    if (!available.length) return;
-    ["a", "b"].forEach((side) => {
-      battleState[side] = battleState[side].map((name, lane) => roster.find((dragon) => dragon.name === name && dragon.power > 0)?.name || available[(lane + (side === "b" ? 3 : 0)) % available.length].name);
-      const target = document.querySelector(`#battleTeam${side.toUpperCase()}`);
-      target.innerHTML = battleState[side].map((name, lane) => slotMarkup(side, lane, name)).join("");
-    });
     const troopA = document.querySelector("#battleTroopA");
     const troopB = document.querySelector("#battleTroopB");
     const oldA = troopA.value || "shieldbearers";
     const oldB = troopB.value || "cavalry";
     troopA.innerHTML = troopOptions(oldA);
     troopB.innerHTML = troopOptions(oldB);
+    if (available.length < 3) {
+      ["A", "B"].forEach((side) => { document.querySelector(`#battleTeam${side}`).innerHTML = `<div class="battle-setup-empty"><b>Roster setup needed</b><span>Select at least three dragons and enter their power before simulating.</span><button class="btn open-roster-setup">Set up my roster</button></div>`; });
+      document.querySelector("#runBattle").disabled = true;
+      return;
+    }
+    document.querySelector("#runBattle").disabled = false;
+    ["a", "b"].forEach((side) => {
+      battleState[side] = battleState[side].map((name, lane) => roster.find((dragon) => dragon.name === name && dragon.active && dragon.power > 0)?.name || available[(lane + (side === "b" ? 3 : 0)) % available.length].name);
+      const target = document.querySelector(`#battleTeam${side.toUpperCase()}`);
+      target.innerHTML = battleState[side].map((name, lane) => slotMarkup(side, lane, name)).join("");
+    });
   }
 
   document.querySelectorAll(".battle-slots").forEach((container) => container.addEventListener("change", (event) => {
@@ -392,7 +398,7 @@
       const { dragon } = item;
       const confidence = item.unlocked && item.known / item.unlocked >= 0.67 ? "high" : item.known ? "medium" : "low";
       const confidenceLabel = confidence === "high" ? "Documented" : confidence === "medium" ? "Partial" : "Modeled";
-      return `<tr><td class="rank-num">${index + 1}</td><td><span class="rank-dragon"><span class="orb ${dragon.rarity}">${initials(dragon.name)}</span><span><b>${esc(dragon.name)}</b><small>${dragon.rarity} · ${dragon.damageType}</small></span></span></td><td><span class="rating">${Math.round(item.rating)}</span><div class="rating-bar"><i style="width:${Math.max(5, item.rating / 10)}%"></i></div></td><td>${fmt(dragon.power)}</td><td>${TROOPS[bestTroop(dragon)]}</td><td>${item.unlocked}/5 · ${Math.round(item.habitReadiness * 100)}%</td><td style="text-transform:capitalize">${esc(dragon.role)}</td><td><span class="confidence ${confidence}">${confidenceLabel}</span></td></tr>`;
+      return `<tr><td class="rank-num">${index + 1}</td><td><span class="rank-dragon">${dragonAvatar(dragon,"rank-avatar")}<span><b>${esc(dragon.name)}</b><small>${dragon.rarity} · ${dragon.damageType}</small></span></span></td><td><span class="rating">${Math.round(item.rating)}</span><div class="rating-bar"><i style="width:${Math.max(5, item.rating / 10)}%"></i></div></td><td>${fmt(dragon.power)}</td><td>${TROOPS[bestTroop(dragon)]}</td><td>${item.unlocked}/5 · ${Math.round(item.habitReadiness * 100)}%</td><td style="text-transform:capitalize">${esc(dragon.role)}</td><td><span class="confidence ${confidence}">${confidenceLabel}</span></td></tr>`;
     }).join("") || `<tr><td colspan="8">No dragons match these filters.</td></tr>`;
   }
 
@@ -425,13 +431,78 @@
       const habitRows = Array.from({ length: Math.max(1, unlocked) }, (_, index) => `<div class="library-habit"><b>H${index + 1} · ${esc(habitName(dragon, index))} ${unlocked ? `Lv ${habitRank(dragon, index)}` : "Locked"}</b><br><span>${esc(habitDesc(dragon, index))}</span></div>`).join("");
       const missing = Array.from({ length: unlocked }, (_, index) => HD[`${dragon.name}:${index}`]).filter((value) => !value).length;
       const affinity = Object.entries(dragon.affinity || {}).filter(([troop]) => troop !== "siege").map(([troop, value]) => `<span class="${value === "+" ? "plus" : ""}">${TROOPS[troop].split(" ")[0]} ${value || "·"}</span>`).join("");
-      return `<article class="panel library-card"><div class="library-top"><div class="library-name"><span class="orb ${dragon.rarity}">${initials(dragon.name)}</span><span><h3>${esc(dragon.name)}</h3><small>${dragon.rarity} · ${dragon.breed} · ${dragon.role}</small></span></div><div class="library-power">${fmt(dragon.power)}<small>${dragon.starRank}★ · Lv ${dragon.reignLevel}</small></div></div><div class="kit-tags">${(dragon.tags || []).slice(0, 7).map((tag) => `<span class="kit-tag">${esc(tag)}</span>`).join("") || `<span class="kit-tag">kit data pending</span>`}</div><div class="habit-list">${habitRows}</div><div class="affinity-strip">${affinity}</div>${missing ? `<div class="data-gap">${missing} unlocked Habit description${missing > 1 ? "s" : ""} still use conservative model values.</div>` : ""}</article>`;
+      return `<article class="panel library-card"><div class="library-top"><div class="library-name">${dragonAvatar(dragon,"library-avatar")}<span><h3>${esc(dragon.name)}</h3><small>${dragon.rarity} · ${dragon.breed} · ${dragon.role}</small></span></div><div class="library-power">${dragon.power ? fmt(dragon.power) : "Not set"}<small>${dragon.starRank}★ · Lv ${dragon.reignLevel}</small></div></div><div class="kit-tags">${(dragon.tags || []).slice(0, 7).map((tag) => `<span class="kit-tag">${esc(tag)}</span>`).join("") || `<span class="kit-tag">kit data pending</span>`}</div><div class="habit-list">${habitRows}</div><div class="affinity-strip">${affinity}</div>${missing ? `<div class="data-gap">${missing} unlocked Habit description${missing > 1 ? "s" : ""} still use conservative model values.</div>` : ""}</article>`;
     }).join("") || `<div class="panel battle-empty"><h3>No matching dragons</h3><p>Try a broader filter.</p></div>`;
   }
 
   document.querySelector("#librarySearch").addEventListener("input", renderLibrary);
   document.querySelector("#libraryFilter").addEventListener("change", renderLibrary);
 
+  function onboardingDragons() {
+    const query = document.querySelector("#onboardingSearch").value.trim().toLowerCase();
+    const rarity = document.querySelector("#onboardingRarity").value;
+    return roster.filter((dragon) => (!query || dragon.name.toLowerCase().includes(query)) && (rarity === "all" || dragon.rarity === rarity));
+  }
+
+  function renderOnboarding() {
+    const dragons = onboardingDragons();
+    document.querySelector("#onboardingGrid").innerHTML = dragons.map((dragon) => {
+      const selected = onboardingSelection.has(dragon.id);
+      return `<button class="onboarding-dragon ${selected ? "selected" : ""}" data-onboarding-id="${dragon.id}" aria-pressed="${selected}">${dragonAvatar(dragon,"onboarding-avatar")}<span><b>${esc(dragon.name)}</b><small>${dragon.rarity} · ${dragon.starRank}★ · Lv ${dragon.reignLevel}</small></span><i>${selected ? "✓" : "+"}</i></button>`;
+    }).join("") || `<div class="onboarding-no-results">No dragons match this search.</div>`;
+    const count = onboardingSelection.size;
+    document.querySelector("#onboardingCount").textContent = `${count} selected`;
+    document.querySelector("#saveOnboarding").textContent = count ? `Save ${count} & edit stats` : "Save empty roster";
+  }
+
+  function openOnboarding() {
+    onboardingSelection = new Set(roster.filter((dragon) => dragon.active).map((dragon) => dragon.id));
+    document.querySelector("#onboardingSearch").value = "";
+    document.querySelector("#onboardingRarity").value = "all";
+    renderOnboarding();
+    document.querySelector("#onboarding").hidden = false;
+    document.body.classList.add("modal-open");
+    setTimeout(() => document.querySelector("#onboardingSearch").focus(), 0);
+  }
+
+  function closeOnboarding(markSeen = true) {
+    document.querySelector("#onboarding").hidden = true;
+    document.body.classList.remove("modal-open");
+    if (markSeen) localStorage.setItem(ONBOARDING_KEY, "1");
+  }
+
+  document.querySelector("#onboardingGrid").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-onboarding-id]");
+    if (!button) return;
+    const id = button.dataset.onboardingId;
+    if (onboardingSelection.has(id)) onboardingSelection.delete(id); else onboardingSelection.add(id);
+    renderOnboarding();
+  });
+  document.querySelector("#onboardingSearch").addEventListener("input", renderOnboarding);
+  document.querySelector("#onboardingRarity").addEventListener("change", renderOnboarding);
+  document.querySelector("#selectVisible").addEventListener("click", () => { onboardingDragons().forEach((dragon) => onboardingSelection.add(dragon.id)); renderOnboarding(); });
+  document.querySelector("#clearSelection").addEventListener("click", () => { onboardingSelection.clear(); renderOnboarding(); });
+  document.querySelector("#closeOnboarding").addEventListener("click", () => closeOnboarding());
+  document.querySelector("#onboarding").addEventListener("click", (event) => { if (event.target.id === "onboarding") closeOnboarding(); });
+  document.querySelector("#saveOnboarding").addEventListener("click", () => {
+    roster.forEach((dragon) => { dragon.active = onboardingSelection.has(dragon.id); });
+    save();
+    localStorage.setItem(ONBOARDING_KEY, "1");
+    const first = roster.find((dragon) => dragon.active);
+    document.querySelector("#search").value = "";
+    renderRoster(first?.id);
+    closeOnboarding(false);
+    routeTo("builder");
+    toast(first ? `${onboardingSelection.size} dragons selected. Add power and Habit levels next.` : "Empty roster saved. Choose dragons whenever you are ready.");
+  });
+  document.querySelector("#importOnboarding").addEventListener("click", () => document.querySelector("#fileInput").click());
+  document.querySelector("#setupRosterBtn").addEventListener("click", openOnboarding);
+  document.querySelector("#emptySetupBtn").addEventListener("click", openOnboarding);
+  document.addEventListener("click", (event) => { if (event.target.closest(".open-roster-setup")) openOnboarding(); });
+  document.querySelector("#resetBtn").addEventListener("click", () => setTimeout(() => { if (roster.every((dragon) => !dragon.active && dragon.power === 0)) { localStorage.removeItem(ONBOARDING_KEY); openOnboarding(); } }, 0));
+  document.querySelector("#fileInput").addEventListener("change", (event) => { if (event.target.files[0]) { localStorage.setItem(ONBOARDING_KEY, "1"); closeOnboarding(false); } });
+
   const initialRoute = ROUTES.has(location.hash.slice(1)) ? location.hash.slice(1) : "home";
   routeTo(initialRoute, false);
+  if (SHOULD_OPEN_ONBOARDING) setTimeout(openOnboarding, 180);
 })();
