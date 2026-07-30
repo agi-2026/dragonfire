@@ -13,7 +13,7 @@
     @media(max-width:620px){.shell{padding:0 10px 28px}.topbar{margin:0 -10px 12px;padding:12px 10px;align-items:flex-start}.brand p{display:none}.actions .btn{padding:8px}.btn span{display:none}.optimizer-controls,.lanes{grid-template-columns:1fr}.lane{min-height:92px}.grid3{grid-template-columns:1fr}.summary-strip{grid-template-columns:1fr 1fr}}
     .dragon-name,.dragon-meta{display:block}.habit-row{grid-template-columns:1fr 72px 72px}.impact-input{padding:7px 5px;text-align:center}
   </style>
-  <link rel="stylesheet" href="product.css?v=0.5.1">
+  <link rel="stylesheet" href="product.css?v=0.6.0">
 </head>
 <body>
 <div class="shell">
@@ -33,11 +33,11 @@
   <section class="product-view active" data-view="home">
     <div class="hero panel">
       <div class="hero-copy">
-        <div class="eyebrow">COMMUNITY COMBAT LAB · MODEL v0.5</div>
+        <div class="eyebrow">COMMUNITY COMBAT LAB · MODEL v0.6</div>
         <h2>Stop guessing.<br><span>Test the formation.</span></h2>
         <p>Simulate three-dragon battles, understand why a matchup swings, and build teams around Habits—not just the biggest power number.</p>
         <div class="hero-actions"><button class="btn primary" data-go="battle">Run a battle</button><button class="btn" data-go="builder">Build my teams</button></div>
-        <div class="trust-row"><span><b>33</b> dragons modeled</span><span><b>5</b> troop types</span><span><b>Private</b> browser-only roster</span></div>
+        <div class="trust-row"><span><b>33</b> dragons modeled</span><span><b>5,456</b> maxed trios checked</span><span><b>Private</b> by default</span></div>
       </div>
       <div class="hero-visual" aria-label="Three-lane battle preview">
         <div class="arena-glow"></div>
@@ -49,26 +49,28 @@
     </div>
     <div class="module-grid">
       <button class="module-card battle-card" data-go="battle"><span class="module-icon">⚔</span><span><small>SIMULATE</small><b>Battle Lab</b><em>Run repeatable matchups with troop affinity, lane order, Habits, status effects, and combat logs.</em></span><i>→</i></button>
-      <button class="module-card" data-go="rankings"><span class="module-icon">♛</span><span><small>DISCOVER</small><b>Rankings</b><em>Compare dragons by role, troop fit, unlocked Habits, and your current investment.</em></span><i>→</i></button>
+      <button class="module-card" data-go="rankings"><span class="module-icon">♛</span><span><small>DISCOVER</small><b>Rankings</b><em>Explore a maxed global formation index across every trio, lane order, and PvP troop type.</em></span><i>→</i></button>
       <button class="module-card" data-go="builder"><span class="module-icon">✦</span><span><small>ASSEMBLE</small><b>Team Builder</b><em>Optimize multiple disjoint PvP armies without sacrificing a budget siege squad.</em></span><i>→</i></button>
       <button class="module-card" data-go="dragons"><span class="module-icon">◈</span><span><small>RESEARCH</small><b>Dragon Library</b><em>Inspect stars, Habit unlocks, affinities, roles, and confidence notes in one place.</em></span><i>→</i></button>
     </div>
     <div class="status-grid">
       <article class="panel release-card"><div class="eyebrow">ALPHA PROMISE</div><h3>Transparent beats fake precision.</h3><p>Confirmed roster facts are kept separate from modeled combat assumptions. Every result carries a confidence label and a reproducible seed.</p></article>
       <article class="panel release-card"><div class="eyebrow">NEXT DATA MILESTONE</div><h3>Calibrate with battle reports.</h3><p>The engine is structured for real damage logs and balance patches. Community evidence can improve one mechanic without rewriting the whole simulator.</p></article>
+      <article class="panel release-card data-contribution-card"><div><div class="eyebrow">OPTIONAL COMMUNITY DATA</div><h3>Help improve the simulator.</h3><p>Send one anonymous snapshot containing active dragon names, rarity, Power, Stars, level, Habit levels, and whether Power is still a starter estimate. No username, email, guild, cookies, battle history, or saved formation names are included.</p><small>Your roster never uploads automatically. You will confirm before anything is sent.</small></div><div><button class="btn" id="contributeRoster">Contribute roster snapshot</button><span id="contributionStatus" aria-live="polite"></span></div></article>
     </div>
   </section>
 
   <section class="product-view" data-view="battle">
     <div class="page-heading"><div><div class="eyebrow">MONTE CARLO COMBAT</div><h2>Battle Lab</h2><p>Compare two three-dragon formations across hundreds of modeled battles.</p></div><span class="confidence medium">MODELED · MEDIUM CONFIDENCE</span></div>
+    <div class="saved-formation-bar panel"><div><b>Saved formations</b><span>Save a team once, then load it into either side of the arena.</span></div><select id="savedFormationSelect" class="select"><option value="">No saved formations yet</option></select><button class="btn" id="loadFormationA">Load into A</button><button class="btn" id="loadFormationB">Load into B</button><button class="btn ghost" id="deleteFormation">Delete</button></div>
     <div class="battle-shell">
       <section class="panel setup-panel">
-        <div class="battle-team-head gold"><span>Formation A</span><select id="battleTroopA" class="select compact"></select></div>
+        <div class="battle-team-head gold"><span>Formation A <small id="battleModeA">MY ROSTER</small></span><div><button class="btn compact-btn save-battle" data-side="a">Save</button><button class="btn compact-btn personal-battle" data-side="a" hidden>Use my roster</button><select id="battleTroopA" class="select compact"></select></div></div>
         <div id="battleTeamA" class="battle-slots"></div>
       </section>
       <div class="battle-center"><span>VS</span><button class="swap-btn" id="swapBattle" title="Swap formations">⇄</button></div>
       <section class="panel setup-panel">
-        <div class="battle-team-head violet"><span>Formation B</span><select id="battleTroopB" class="select compact"></select></div>
+        <div class="battle-team-head violet"><span>Formation B <small id="battleModeB">MY ROSTER</small></span><div><button class="btn compact-btn save-battle" data-side="b">Save</button><button class="btn compact-btn personal-battle" data-side="b" hidden>Use my roster</button><select id="battleTroopB" class="select compact"></select></div></div>
         <div id="battleTeamB" class="battle-slots"></div>
       </section>
     </div>
@@ -82,10 +84,13 @@
   </section>
 
   <section class="product-view" data-view="rankings">
-    <div class="page-heading"><div><div class="eyebrow">YOUR ROSTER · CURRENT PATCH</div><h2>Dragon Rankings</h2><p>A transparent investment-and-kit rating, designed to become a battle-matrix ranking as calibration improves.</p></div><button class="btn" id="rankExport">⇩ Export CSV</button></div>
-    <div class="ranking-controls panel"><input class="input" id="rankSearch" placeholder="Search dragon…"><select class="select" id="rankRole"><option value="all">All roles</option></select><select class="select" id="rankRarity"><option value="all">All rarities</option><option value="legendary">Legendary</option><option value="epic">Epic</option><option value="rare">Rare</option></select><select class="select" id="rankSort"><option value="rating">Overall rating</option><option value="power">Raw power</option><option value="habits">Habit readiness</option><option value="potential">Future potential</option></select></div>
-    <div class="ranking-note"><b>How to read this:</b> rating combines current power, unlocked Habit levels, troop fit, role utility, and known kit value. It is not presented as an official tier list.</div>
-    <div class="panel ranking-table-wrap"><table class="ranking-table"><thead><tr><th>#</th><th>Dragon</th><th>Rating</th><th>Power</th><th>Best troop</th><th>Habits</th><th>Role</th><th>Confidence</th></tr></thead><tbody id="rankingsBody"></tbody></table></div>
+    <div class="page-heading"><div><div class="eyebrow">MAXED META · MODEL v0.6</div><h2>Dragon Rankings</h2><p>A global formation benchmark independent of every visitor's personal roster.</p></div><button class="btn" id="rankExport">⇩ Export CSV</button></div>
+    <div class="meta-summary panel"><div><b>5,456</b><span>unique trios</span></div><div><b>130,944</b><span>lane + troop configurations</span></div><div><b>10★ · H5</b><span>all dragons normalized</span></div><p>Every trio is exhaustively checked across six lane orders and four PvP troop types. Equal standardized power isolates kit, lane, troop affinity, and team synergy.</p></div>
+    <div class="meta-formation-head"><div><div class="eyebrow">BEST MODELED CORES</div><h3>Top maxed formations</h3></div><span>Send any formation directly to Battle Lab</span></div>
+    <div id="metaFormations" class="meta-formations"><div class="panel meta-loading">Calculating all formations…</div></div>
+    <div class="ranking-controls panel"><input class="input" id="rankSearch" placeholder="Search dragon…"><select class="select" id="rankRole"><option value="all">All roles</option></select><select class="select" id="rankRarity"><option value="all">All rarities</option><option value="legendary">Legendary</option><option value="epic">Epic</option><option value="rare">Rare</option></select><select class="select" id="rankSort"><option value="rating">Meta rating</option><option value="appearances">Top-100 appearances</option><option value="best">Best formation score</option></select></div>
+    <div class="ranking-note"><b>How to read this:</b> 1000 is the strongest modeled maxed dragon in this formation index. It is not an official tier list or an observed win rate. Unknown Habit mechanics use conservative generic values until battle evidence improves them.</div>
+    <div class="panel ranking-table-wrap"><table class="ranking-table"><thead><tr><th>#</th><th>Dragon</th><th>Meta rating</th><th>Best trio</th><th>Best troop</th><th>Top 100</th><th>Role</th><th>Confidence</th></tr></thead><tbody id="rankingsBody"></tbody></table></div>
   </section>
 
   <section class="product-view" data-view="builder">
@@ -119,14 +124,14 @@
   <section class="product-view" data-view="roadmap">
     <div class="page-heading"><div><div class="eyebrow">FROM FAN TOOL TO COMMUNITY PLATFORM</div><h2>Product Roadmap</h2><p>Dragon PvP first. Progression systems follow once the combat foundation is trusted.</p></div><span class="confidence high">PUBLIC ALPHA PLAN</span></div>
     <div class="roadmap-grid">
-      <article class="panel roadmap-card current"><span>01 · NOW</span><h3>Combat foundation</h3><ul><li>Roster import and team optimizer</li><li>Seeded matchup simulation</li><li>Explainable local rankings</li><li>Dragon and Habit library</li></ul></article>
+      <article class="panel roadmap-card current"><span>01 · NOW</span><h3>Combat foundation</h3><ul><li>Roster import and team optimizer</li><li>Seeded matchup simulation</li><li>Global maxed formation index</li><li>Dragon and Habit library</li></ul></article>
       <article class="panel roadmap-card"><span>02 · CALIBRATE</span><h3>Community accuracy</h3><ul><li>Battle report uploader</li><li>Patch-versioned mechanics</li><li>Damage formula fitting</li><li>Public matchup matrix</li></ul></article>
       <article class="panel roadmap-card"><span>03 · EXPAND</span><h3>Account progression</h3><ul><li>Heirloom optimizer</li><li>Upgrade cost planner</li><li>Troop and commander data</li><li>Shareable profiles</li></ul></article>
       <article class="panel roadmap-card"><span>04 · SUSTAIN</span><h3>Community business</h3><ul><li>Optional supporter tier</li><li>Non-intrusive sponsorships</li><li>Creator and guild tools</li><li>Official developer data path</li></ul></article>
     </div>
     <div class="principles panel"><div><div class="eyebrow">THE MOAT</div><h3>Trusted data compounds. Copied visuals do not.</h3></div><p>Keep the brand original, document sources and patches, expose uncertainty, and make every result shareable. That is the credible path to donations, advertisers, and eventually an official relationship.</p></div>
   </section>
-  <footer class="footer">Unofficial, independent community tool. Dragon portraits are displayed from the <a href="https://gotdragonfire.com/dragons/" target="_blank" rel="noreferrer">official Dragonfire catalog</a>; game artwork and marks belong to Warner Bros. Entertainment and HBO. Your roster stays in this browser unless you export it.</footer>
+  <footer class="footer">Unofficial, independent community tool. Dragon portraits are displayed from the <a href="https://gotdragonfire.com/dragons/" target="_blank" rel="noreferrer">official Dragonfire catalog</a>; game artwork and marks belong to Warner Bros. Entertainment and HBO. Anonymous page analytics may count visits; your roster and saved formations stay in this browser unless you explicitly export or contribute them.</footer>
 </div>
 <input id="fileInput" class="hidden" type="file" accept="application/json,.json">
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -326,6 +331,14 @@ function toast(msg,bad=false){let el=document.querySelector("#toast");el.textCon
 document.querySelector("#rosterList").addEventListener("change",e=>{if(e.target.dataset.i!=null)updateField(e.target)});document.querySelector("#search").addEventListener("input",renderRoster);document.querySelector("#optimizeBtn").addEventListener("click",()=>setTimeout(optimize,0));document.querySelector("#exportBtn").addEventListener("click",exportJSON);document.querySelector("#importBtn").addEventListener("click",()=>document.querySelector("#fileInput").click());document.querySelector("#fileInput").addEventListener("change",e=>{if(e.target.files[0])importJSON(e.target.files[0]);e.target.value=""});document.querySelector("#resetBtn").addEventListener("click",()=>{if(confirm("Restore the recommended starter roster? Your current browser roster will be replaced.")){roster=clone(DEFAULT_ROSTER);save();renderRoster();document.querySelector("#results").innerHTML=`<div class="empty"><div><div class="sigil">◈</div><h3>Starter roster restored</h3><p>31 common dragons are selected with estimated stats. Review the two limited-release dragons, then customize your strongest dragons.</p></div></div>`;document.dispatchEvent(new CustomEvent("roster-reset"))}});document.querySelector("#addBtn").addEventListener("click",()=>{let name=prompt("Dragon name");if(!name)return;roster.unshift(D(name,"rare","champion","control","tactical",10000,3,20,{cavalry:0,shieldbearers:0,archers:0,spearmen:0,siege:0}));save();renderRoster()});renderRoster();
 document.querySelector("#rosterList").addEventListener("blur",e=>{if(e.target.dataset.i!=null&&e.target.dataset.field&&e.target.type==="number")updateField(e.target)},true);
 </script>
-<script src="product.js?v=0.5.1"></script>
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  window.va("beforeSend", function (event) {
+    try { var url = new URL(event.url); url.search = ""; url.hash = ""; return Object.assign({}, event, { url: url.toString() }); }
+    catch (_) { return event; }
+  });
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script src="product.js?v=0.6.0"></script>
 </body>
 </html>

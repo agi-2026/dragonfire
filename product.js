@@ -4,6 +4,9 @@
     a: [null, null, null],
     b: [null, null, null],
   };
+  const battleOverrides = { a: null, b: null };
+  const SAVED_FORMATIONS_KEY = "dragonfire-saved-formations-v1";
+  let metaBenchmarkCache = null;
   let onboardingSelection = new Set();
 
   function routeTo(route, updateHash = true) {
@@ -46,13 +49,20 @@
       .join("");
   }
 
-  function slotMarkup(side, lane, name) {
-    const dragon = roster.find((item) => item.name === name) || poweredRoster()[0];
+  function slotMarkup(side, lane, name, overrideDragon = null) {
+    const dragon = overrideDragon || roster.find((item) => item.name === name) || poweredRoster()[0];
+    const selector = overrideDragon
+      ? `<select class="select battle-dragon-select" disabled aria-label="${POSITIONS[lane]} maxed dragon"><option>${esc(dragon.name)} · MAXED</option></select>`
+      : `<select class="select battle-dragon-select" aria-label="${POSITIONS[lane]} dragon">${battleDragonOptions(dragon?.name)}</select>`;
     return `<div class="battle-slot" data-side="${side}" data-lane="${lane}">
       <div class="slot-info"><span class="slot-avatar">${dragon ? dragonAvatar(dragon,"battle-avatar") : ""}</span><span><span class="slot-lane">${POSITIONS[lane]}</span><b class="dragon-name">${esc(dragon?.name || "Unknown")}</b><small class="dragon-meta">${dragon ? `${dragon.starRank}★ · ${dragon.role}` : ""}</small></span></div>
-      <select class="select battle-dragon-select" aria-label="${POSITIONS[lane]} dragon">${battleDragonOptions(dragon?.name)}</select>
+      ${selector}
       <span class="power">${fmt(dragon?.power || 0)}</span>
     </div>`;
+  }
+
+  function maxedDragon(source) {
+    return { ...clone(source), active: true, power: 100000, starRank: 10, reignLevel: 50, habitRanks: [5, 5, 5, 5, 5], habitImpact: [] };
   }
 
   function renderBattleSetup() {
@@ -63,32 +73,95 @@
     const oldB = troopB.value || "cavalry";
     troopA.innerHTML = troopOptions(oldA);
     troopB.innerHTML = troopOptions(oldB);
-    if (available.length < 3) {
+    if (available.length < 3 && (!battleOverrides.a || !battleOverrides.b)) {
       ["A", "B"].forEach((side) => { document.querySelector(`#battleTeam${side}`).innerHTML = `<div class="battle-setup-empty"><b>Roster setup needed</b><span>Select at least three dragons and enter their power before simulating.</span><button class="btn open-roster-setup">Set up my roster</button></div>`; });
       document.querySelector("#runBattle").disabled = true;
       return;
     }
     document.querySelector("#runBattle").disabled = false;
     ["a", "b"].forEach((side) => {
-      battleState[side] = battleState[side].map((name, lane) => roster.find((dragon) => dragon.name === name && dragon.active && dragon.power > 0)?.name || available[(lane + (side === "b" ? 3 : 0)) % available.length].name);
       const target = document.querySelector(`#battleTeam${side.toUpperCase()}`);
-      target.innerHTML = battleState[side].map((name, lane) => slotMarkup(side, lane, name)).join("");
+      const override = battleOverrides[side];
+      document.querySelector(`#battleMode${side.toUpperCase()}`).textContent = override ? "MAXED META" : "MY ROSTER";
+      document.querySelector(`.personal-battle[data-side="${side}"]`).hidden = !override;
+      if (override) {
+        battleState[side] = override.map((dragon) => dragon.name);
+        target.innerHTML = override.map((dragon, lane) => slotMarkup(side, lane, dragon.name, dragon)).join("");
+      } else {
+        battleState[side] = battleState[side].map((name, lane) => roster.find((dragon) => dragon.name === name && dragon.active && dragon.power > 0)?.name || available[(lane + (side === "b" ? 3 : 0)) % available.length].name);
+        target.innerHTML = battleState[side].map((name, lane) => slotMarkup(side, lane, name)).join("");
+      }
     });
   }
 
   document.querySelectorAll(".battle-slots").forEach((container) => container.addEventListener("change", (event) => {
     const slot = event.target.closest(".battle-slot");
     if (!slot || !event.target.matches(".battle-dragon-select")) return;
+    battleOverrides[slot.dataset.side] = null;
     battleState[slot.dataset.side][Number(slot.dataset.lane)] = event.target.value;
     renderBattleSetup();
   }));
 
   document.querySelector("#swapBattle").addEventListener("click", () => {
     [battleState.a, battleState.b] = [battleState.b, battleState.a];
+    [battleOverrides.a, battleOverrides.b] = [battleOverrides.b, battleOverrides.a];
     const a = document.querySelector("#battleTroopA").value;
     document.querySelector("#battleTroopA").value = document.querySelector("#battleTroopB").value;
     document.querySelector("#battleTroopB").value = a;
     renderBattleSetup();
+  });
+
+  function savedFormations() {
+    try { return JSON.parse(localStorage.getItem(SAVED_FORMATIONS_KEY) || "[]").filter((item) => Array.isArray(item.dragonNames) && item.dragonNames.length === 3); }
+    catch (_) { return []; }
+  }
+
+  function renderSavedFormations(selectedId = "") {
+    const select = document.querySelector("#savedFormationSelect");
+    const items = savedFormations();
+    select.innerHTML = items.length ? `<option value="">Choose a saved formation…</option>${items.map((item) => `<option value="${esc(item.id)}" ${item.id === selectedId ? "selected" : ""}>${esc(item.name)} · ${item.mode === "maxed" ? "Maxed meta" : "My roster"}</option>`).join("")}` : `<option value="">No saved formations yet</option>`;
+  }
+
+  function saveFormation(side, suggestedName = "") {
+    const team = selectedBattleTeam(side);
+    if (team.length !== 3) return toast("Choose three dragons before saving", true);
+    const defaultName = suggestedName || team.map((dragon) => dragon.name).join(" / ");
+    const name = prompt("Formation name", defaultName);
+    if (!name) return;
+    const item = { id: `formation-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, name: name.trim(), dragonNames: team.map((dragon) => dragon.name), troop: document.querySelector(`#battleTroop${side.toUpperCase()}`).value, mode: battleOverrides[side] ? "maxed" : "personal", createdAt: new Date().toISOString() };
+    const items = savedFormations();
+    items.unshift(item);
+    localStorage.setItem(SAVED_FORMATIONS_KEY, JSON.stringify(items.slice(0, 30)));
+    renderSavedFormations(item.id);
+    toast("Formation saved in this browser");
+  }
+
+  function applyFormation(side, formation) {
+    const sources = formation.dragonNames.map((name) => (formation.mode === "maxed" ? DEFAULT_ROSTER : roster).find((dragon) => dragon.name === name)).filter(Boolean);
+    if (sources.length !== 3) return toast("One or more dragons are unavailable", true);
+    battleState[side] = sources.map((dragon) => dragon.name);
+    battleOverrides[side] = formation.mode === "maxed" ? sources.map(maxedDragon) : null;
+    routeTo("battle");
+    document.querySelector(`#battleTroop${side.toUpperCase()}`).value = formation.troop || "cavalry";
+  }
+
+  function loadSavedFormation(side) {
+    const id = document.querySelector("#savedFormationSelect").value;
+    const formation = savedFormations().find((item) => item.id === id);
+    if (!formation) return toast("Choose a saved formation first", true);
+    applyFormation(side, formation);
+  }
+
+  document.querySelectorAll(".save-battle").forEach((button) => button.addEventListener("click", () => saveFormation(button.dataset.side)));
+  document.querySelectorAll(".personal-battle").forEach((button) => button.addEventListener("click", () => { battleOverrides[button.dataset.side] = null; renderBattleSetup(); }));
+  document.querySelector("#loadFormationA").addEventListener("click", () => loadSavedFormation("a"));
+  document.querySelector("#loadFormationB").addEventListener("click", () => loadSavedFormation("b"));
+  document.querySelector("#deleteFormation").addEventListener("click", () => {
+    const id = document.querySelector("#savedFormationSelect").value;
+    if (!id) return toast("Choose a saved formation first", true);
+    localStorage.setItem(SAVED_FORMATIONS_KEY, JSON.stringify(savedFormations().filter((item) => item.id !== id)));
+    renderSavedFormations();
+    toast("Saved formation deleted");
   });
 
   function hashSeed(text) {
@@ -308,6 +381,7 @@
   }
 
   function selectedBattleTeam(side) {
+    if (battleOverrides[side]) return battleOverrides[side];
     return battleState[side].map((name) => roster.find((dragon) => dragon.name === name)).filter(Boolean);
   }
 
@@ -355,63 +429,163 @@
 
   document.querySelector("#runBattle").addEventListener("click", simulateMatchup);
 
-  function bestTroop(dragon) {
-    const entries = Object.keys(TROOPS).filter((troop) => troop !== "siege");
-    return entries.find((troop) => dragon.affinity?.[troop] === "+") || entries.find((troop) => dragon.affinity?.[troop] !== "-") || "cavalry";
-  }
-
-  function metrics(dragon) {
-    const unlocked = unlockedCount(dragon);
-    const ranks = Array.from({ length: unlocked }, (_, index) => habitRank(dragon, index));
-    const habitReadiness = unlocked ? ranks.reduce((sum, rank) => sum + rank, 0) / (unlocked * 5) : 0;
-    const known = Array.from({ length: unlocked }, (_, index) => Boolean(HD[`${dragon.name}:${index}`])).filter(Boolean).length;
-    const affinityCount = Object.values(dragon.affinity || {}).filter((value) => value === "+").length;
-    const utility = new Set(dragon.tags || []).size;
-    const absolute = dragon.power * (1 + unlocked * 0.035 + ranks.reduce((sum, rank) => sum + rank, 0) * 0.012 + affinityCount * 0.012 + utility * 0.004);
-    const potential = absolute + ({ legendary: 24000, epic: 13000, rare: 6000 }[dragon.rarity] || 0) + (5 - unlocked) * 1500 + Math.max(0, 45 - dragon.reignLevel) * 350;
-    return { absolute, potential, habitReadiness, known, unlocked };
+  function buildMetaBenchmark() {
+    if (metaBenchmarkCache) return metaBenchmarkCache;
+    const pool = DEFAULT_ROSTER.map(maxedDragon);
+    const troops = Object.keys(TROOPS).filter((troop) => troop !== "siege");
+    const formations = [];
+    for (let first = 0; first < pool.length - 2; first += 1) {
+      for (let second = first + 1; second < pool.length - 1; second += 1) {
+        for (let third = second + 1; third < pool.length; third += 1) {
+          const trio = [pool[first], pool[second], pool[third]];
+          let best = null;
+          for (const permutation of PERMS) {
+            const order = permutation.map((index) => trio[index]);
+            for (const troop of troops) {
+              const score = scoreOrder(order, troop, "pvp", false).score;
+              if (!best || score > best.score) best = { dragons: order, troop, score };
+            }
+          }
+          formations.push(best);
+        }
+      }
+    }
+    formations.sort((a, b) => b.score - a.score);
+    const top100 = formations.slice(0, 100);
+    const rows = pool.map((dragon) => {
+      const containing = formations.filter((formation) => formation.dragons.some((member) => member.name === dragon.name));
+      const top = containing.slice(0, 25);
+      const best = containing[0];
+      const topAppearances = top100.filter((formation) => formation.dragons.some((member) => member.name === dragon.name)).length;
+      const averageTop = top.reduce((sum, formation) => sum + formation.score, 0) / Math.max(1, top.length);
+      const index = best.score * 0.45 + averageTop * 0.45 + topAppearances * 1200;
+      const known = Array.from({ length: 5 }, (_, habit) => Boolean(HD[`${dragon.name}:${habit}`])).filter(Boolean).length;
+      return { dragon, best, bestScore: best.score, averageTop, topAppearances, index, known };
+    });
+    const maximum = Math.max(...rows.map((item) => item.index), 1);
+    rows.forEach((item) => { item.rating = item.index / maximum * 1000; });
+    metaBenchmarkCache = { formations, rows };
+    return metaBenchmarkCache;
   }
 
   function rankingRows() {
-    const data = poweredRoster().map((dragon) => ({ dragon, ...metrics(dragon) }));
-    const maximum = Math.max(...data.map((item) => item.absolute), 1);
-    data.forEach((item) => { item.rating = item.absolute / maximum * 1000; });
+    const data = [...buildMetaBenchmark().rows];
     const query = document.querySelector("#rankSearch").value.trim().toLowerCase();
     const role = document.querySelector("#rankRole").value;
     const rarity = document.querySelector("#rankRarity").value;
     const sort = document.querySelector("#rankSort").value;
     return data.filter(({ dragon }) => (!query || dragon.name.toLowerCase().includes(query)) && (role === "all" || dragon.role === role) && (rarity === "all" || dragon.rarity === rarity)).sort((a, b) => {
-      if (sort === "power") return b.dragon.power - a.dragon.power;
-      if (sort === "habits") return b.habitReadiness - a.habitReadiness || b.absolute - a.absolute;
-      if (sort === "potential") return b.potential - a.potential;
+      if (sort === "appearances") return b.topAppearances - a.topAppearances || b.rating - a.rating;
+      if (sort === "best") return b.bestScore - a.bestScore || b.rating - a.rating;
       return b.rating - a.rating;
     });
+  }
+
+  function renderMetaFormations() {
+    const formations = buildMetaBenchmark().formations.slice(0, 6);
+    document.querySelector("#metaFormations").innerHTML = formations.map((formation, index) => `<article class="panel meta-formation-card">
+      <div class="meta-rank"><span>#${index + 1}</span><b>${fmt(formation.score)}</b><small>formation index</small></div>
+      <div class="meta-lanes">${formation.dragons.map((dragon, lane) => `<div><small>${POSITIONS[lane]}</small>${dragonAvatar(dragon,"rank-avatar")}<b>${esc(dragon.name)}</b></div>`).join("")}</div>
+      <div class="meta-card-foot"><span>${TROOPS[formation.troop]} · 10★ · H5</span><button class="btn compact-btn test-meta" data-names="${esc(formation.dragons.map((dragon) => dragon.name).join("|"))}" data-troop="${formation.troop}">Test in Battle Lab</button></div>
+    </article>`).join("");
   }
 
   function renderRankings() {
     const roleSelect = document.querySelector("#rankRole");
     if (roleSelect.options.length === 1) {
-      [...new Set(roster.map((dragon) => dragon.role))].sort().forEach((role) => roleSelect.insertAdjacentHTML("beforeend", `<option value="${esc(role)}">${esc(role[0].toUpperCase() + role.slice(1))}</option>`));
+      [...new Set(DEFAULT_ROSTER.map((dragon) => dragon.role))].sort().forEach((role) => roleSelect.insertAdjacentHTML("beforeend", `<option value="${esc(role)}">${esc(role[0].toUpperCase() + role.slice(1))}</option>`));
     }
+    renderMetaFormations();
     const rows = rankingRows();
     document.querySelector("#rankingsBody").innerHTML = rows.map((item, index) => {
       const { dragon } = item;
-      const confidence = item.unlocked && item.known / item.unlocked >= 0.67 ? "high" : item.known ? "medium" : "low";
+      const confidence = item.known >= 4 ? "high" : item.known >= 1 ? "medium" : "low";
       const confidenceLabel = confidence === "high" ? "Documented" : confidence === "medium" ? "Partial" : "Modeled";
-      return `<tr><td class="rank-num">${index + 1}</td><td><span class="rank-dragon">${dragonAvatar(dragon,"rank-avatar")}<span><b>${esc(dragon.name)}</b><small>${dragon.rarity} · ${dragon.damageType}</small></span></span></td><td><span class="rating">${Math.round(item.rating)}</span><div class="rating-bar"><i style="width:${Math.max(5, item.rating / 10)}%"></i></div></td><td>${fmt(dragon.power)}</td><td>${TROOPS[bestTroop(dragon)]}</td><td>${item.unlocked}/5 · ${Math.round(item.habitReadiness * 100)}%</td><td style="text-transform:capitalize">${esc(dragon.role)}</td><td><span class="confidence ${confidence}">${confidenceLabel}</span></td></tr>`;
+      const partners = item.best.dragons.filter((member) => member.name !== dragon.name).map((member) => member.name).join(" + ");
+      return `<tr><td class="rank-num">${index + 1}</td><td><span class="rank-dragon">${dragonAvatar(dragon,"rank-avatar")}<span><b>${esc(dragon.name)}</b><small>${dragon.rarity} · ${dragon.damageType}</small></span></span></td><td><span class="rating">${Math.round(item.rating)}</span><div class="rating-bar"><i style="width:${Math.max(5, item.rating / 10)}%"></i></div></td><td><span class="best-trio">${esc(partners)}</span></td><td>${TROOPS[item.best.troop]}</td><td><b>${item.topAppearances}</b> / 100</td><td style="text-transform:capitalize">${esc(dragon.role)}</td><td><span class="confidence ${confidence}">${confidenceLabel}</span></td></tr>`;
     }).join("") || `<tr><td colspan="8">No dragons match these filters.</td></tr>`;
   }
 
   ["rankSearch", "rankRole", "rankRarity", "rankSort"].forEach((id) => document.querySelector(`#${id}`).addEventListener(id === "rankSearch" ? "input" : "change", renderRankings));
   document.querySelector("#rankExport").addEventListener("click", () => {
-    const lines = [["Rank", "Dragon", "Rating", "Power", "Best troop", "Habits unlocked", "Role"]];
-    rankingRows().forEach((item, index) => lines.push([index + 1, item.dragon.name, Math.round(item.rating), item.dragon.power, TROOPS[bestTroop(item.dragon)].replace(/^\S+\s/, ""), item.unlocked, item.dragon.role]));
+    const lines = [["Rank", "Dragon", "Meta rating", "Best trio partners", "Best troop", "Top-100 appearances", "Role"]];
+    rankingRows().forEach((item, index) => lines.push([index + 1, item.dragon.name, Math.round(item.rating), item.best.dragons.filter((dragon) => dragon.name !== item.dragon.name).map((dragon) => dragon.name).join(" + "), TROOPS[item.best.troop].replace(/^\S+\s/, ""), item.topAppearances, item.dragon.role]));
     const csv = lines.map((line) => line.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(",")).join("\n");
     const link = document.createElement("a");
     link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
     link.download = "dragonfire-rankings.csv";
     link.click();
     setTimeout(() => URL.revokeObjectURL(link.href), 500);
+  });
+
+  document.querySelector("#metaFormations").addEventListener("click", (event) => {
+    const button = event.target.closest(".test-meta");
+    if (!button) return;
+    applyFormation("b", { dragonNames: button.dataset.names.split("|"), troop: button.dataset.troop, mode: "maxed" });
+    toast("Maxed meta formation loaded into B");
+  });
+
+  function saveFormationData(dragonNames, troop, mode = "personal") {
+    const name = prompt("Formation name", dragonNames.join(" / "));
+    if (!name) return;
+    const items = savedFormations();
+    const item = { id: `formation-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, name: name.trim(), dragonNames, troop, mode, createdAt: new Date().toISOString() };
+    items.unshift(item);
+    localStorage.setItem(SAVED_FORMATIONS_KEY, JSON.stringify(items.slice(0, 30)));
+    renderSavedFormations(item.id);
+    toast("Formation saved in this browser");
+  }
+
+  function enhanceBuilderResults() {
+    document.querySelectorAll("#results .army:not([data-battle-ready])").forEach((army) => {
+      const dragonNames = [...army.querySelectorAll(".lane-name")].map((node) => node.textContent.trim());
+      if (dragonNames.length !== 3) return;
+      const troopLabel = army.querySelector(".troop-pill")?.textContent.trim();
+      const troop = Object.entries(TROOPS).find(([, label]) => label === troopLabel)?.[0] || "archers";
+      const actions = document.createElement("div");
+      actions.className = "army-actions";
+      actions.innerHTML = `<button class="btn compact-btn builder-test">⚔ Test in Battle Lab</button><button class="btn compact-btn builder-save">Save formation</button>`;
+      actions.querySelector(".builder-test").addEventListener("click", () => {
+        applyFormation("a", { dragonNames, troop, mode: "personal" });
+        toast("Formation loaded into A");
+      });
+      actions.querySelector(".builder-save").addEventListener("click", () => saveFormationData(dragonNames, troop));
+      army.append(actions);
+      army.dataset.battleReady = "true";
+    });
+  }
+
+  new MutationObserver(enhanceBuilderResults).observe(document.querySelector("#results"), { childList: true, subtree: true });
+
+  document.querySelector("#contributeRoster").addEventListener("click", async () => {
+    const active = roster.filter((dragon) => dragon.active).map((dragon) => ({
+      name: dragon.name,
+      rarity: dragon.rarity,
+      power: Number(dragon.power) || 0,
+      stars: Number(dragon.starRank) || 1,
+      level: Number(dragon.reignLevel) || 1,
+      habitRanks: Array.from({ length: unlockedCount(dragon) }, (_, index) => habitRank(dragon, index)),
+      estimatedPower: Boolean(dragon.estimatedPower),
+    }));
+    if (!active.length) return toast("Your active roster is empty", true);
+    const approved = confirm(`Contribute one anonymous snapshot of ${active.length} active dragons?\n\nSent: dragon names, rarity, Power, Stars, level, Habit levels, starter-estimate markers, and model version.\nNot sent: username, email, guild, cookies, saved teams, or battle history.`);
+    if (!approved) return;
+    const button = document.querySelector("#contributeRoster");
+    const status = document.querySelector("#contributionStatus");
+    button.disabled = true;
+    status.textContent = "Sending…";
+    try {
+      const response = await fetch("/api/contribute-roster", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modelVersion: "0.6.0", consentVersion: "2026-07-29", roster: active }) });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || "Contribution service is not connected yet");
+      status.textContent = "Thank you — snapshot received.";
+      toast("Anonymous roster snapshot contributed");
+    } catch (error) {
+      status.textContent = error.message;
+      toast(error.message, true);
+    } finally {
+      button.disabled = false;
+    }
   });
 
   function renderLibrary() {
@@ -514,6 +688,8 @@
   document.addEventListener("roster-reset", () => { localStorage.removeItem(ONBOARDING_KEY); openOnboarding(); });
   document.querySelector("#fileInput").addEventListener("change", (event) => { if (event.target.files[0]) { localStorage.setItem(ONBOARDING_KEY, "1"); closeOnboarding(false); } });
 
+  renderSavedFormations();
+  enhanceBuilderResults();
   const initialRoute = ROUTES.has(location.hash.slice(1)) ? location.hash.slice(1) : "home";
   routeTo(initialRoute, false);
   if (SHOULD_OPEN_ONBOARDING) setTimeout(openOnboarding, 180);
