@@ -15,7 +15,7 @@ Open `http://127.0.0.1:4173`. The site has no frontend build step or account sys
 1. **My Team** is the everyday roster editor. Search or filter every imported dragon, toggle ownership, enter Power or level directly, fine-tune them with sliders and step buttons, set Stars directly, and edit every unlocked Habit from a dedicated tab.
 2. **Battle Lab** compares two three-dragon formations over a seeded Monte Carlo run.
 3. **Data Lab** exposes sourced level-one attributes and mechanic coverage. Competitive rankings are intentionally unpublished until power curves, Commands, Vanguards, Habit scaling, and battle outcomes are validated.
-4. **Team Builder** starts from one dragon the player wants to use. It tests every partner pair, lane order, and PvP troop type, then compares current teams with a core-only future investment target. It also surfaces partner movement, Habit unlock breakpoints, risk conditions, and modeled breaker teams.
+4. **Team Builder** starts from one dragon the player wants to use. It tests every partner pair, lane order, and PvP troop type, then compares the current roster with a lineup-wide future progression floor. It also surfaces partner movement, Habit unlock breakpoints, risk conditions, and modeled breaker teams.
 5. **Team Optimizer** turns the complete roster into disjoint PvP, siege, and development squads. Its compact dragon grid supports desktop hover previews and a focused editor drawer for Power, Stars, level, ownership, and Habit ranks.
 6. **Dragon Library** exposes the data and confidence behind each recommendation.
 
@@ -86,7 +86,7 @@ This follows the useful product loop popularized by matchup simulators such as P
 - Seeded damage variance, Burn, Panic, Stagger, healing/recovery, and a round cap
 - A representative battle log plus aggregate win rate, duration, and remaining health
 - Core-dragon team search across every legal partner pair, all six lane orders, and every non-siege troop type
-- A core-only future projection for Stars, level, and unlocked Habit ranks, with current-versus-potential partner movement
+- A lineup-wide future projection for Stars, level, and unlocked Habit ranks, with current-versus-potential partner movement and no downgrades for dragons already above the selected floor
 
 ## What is not yet confirmed
 

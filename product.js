@@ -319,12 +319,60 @@
     return `<article class="core-formation-card ${mode}" data-team="${esc(names.join("|"))}" data-troop="${formation.troop}"><header><span class="core-rank">#${index + 1}</span><div><b>${names.map(esc).join(" · ")}</b><small>${esc(TROOPS[formation.troop])} · ${shiftLabel}</small></div><strong>${formation.uplift.toFixed(1)}%<small>synergy uplift</small></strong></header><div class="core-formation-lanes">${formation.order.map((dragon, lane) => `<div class="core-lane ${lane === 1 ? "center" : ""}">${dragonAvatar(dragon,"core-lane-avatar")}<span><small>${POSITIONS[lane]}</small><b>${esc(dragon.name)}</b><em>${dragon.starRank}★ · Lv ${dragon.reignLevel}</em></span></div>`).join("")}</div><div class="core-reasons">${formation.reasons.slice(0, 3).map((reason) => `<span><i>+</i>${esc(reason.text)}</span>`).join("")}</div><footer><button class="btn compact-btn core-test-team">⚔ Test current roster</button><button class="btn compact-btn core-save-team">Save lineup</button></footer></article>`;
   }
 
-  function partnerRankingMarkup(formations, coreName) {
+  function partnerRankingMarkup(formations, coreName, comparisonFormations = []) {
+    const comparison = new Map();
+    comparisonFormations.forEach((formation, index) => formation.order.filter((dragon) => dragon.name !== coreName).forEach((dragon) => {
+      if (!comparison.has(dragon.name)) comparison.set(dragon.name, index + 1);
+    }));
     const partners = new Map();
     formations.forEach((formation, index) => formation.order.filter((dragon) => dragon.name !== coreName).forEach((dragon) => {
       if (!partners.has(dragon.name)) partners.set(dragon.name, { dragon, rank: index + 1, formation });
     }));
-    return [...partners.values()].sort((a, b) => a.rank - b.rank).slice(0, 6).map((item, index) => `<div class="partner-row"><span>${index + 1}</span>${dragonAvatar(item.dragon,"partner-avatar")}<div><b>${esc(item.dragon.name)}</b><small>Best formation #${item.rank} · ${esc(item.dragon.role)}</small></div><strong>+${item.formation.uplift.toFixed(1)}%</strong></div>`).join("");
+    return [...partners.values()].sort((a, b) => a.rank - b.rank).slice(0, 8).map((item, index) => {
+      const oldRank = comparison.get(item.dragon.name);
+      const shift = oldRank ? oldRank - item.rank : 0;
+      const shiftCopy = comparisonFormations.length ? (shift > 0 ? ` · ↑${shift} formation ranks` : shift < 0 ? ` · ↓${Math.abs(shift)} formation ranks` : " · same best rank") : "";
+      return `<div class="partner-row"><span>${index + 1}</span>${dragonAvatar(item.dragon,"partner-avatar")}<div><b>${esc(item.dragon.name)}</b><small>Best formation #${item.rank} · ${esc(item.dragon.role)}${shiftCopy}</small></div><strong>+${item.formation.uplift.toFixed(1)}%</strong></div>`;
+    }).join("");
+  }
+
+  function partnerBestFormationMap(formations, coreName) {
+    const partners = new Map();
+    formations.forEach((formation, index) => formation.order.filter((dragon) => dragon.name !== coreName).forEach((dragon) => {
+      if (!partners.has(dragon.name)) partners.set(dragon.name, { rank: index + 1, formation });
+    }));
+    return partners;
+  }
+
+  function scenarioMoversMarkup(core, currentFormations, potentialFormations, currentPool, projectedPool) {
+    const currentBest = partnerBestFormationMap(currentFormations, core.name);
+    const potentialBest = partnerBestFormationMap(potentialFormations, core.name);
+    const currentByName = new Map(currentPool.map((dragon) => [dragon.name, dragon]));
+    return projectedPool
+      .filter((dragon) => dragon.name !== core.name && potentialBest.has(dragon.name))
+      .map((dragon) => {
+        const current = currentByName.get(dragon.name);
+        const before = currentBest.get(dragon.name);
+        const after = potentialBest.get(dragon.name);
+        const rankGain = (before?.rank || potentialFormations.length) - after.rank;
+        const habitGain = unlockedCount(dragon) - unlockedCount(current);
+        const starGain = dragon.starRank - current.starRank;
+        const levelGain = dragon.reignLevel - current.reignLevel;
+        let priority = 0;
+        let note = habitGain > 0 ? `${habitGain} new Habit${habitGain === 1 ? "" : "s"}: ${Array.from({ length: unlockedCount(dragon) }, (_, index) => index).slice(unlockedCount(current)).map((index) => habitName(dragon, index)).join(" · ")}` : "No new Habit slot at this floor";
+        if (core.name === "Vhagar" && dragon.name === "Venator" && unlockedCount(dragon) >= 2 && unlockedCount(projectedPool.find((item) => item.name === core.name)) >= 2) {
+          priority = 2;
+          note = "Battle Leader compounds Venator’s 4★ physical-damage Habit on the right flank.";
+        }
+        if (core.name === "Vhagar" && dragon.name === "Malachite") {
+          priority = 1;
+          note = unlockedCount(dragon) >= 2 ? "Malachite’s sustain protects Vhagar’s Taunt frontline; 4★ also unlocks Wise Vigor." : "Malachite’s sustain protects Vhagar’s Taunt frontline.";
+        }
+        return { dragon, current, before, after, rankGain, habitGain, starGain, levelGain, note, priority };
+      })
+      .sort((a, b) => b.priority - a.priority || b.rankGain - a.rankGain || b.habitGain - a.habitGain || b.starGain - a.starGain || a.after.rank - b.after.rank)
+      .slice(0, 8)
+      .map((item) => `<article class="scenario-mover">${dragonAvatar(item.dragon,"scenario-mover-avatar")}<div><b>${esc(item.dragon.name)}</b><small>${item.current.starRank}★ → ${item.dragon.starRank}★ · Lv ${item.current.reignLevel} → ${item.dragon.reignLevel}</small><p>${esc(item.note)}</p></div><strong class="${item.rankGain > 0 ? "up" : item.rankGain < 0 ? "down" : ""}">${item.before.rank} → ${item.after.rank}<small>best formation rank</small></strong></article>`).join("");
   }
 
   function counterStatFor(damageType) {
@@ -389,7 +437,7 @@
     if (!select.value) select.value = active[0].name;
     const core = active.find((dragon) => dragon.name === select.value) || active[0];
     const target = coreBuilderTargets();
-    const projectedPool = active.map((dragon) => dragon.name === core.name ? projectedDragon(dragon, target.stars, target.level, target.habit) : clone(dragon));
+    const projectedPool = active.map((dragon) => projectedDragon(dragon, target.stars, target.level, target.habit));
     const projectedCore = projectedPool.find((dragon) => dragon.name === core.name);
     document.querySelector("#coreDragonPreview").innerHTML = corePreviewMarkup(core, projectedCore);
 
@@ -399,12 +447,13 @@
     const potentialRanks = formationRankMap(potentialFormations);
     const currentBest = currentFormations[0];
     const threats = breakerTeams(currentBest, active);
-    const powerGain = core.power ? (projectedCore.power / core.power - 1) * 100 : 0;
+    const changedDragons = projectedPool.filter((dragon, index) => dragon.starRank !== active[index].starRank || dragon.reignLevel !== active[index].reignLevel || unlockedCount(dragon) !== unlockedCount(active[index])).length;
     const sourcedCore = canonicalByName.get(core.name);
 
-    results.innerHTML = `<section class="panel core-builder-summary"><div class="core-summary-hero">${dragonAvatar(core,"core-summary-avatar")}<div><div class="eyebrow">BUILD AROUND ${esc(core.name)}</div><h3>${esc(core.name)} has ${currentFormations.length} legal partner pairs</h3><p>Current ranking uses today’s Power, Stars, level, and Habit ranks. Potential ranking upgrades only ${esc(core.name)} to ${projectedCore.starRank}★, level ${projectedCore.reignLevel}, and Habit level ${target.habit}; every partner stays exactly as entered.</p></div><div class="core-ceiling"><small>MODELED CORE GROWTH</small><b>+${powerGain.toFixed(0)}%</b><span>${unlockedCount(core)} → ${unlockedCount(projectedCore)} unlocked Habits</span></div></div>${sourcedCore ? `<div class="core-source-strip"><span><b>Command:</b> ${esc(sourcedCore.command.text)}</span><span><b>Vanguard:</b> ${esc(sourcedCore.vanguard.text)}</span><em>Source text shown for context; effects remain partially encoded.</em></div>` : ""}</section>
-      <section class="core-ranking-grid"><div><div class="core-section-title"><span>01</span><div><h3>Current ranking</h3><p>Best formations using your roster exactly as entered.</p></div></div><div class="core-formation-list">${currentFormations.slice(0, 5).map((formation, index) => formationCardMarkup(formation, index, potentialRanks, "current")).join("")}</div></div><div><div class="core-section-title"><span>02</span><div><h3>Potential ranking</h3><p>Only the selected core advances; its partners remain current.</p></div></div><div class="core-formation-list">${potentialFormations.slice(0, 5).map((formation, index) => formationCardMarkup(formation, index, currentRanks, "potential")).join("")}</div></div></section>
-      <section class="core-partner-grid"><article class="panel"><div class="core-section-title compact"><span>A</span><div><h3>Best partners now</h3><p>Partner’s highest-ranked formation with ${esc(core.name)}.</p></div></div><div class="partner-list">${partnerRankingMarkup(currentFormations, core.name)}</div></article><article class="panel"><div class="core-section-title compact"><span>B</span><div><h3>Best partners at potential</h3><p>Who rises when Star-gated kits come online.</p></div></div><div class="partner-list">${partnerRankingMarkup(potentialFormations, core.name)}</div></article></section>
+    results.innerHTML = `<section class="panel core-builder-summary"><div class="core-summary-hero">${dragonAvatar(core,"core-summary-avatar")}<div><div class="eyebrow">BUILD AROUND ${esc(core.name)}</div><h3>${esc(core.name)} has ${currentFormations.length} legal partner pairs</h3><p>Current ranking uses your roster exactly as entered. Potential ranking raises every candidate dragon to at least ${target.stars}★, level ${target.level}, and Habit level ${target.habit}; dragons already above that floor keep their stronger stats.</p></div><div class="core-ceiling"><small>LINEUP SCENARIO</small><b>${changedDragons}</b><span>candidate dragon${changedDragons === 1 ? "" : "s"} advance at this floor</span></div></div>${sourcedCore ? `<div class="core-source-strip"><span><b>Command:</b> ${esc(sourcedCore.command.text)}</span><span><b>Vanguard:</b> ${esc(sourcedCore.vanguard.text)}</span><em>Source text shown for context; effects remain partially encoded.</em></div>` : ""}</section>
+      <section class="core-ranking-grid"><div><div class="core-section-title"><span>01</span><div><h3>Current ranking</h3><p>Best formations using your roster exactly as entered.</p></div></div><div class="core-formation-list">${currentFormations.slice(0, 5).map((formation, index) => formationCardMarkup(formation, index, potentialRanks, "current")).join("")}</div></div><div><div class="core-section-title"><span>02</span><div><h3>Potential ranking</h3><p>Every dragon in each candidate trio advances to the selected scenario floor.</p></div></div><div class="core-formation-list">${potentialFormations.slice(0, 5).map((formation, index) => formationCardMarkup(formation, index, currentRanks, "potential")).join("")}</div></div></section>
+      <section class="core-partner-grid"><article class="panel"><div class="core-section-title compact"><span>A</span><div><h3>Best partners now</h3><p>Partner’s highest-ranked formation with ${esc(core.name)}.</p></div></div><div class="partner-list">${partnerRankingMarkup(currentFormations, core.name)}</div></article><article class="panel"><div class="core-section-title compact"><span>B</span><div><h3>Best partners at potential</h3><p>Who rises when every candidate can reach the scenario floor.</p></div></div><div class="partner-list">${partnerRankingMarkup(potentialFormations, core.name, currentFormations)}</div></article></section>
+      <section class="panel core-scenario-movers"><div class="core-section-title compact"><span>↗</span><div><h3>Potential movers</h3><p>Largest changes in each partner’s best formation rank, including new Star-gated Habit interactions.</p></div></div><div class="scenario-mover-list">${scenarioMoversMarkup(core, currentFormations, potentialFormations, active, projectedPool)}</div></section>
       <section class="core-analysis-grid"><article class="panel core-breakpoints"><div class="core-section-title compact"><span>★</span><div><h3>Investment breakpoints</h3><p>What the selected target unlocks for the core dragon.</p></div></div><div class="breakpoint-list">${investmentMilestonesMarkup(core, projectedCore)}</div></article><article class="panel core-threats"><div class="core-section-title compact"><span>!</span><div><h3>Threat profile</h3><p>Conditions that can break the core plan.</p></div></div><div class="threat-note-list">${coreRiskNotes(core).map((note) => `<span>${esc(note)}</span>`).join("")}</div></article></section>
       <section class="panel breaker-section"><div class="core-section-title compact"><span>×</span><div><h3>Modeled breaker teams</h3><p>High-pressure combinations from your active roster whose defensive stats and control line up well into the current #1 core formation.</p></div></div><div class="breaker-grid">${threats.map((threat, index) => `<article><header><span>#${index + 1}</span><b>${threat.team.map((dragon) => esc(dragon.name)).join(" · ")}</b><small>${esc(TROOPS[threat.troop])}</small></header><div>${threat.team.map((dragon) => dragonAvatar(dragon,"breaker-avatar")).join("")}</div><p>Avg. relevant defense ${threat.defense.toFixed(0)} · ${threat.control} control source${threat.control === 1 ? "" : "s"} · ${threat.sustain} sustain source${threat.sustain === 1 ? "" : "s"}</p></article>`).join("")}</div><div class="core-disclaimer">These are matchup hypotheses from the explainable synergy model, not proven counters. Battle-report calibration remains the publication gate.</div></section>`;
   }
@@ -896,7 +945,7 @@
     button.disabled = true;
     status.textContent = "Sending…";
     try {
-      const response = await fetch("/api/contribute-roster", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modelVersion: "0.11.1", consentVersion: "2026-07-29", roster: active }) });
+      const response = await fetch("/api/contribute-roster", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modelVersion: "0.12.0", consentVersion: "2026-07-29", roster: active }) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Contribution service is not connected yet");
       status.textContent = "Thank you — snapshot received.";

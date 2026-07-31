@@ -4,7 +4,7 @@ Dragonfire War Council should match the useful workflow of established Dragonfir
 
 ## Product comparison
 
-| Capability | Established simulator benchmark | War Council 0.11.1 | Decision |
+| Capability | Established simulator benchmark | War Council 0.12.0 | Decision |
 | --- | --- | --- | --- |
 | Personal roster | Stars, level, Habits | Dedicated My Team editor for Power, Stars, level, Habit ranks, ownership, filters, and local autosave | Keep and add verified stat derivation |
 | Combat engine | Claimed round-by-round calibration from game captures | Seeded prototype with incomplete formulas | Highest-priority rebuild |
@@ -18,7 +18,7 @@ Dragonfire War Council should match the useful workflow of established Dragonfir
 ## War Council differentiators to preserve
 
 - Allocate several non-overlapping PvP armies instead of optimizing one formation in isolation.
-- Build around one chosen dragon and compare its best partners now against a core-only future investment target.
+- Build around one chosen dragon and compare its best partners now against a lineup-wide future progression floor.
 - Surface Habit unlock breakpoints, rank movement, and modeled teams that can disrupt the chosen core.
 - Reserve a low-investment Siege army without consuming the strongest PvP dragons.
 - Keep public game evidence separate from private player roster data.
