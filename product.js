@@ -1,5 +1,5 @@
 (() => {
-  const ROUTES = new Set(["home", "battle", "rankings", "teambuilder", "builder", "dragons", "roadmap"]);
+  const ROUTES = new Set(["home", "myteam", "battle", "rankings", "teambuilder", "builder", "dragons", "roadmap"]);
   const battleState = {
     a: [null, null, null],
     b: [null, null, null],
@@ -11,6 +11,8 @@
   let canonicalCatalogError = null;
   let canonicalByName = new Map();
   let onboardingSelection = new Set();
+  let myTeamSelectedId = null;
+  let myTeamEditorTab = "progression";
 
   async function loadCanonicalCatalog() {
     try {
@@ -26,6 +28,7 @@
       });
       renderRoster();
       if (drawerDragonIndex !== null) renderDragonDrawer(drawerDragonIndex);
+      if (document.body.dataset.route === "myteam") renderMyTeam();
     } catch (error) {
       canonicalCatalogError = error;
     }
@@ -46,6 +49,7 @@
     }
     if (updateHash && location.hash !== `#${route}`) history.pushState(null, "", `#${route}`);
     if (route === "battle") renderBattleSetup();
+    if (route === "myteam") renderMyTeam();
     if (route === "rankings") renderRankings();
     if (route === "teambuilder") renderCoreBuilder(false);
     if (route === "dragons") renderLibrary();
@@ -60,6 +64,151 @@
   function poweredRoster() {
     return roster.filter((dragon) => dragon.active && dragon.power > 0);
   }
+
+  function myTeamVisibleDragons() {
+    const query = document.querySelector("#myTeamSearch").value.trim().toLowerCase();
+    const ownership = document.querySelector("#myTeamOwnership").value;
+    const rarity = document.querySelector("#myTeamRarity").value;
+    return roster
+      .filter((dragon) => (!query || dragon.name.toLowerCase().includes(query))
+        && (ownership === "all" || (ownership === "owned" ? dragon.active : !dragon.active))
+        && (rarity === "all" || dragon.rarity === rarity))
+      .sort((a, b) => Number(b.active) - Number(a.active) || b.power - a.power || a.name.localeCompare(b.name));
+  }
+
+  function myTeamCardMarkup(dragon) {
+    const selected = dragon.id === myTeamSelectedId;
+    return `<article class="my-team-card ${dragon.active ? "owned" : "unowned"} ${selected ? "selected" : ""} ${dragon.rarity}">
+      <button class="my-team-card-select" data-myteam-select="${esc(dragon.id)}" aria-label="Edit ${esc(dragon.name)}">${dragonAvatar(dragon,"my-team-card-avatar")}<span><b>${esc(dragon.name)}</b><small>${esc(dragon.rarity)} · ${esc(dragon.role)}</small><em><strong data-myteam-card-power="${esc(dragon.id)}">${fmt(dragon.power)}</strong> Power</em><i><span>${dragon.starRank}★</span><span data-myteam-card-level="${esc(dragon.id)}">Lv ${dragon.reignLevel}</span><span>${unlockedCount(dragon)} Habits</span></i></span></button>
+      <button class="my-team-owned-toggle" data-myteam-toggle="${esc(dragon.id)}" aria-pressed="${dragon.active}">${dragon.active ? "✓ Owned" : "+ Add"}</button>
+    </article>`;
+  }
+
+  function myTeamProgressionMarkup(dragon) {
+    const powerMax = Math.max(100000, Math.ceil(Math.max(1, dragon.power) * 1.5 / 10000) * 10000);
+    const stars = Array.from({ length: 10 }, (_, index) => index + 1);
+    return `<div class="my-team-progression">
+      <section class="my-team-stat-control"><div class="my-team-stat-head"><span><small>COMBAT POWER</small><b id="myTeamPowerValue">${fmt(dragon.power)}</b></span><em>${dragon.estimatedPower ? "Starter estimate" : "Player updated"}</em></div><input class="my-team-range power-range" type="range" min="0" max="${powerMax}" step="1" value="${dragon.power}" data-myteam-range="power" aria-label="${esc(dragon.name)} Power"><div class="my-team-stepper"><button data-myteam-step="power" data-delta="-1000">−1,000</button><button data-myteam-step="power" data-delta="-100">−100</button><button data-myteam-step="power" data-delta="-1">−1</button><button data-myteam-step="power" data-delta="1">+1</button><button data-myteam-step="power" data-delta="100">+100</button><button data-myteam-step="power" data-delta="1000">+1,000</button></div></section>
+      <section class="my-team-stat-control"><div class="my-team-stat-head"><span><small>REIGN LEVEL</small><b id="myTeamLevelValue">${dragon.reignLevel}</b></span><em>1–50</em></div><input class="my-team-range" type="range" min="1" max="50" step="1" value="${dragon.reignLevel}" data-myteam-range="reignLevel" aria-label="${esc(dragon.name)} Reign level"><div class="my-team-level-actions"><button data-myteam-step="reignLevel" data-delta="-1">−</button>${[20, 30, 40, 45, 50].map((level) => `<button class="${level === dragon.reignLevel ? "active" : ""}" data-myteam-set="reignLevel" data-value="${level}">${level}</button>`).join("")}<button data-myteam-step="reignLevel" data-delta="1">+</button></div></section>
+      <section class="my-team-stat-control stars-control"><div class="my-team-stat-head"><span><small>STAR RANK</small><b>${dragon.starRank}★</b></span><em>${unlockedCount(dragon)} of 5 Habits unlocked</em></div><div class="my-team-star-buttons" role="group" aria-label="${esc(dragon.name)} Star rank">${stars.map((star) => `<button class="${star === dragon.starRank ? "active" : ""}" data-myteam-star="${star}" aria-pressed="${star === dragon.starRank}">${star}<small>★</small></button>`).join("")}</div><p>One Habit unlocks at 2★, 4★, 6★, 8★, and 10★.</p></section>
+    </div>`;
+  }
+
+  function myTeamHabitsMarkup(dragon) {
+    return `<div class="my-team-habits"><div class="my-team-habit-summary"><b>${unlockedCount(dragon)} Habits unlocked</b><span>Choose the in-game level shown for each unlocked Habit.</span></div>${Array.from({ length: 5 }, (_, index) => {
+      const unlocked = index < unlockedCount(dragon);
+      const rank = habitRank(dragon, index);
+      return `<section class="my-team-habit-row ${unlocked ? "" : "locked"}"><span>H${index + 1}</span><div><b>${esc(habitName(dragon, index))}</b><p>${unlocked ? esc(habitDesc(dragon, index)) : `Unlocks when ${esc(dragon.name)} reaches ${(index + 1) * 2}★.`}</p>${unlocked ? `<div class="my-team-habit-levels" role="group" aria-label="${esc(habitName(dragon, index))} level">${[1, 2, 3, 4, 5].map((level) => `<button class="${level === rank ? "active" : ""}" data-myteam-habit="${index}" data-rank="${level}" aria-pressed="${level === rank}">Lv ${level}</button>`).join("")}</div>` : `<div class="my-team-habit-lock">LOCKED · ${(index + 1) * 2}★ REQUIRED</div>`}</div></section>`;
+    }).join("")}</div>`;
+  }
+
+  function renderMyTeamEditor() {
+    const editor = document.querySelector("#myTeamEditor");
+    const dragon = roster.find((item) => item.id === myTeamSelectedId);
+    if (!dragon) {
+      editor.innerHTML = `<div class="my-team-editor-empty"><span>♜</span><h3>Select a dragon</h3><p>Progression and Habits will appear here.</p></div>`;
+      return;
+    }
+    editor.innerHTML = `<div class="my-team-editor-head">${dragonAvatar(dragon,"my-team-editor-avatar")}<div><span>${esc(dragon.rarity)} · ${esc(dragon.breed)}</span><h3>${esc(dragon.name)}</h3><p>${esc(dragon.role)} · ${esc(dragon.damageType)} damage</p></div><button class="my-team-editor-owned ${dragon.active ? "active" : ""}" data-myteam-toggle="${esc(dragon.id)}" aria-pressed="${dragon.active}">${dragon.active ? "✓ In my team" : "+ Add to my team"}</button></div><div class="my-team-editor-tabs" role="tablist"><button role="tab" aria-selected="${myTeamEditorTab === "progression"}" class="${myTeamEditorTab === "progression" ? "active" : ""}" data-myteam-tab="progression">Progression <span>${fmt(dragon.power)} · ${dragon.starRank}★ · Lv ${dragon.reignLevel}</span></button><button role="tab" aria-selected="${myTeamEditorTab === "habits"}" class="${myTeamEditorTab === "habits" ? "active" : ""}" data-myteam-tab="habits">Habits <span>${unlockedCount(dragon)} unlocked</span></button></div><div class="my-team-editor-body">${myTeamEditorTab === "habits" ? myTeamHabitsMarkup(dragon) : myTeamProgressionMarkup(dragon)}</div><footer class="my-team-save-note"><span>●</span> Changes save automatically to this browser and are included in your next JSON export.</footer>`;
+  }
+
+  function renderMyTeam() {
+    const visible = myTeamVisibleDragons();
+    if (!visible.some((dragon) => dragon.id === myTeamSelectedId)) myTeamSelectedId = visible[0]?.id || null;
+    const owned = roster.filter((dragon) => dragon.active).length;
+    document.querySelector("#myTeamCount").textContent = `${owned} owned · ${visible.length} shown`;
+    document.querySelector("#myTeamGrid").innerHTML = visible.map(myTeamCardMarkup).join("") || `<div class="my-team-no-results"><b>No dragons found</b><span>Clear a filter to see the rest of your roster.</span></div>`;
+    renderMyTeamEditor();
+  }
+
+  function persistMyTeam(message) {
+    save();
+    renderRoster();
+    renderMyTeam();
+    if (message) toast(message);
+  }
+
+  ["myTeamSearch", "myTeamOwnership", "myTeamRarity"].forEach((id) => document.querySelector(`#${id}`).addEventListener(id === "myTeamSearch" ? "input" : "change", renderMyTeam));
+  document.querySelector("#myTeamGrid").addEventListener("click", (event) => {
+    const toggle = event.target.closest("[data-myteam-toggle]");
+    if (toggle) {
+      const dragon = roster.find((item) => item.id === toggle.dataset.myteamToggle);
+      if (!dragon) return;
+      dragon.active = !dragon.active;
+      myTeamSelectedId = dragon.id;
+      return persistMyTeam(`${dragon.name} ${dragon.active ? "added to" : "removed from"} your team`);
+    }
+    const select = event.target.closest("[data-myteam-select]");
+    if (select) {
+      myTeamSelectedId = select.dataset.myteamSelect;
+      myTeamEditorTab = "progression";
+      renderMyTeam();
+      if (matchMedia("(max-width: 900px)").matches) setTimeout(() => document.querySelector("#myTeamEditor").scrollIntoView({ behavior: "auto", block: "start" }), 0);
+    }
+  });
+  document.querySelector("#myTeamEditor").addEventListener("click", (event) => {
+    const dragon = roster.find((item) => item.id === myTeamSelectedId);
+    if (!dragon) return;
+    const toggle = event.target.closest("[data-myteam-toggle]");
+    if (toggle) {
+      dragon.active = !dragon.active;
+      return persistMyTeam(`${dragon.name} ${dragon.active ? "added to" : "removed from"} your team`);
+    }
+    const tab = event.target.closest("[data-myteam-tab]");
+    if (tab) {
+      myTeamEditorTab = tab.dataset.myteamTab;
+      return renderMyTeamEditor();
+    }
+    const star = event.target.closest("[data-myteam-star]");
+    if (star) {
+      const previousUnlocked = unlockedCount(dragon);
+      dragon.starRank = Number(star.dataset.myteamStar);
+      const newlyUnlocked = unlockedCount(dragon) - previousUnlocked;
+      return persistMyTeam(newlyUnlocked > 0 ? `${dragon.name} reached ${dragon.starRank}★ and unlocked ${newlyUnlocked} Habit` : `${dragon.name} set to ${dragon.starRank}★`);
+    }
+    const habit = event.target.closest("[data-myteam-habit]");
+    if (habit) {
+      const index = Number(habit.dataset.myteamHabit);
+      dragon.habitRanks = dragon.habitRanks || [];
+      dragon.habitRanks[index] = Number(habit.dataset.rank);
+      return persistMyTeam(`${dragon.name} · ${habitName(dragon, index)} set to Lv ${habit.dataset.rank}`);
+    }
+    const step = event.target.closest("[data-myteam-step]");
+    if (step) {
+      const field = step.dataset.myteamStep;
+      const limits = field === "power" ? [0, 10000000] : [1, 50];
+      dragon[field] = Math.max(limits[0], Math.min(limits[1], Number(dragon[field]) + Number(step.dataset.delta)));
+      if (field === "power") dragon.estimatedPower = false;
+      return persistMyTeam(`${dragon.name} ${field === "power" ? "Power" : "level"} updated`);
+    }
+    const set = event.target.closest("[data-myteam-set]");
+    if (set) {
+      dragon[set.dataset.myteamSet] = Number(set.dataset.value);
+      return persistMyTeam(`${dragon.name} set to level ${set.dataset.value}`);
+    }
+  });
+  document.querySelector("#myTeamEditor").addEventListener("input", (event) => {
+    if (!event.target.matches("[data-myteam-range]")) return;
+    const dragon = roster.find((item) => item.id === myTeamSelectedId);
+    if (!dragon) return;
+    const field = event.target.dataset.myteamRange;
+    dragon[field] = Number(event.target.value);
+    if (field === "power") {
+      dragon.estimatedPower = false;
+      document.querySelector("#myTeamPowerValue").textContent = fmt(dragon.power);
+      const cardPower = [...document.querySelectorAll("[data-myteam-card-power]")].find((node) => node.dataset.myteamCardPower === dragon.id);
+      if (cardPower) cardPower.textContent = fmt(dragon.power);
+    } else {
+      document.querySelector("#myTeamLevelValue").textContent = dragon.reignLevel;
+      const cardLevel = [...document.querySelectorAll("[data-myteam-card-level]")].find((node) => node.dataset.myteamCardLevel === dragon.id);
+      if (cardLevel) cardLevel.textContent = `Lv ${dragon.reignLevel}`;
+    }
+  });
+  document.querySelector("#myTeamEditor").addEventListener("change", (event) => {
+    if (!event.target.matches("[data-myteam-range]")) return;
+    const dragon = roster.find((item) => item.id === myTeamSelectedId);
+    if (dragon) persistMyTeam(`${dragon.name} updated`);
+  });
 
   function troopOptions(selected, includeSiege = false) {
     return Object.entries(TROOPS)
@@ -739,7 +888,7 @@
     button.disabled = true;
     status.textContent = "Sending…";
     try {
-      const response = await fetch("/api/contribute-roster", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modelVersion: "0.10.0", consentVersion: "2026-07-29", roster: active }) });
+      const response = await fetch("/api/contribute-roster", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modelVersion: "0.11.0", consentVersion: "2026-07-29", roster: active }) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Contribution service is not connected yet");
       status.textContent = "Thank you — snapshot received.";
@@ -856,13 +1005,22 @@
     document.querySelector("#search").value = "";
     renderRoster();
     closeOnboarding(false);
-    routeTo("builder");
+    routeTo("myteam");
     toast(first ? `Roster saved. Starter estimates are applied—customize your strongest dragons next.` : "Empty roster saved. Choose dragons whenever you are ready.");
   });
   document.querySelector("#importOnboarding").addEventListener("click", () => document.querySelector("#fileInput").click());
   document.querySelector("#setupRosterBtn").addEventListener("click", openOnboarding);
   document.querySelector("#emptySetupBtn").addEventListener("click", openOnboarding);
   document.addEventListener("click", (event) => { if (event.target.closest(".open-roster-setup")) openOnboarding(); });
+  document.addEventListener("roster-imported", () => {
+    localStorage.setItem(ONBOARDING_KEY, "1");
+    closeOnboarding(false);
+    myTeamSelectedId = roster.find((dragon) => dragon.active)?.id || roster[0]?.id || null;
+    document.querySelector("#myTeamSearch").value = "";
+    document.querySelector("#myTeamOwnership").value = "all";
+    document.querySelector("#myTeamRarity").value = "all";
+    routeTo("myteam");
+  });
   document.addEventListener("roster-reset", () => { localStorage.removeItem(ONBOARDING_KEY); openOnboarding(); });
   document.querySelector("#fileInput").addEventListener("change", (event) => { if (event.target.files[0]) { localStorage.setItem(ONBOARDING_KEY, "1"); closeOnboarding(false); } });
 

@@ -13,7 +13,7 @@
     @media(max-width:620px){.shell{padding:0 10px 28px}.topbar{margin:0 -10px 12px;padding:12px 10px;align-items:flex-start}.brand p{display:none}.actions .btn{padding:8px}.btn span{display:none}.optimizer-controls,.lanes{grid-template-columns:1fr}.lane{min-height:92px}.grid3{grid-template-columns:1fr}.summary-strip{grid-template-columns:1fr 1fr}}
     .dragon-name,.dragon-meta{display:block}.habit-row{grid-template-columns:1fr 72px 72px}.impact-input{padding:7px 5px;text-align:center}
   </style>
-  <link rel="stylesheet" href="product.css?v=0.10.0">
+  <link rel="stylesheet" href="product.css?v=0.11.0">
 </head>
 <body>
 <div class="shell">
@@ -23,6 +23,7 @@
   </header>
   <nav class="product-nav" aria-label="Primary navigation">
     <button data-route="home" class="active">Overview</button>
+    <button data-route="myteam">My Team</button>
     <button data-route="battle">Battle Lab <span class="alpha-tag">Alpha</span></button>
     <button data-route="rankings">Data Lab</button>
     <button data-route="teambuilder">Team Builder</button>
@@ -49,6 +50,7 @@
       </div>
     </div>
     <div class="module-grid">
+      <button class="module-card my-team-module" data-go="myteam"><span class="module-icon">♜</span><span><small>MANAGE YOUR ROSTER</small><b>My Team</b><em>Update ownership, Power, Stars, level, and every unlocked Habit without hunting through the optimizer.</em></span><i>→</i></button>
       <button class="module-card battle-card" data-go="battle"><span class="module-icon">⚔</span><span><small>SIMULATE</small><b>Battle Lab</b><em>Run repeatable matchups with troop affinity, lane order, Habits, status effects, and combat logs.</em></span><i>→</i></button>
       <button class="module-card" data-go="rankings"><span class="module-icon">♛</span><span><small>VERIFY</small><b>Data Lab</b><em>Inspect real base attributes, source coverage, and the evidence still required before competitive rankings return.</em></span><i>→</i></button>
       <button class="module-card core-builder-card" data-go="teambuilder"><span class="module-icon">◆</span><span><small>BUILD AROUND ONE</small><b>Team Builder</b><em>Choose a favorite dragon, rank its best partners now and at future investment, then inspect threats.</em></span><i>→</i></button>
@@ -59,6 +61,20 @@
       <article class="panel release-card"><div class="eyebrow">ALPHA PROMISE</div><h3>Transparent beats fake precision.</h3><p>Confirmed roster facts are kept separate from modeled combat assumptions. Every result carries a confidence label and a reproducible seed.</p></article>
       <article class="panel release-card"><div class="eyebrow">NEXT DATA MILESTONE</div><h3>Calibrate with battle reports.</h3><p>The engine is structured for real damage logs and balance patches. Community evidence can improve one mechanic without rewriting the whole simulator.</p></article>
       <article class="panel release-card data-contribution-card"><div><div class="eyebrow">OPTIONAL COMMUNITY DATA</div><h3>Help improve the simulator.</h3><p>Send one anonymous snapshot containing active dragon names, rarity, Power, Stars, level, Habit levels, and whether Power is still a starter estimate. No username, email, guild, cookies, battle history, or saved formation names are included.</p><small>Your roster never uploads automatically. You will confirm before anything is sent.</small></div><div><button class="btn" id="contributeRoster">Contribute roster snapshot</button><span id="contributionStatus" aria-live="polite"></span></div></article>
+    </div>
+  </section>
+
+  <section class="product-view" data-view="myteam">
+    <div class="page-heading"><div><div class="eyebrow">PRIVATE ROSTER · SAVED IN THIS BROWSER</div><h2>My Team</h2><p>Keep your imported roster current. Select a dragon, then use sliders and buttons to update progression and Habit levels.</p></div><span class="confidence high">AUTOSAVES LOCALLY</span></div>
+    <div class="my-team-toolbar panel">
+      <input class="input" id="myTeamSearch" placeholder="Find a dragon…" aria-label="Search My Team">
+      <select class="select" id="myTeamOwnership" aria-label="Filter by ownership"><option value="all">All dragons</option><option value="owned">Owned only</option><option value="unowned">Not owned</option></select>
+      <select class="select" id="myTeamRarity" aria-label="Filter by rarity"><option value="all">All rarities</option><option value="legendary">Legendary</option><option value="epic">Epic</option><option value="rare">Rare</option></select>
+      <button class="btn open-roster-setup">Choose owned dragons</button>
+    </div>
+    <div class="my-team-shell">
+      <section class="panel my-team-collection"><div class="my-team-collection-head"><div><b>Your dragons</b><span id="myTeamCount"></span></div><small>Click a dragon to edit</small></div><div class="my-team-grid" id="myTeamGrid"></div></section>
+      <aside class="panel my-team-editor" id="myTeamEditor" aria-live="polite"><div class="my-team-editor-empty"><span>♜</span><h3>Select a dragon</h3><p>Progression and Habits will appear here.</p></div></aside>
     </div>
   </section>
 
@@ -378,7 +394,7 @@ function optimize(){let active=roster.filter(d=>d.active&&d.power>0);let pvpN=Nu
 function renderResults(teams,benched){if(!teams.length)return;let total=teams.reduce((s,t)=>s+(t.goal==="development"?0:scoreOrder(resolveTeam(t),t.troop,t.goal,true).score),0);let deployed=new Set(teams.flatMap(t=>t.ids)).size,html=`<div class="summary-strip"><div class="stat"><b>${fmt(total)}</b><span>Modeled combat score</span></div><div class="stat"><b>${deployed}</b><span>Dragons deployed</span></div><div class="stat"><b>${teams.filter(t=>t.goal==="pvp").length}</b><span>PvP formations</span></div><div class="stat"><b>${teams.filter(t=>t.goal==="siege").length}</b><span>Siege formations</span></div></div>`;let counters={pvp:0,siege:0,development:0};for(let t of teams){let order=resolveTeam(t),kind=t.goal,c=++counters[kind],model=kind==="development"?scoreOrder(order,"archers","pvp",true):scoreOrder(order,t.troop,kind,true),label=kind==="pvp"?`PvP ${c}`:kind==="siege"?`Siege ${c}`:"Development",troop=kind==="development"?"Training / choose tile counter":TROOPS[t.troop],uplift=model.raw?model.bonus/model.raw*100:0;html+=`<article class="army"><div class="army-head"><div class="army-title"><b>${label}</b><span class="goal-pill">${kind}</span><span class="troop-pill">${troop}</span></div><div class="score"><b>${fmt(kind==="development"?t.score:model.score)}</b><small>${kind==="development"?"future potential":`+${uplift.toFixed(1)}% modeled uplift`}</small></div></div><div class="lanes">${order.map((d,i)=>`<div class="lane ${i===1?"center":""}"><div class="lane-label">${POSITIONS[i]}</div><div class="lane-name">${esc(d.name)}</div><div class="lane-sub">${d.starRank}★ · Lv ${d.reignLevel} · ${d.role} · ${d.damageType}</div><div class="lane-power">${fmt(d.power)}</div></div>`).join("")}</div><div class="why"><h4>${kind==="development"?"Why level these dragons":"Why this works"}</h4>${(kind==="development"?[...order].sort((a,b)=>(45-b.reignLevel)-(45-a.reignLevel)).map(d=>({points:(45-d.reignLevel)*420+d.power*(RARITY_WEIGHT[d.rarity]-1),text:`${d.name}: ${d.rarity} ceiling, ${Math.max(0,45-d.reignLevel)} levels available`})):model.reasons.slice(0,8)).map(r=>`<div class="reason ${r.warn?"warn":""}"><strong>+${fmt(r.points)}</strong><span>${esc(r.text)}</span></div>`).join("")}</div></article>`}if(benched.length)html+=`<div class="bench"><b>Available bench:</b> ${benched.sort((a,b)=>b.power-a.power).map(d=>`${esc(d.name)} (${fmt(d.power)})`).join(" · ")}</div>`;document.querySelector("#results").innerHTML=html}
 function updateField(el,repaint=true){let i=Number(el.dataset.i),d=roster[i];if(!d)return;if(el.dataset.habitImpact!=null){let h=Number(el.dataset.habitImpact);d.habitImpact=d.habitImpact||[];d.habitImpact[h]=el.value===""?null:Number(el.value)}else if(el.dataset.habit!=null){let h=Number(el.dataset.habit);d.habitRanks=d.habitRanks||[];d.habitRanks[h]=Number(el.value.replace(/\D/g,""))||1}else{let f=el.dataset.field;if(f==="active")d.active=el.checked;else if(["power","starRank","reignLevel"].includes(f)){let limits={power:[0,10000000],starRank:[1,10],reignLevel:[1,50]}[f],value=Number(el.value);d[f]=Math.max(limits[0],Math.min(limits[1],Number.isFinite(value)?value:limits[0]));if(f==="power")d.estimatedPower=false}}save();if(!repaint)return;hideDragonHover();renderRoster();if(drawerDragonIndex!=null)renderDragonDrawer(i)}
 function exportJSON(){let payload={schema:"dragonfire-war-council/v3",updatedAt:new Date().toISOString(),roster};let blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="dragonfire-war-council-roster.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);toast("Roster exported")}
-function importJSON(file){let reader=new FileReader();reader.onload=()=>{try{let parsed=JSON.parse(reader.result),items=Array.isArray(parsed)?parsed:parsed.roster;if(!Array.isArray(items))throw Error("No roster array");roster=items.map(normalizeDragon);save();renderRoster();toast(`Imported ${roster.length} dragons`)}catch(e){toast("That JSON does not contain a valid roster",true)}};reader.readAsText(file)}
+function importJSON(file){let reader=new FileReader();reader.onload=()=>{try{let parsed=JSON.parse(reader.result),items=Array.isArray(parsed)?parsed:parsed.roster;if(!Array.isArray(items))throw Error("No roster array");roster=items.map(normalizeDragon);save();renderRoster();document.dispatchEvent(new CustomEvent("roster-imported"));toast(`Imported ${roster.length} dragons`)}catch(e){toast("That JSON does not contain a valid roster",true)}};reader.readAsText(file)}
 function toast(msg,bad=false){let el=document.querySelector("#toast");el.textContent=msg;el.style.background=bad?"var(--red)":"var(--green)";el.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove("show"),2200)}
 const rosterListEl=document.querySelector("#rosterList"),drawerContentEl=document.querySelector("#dragonDrawerContent");
 rosterListEl.addEventListener("change",e=>{if(e.target.dataset.i!=null)updateField(e.target)});
@@ -401,7 +417,7 @@ document.querySelector("#search").addEventListener("input",()=>{hideDragonHover(
     try {
       var url = new URL(event.url);
       var route = url.hash.replace(/^#/, "");
-      var publicRoutes = ["battle", "rankings", "teambuilder", "builder", "dragons", "roadmap"];
+      var publicRoutes = ["myteam", "battle", "rankings", "teambuilder", "builder", "dragons", "roadmap"];
       url.pathname = publicRoutes.indexOf(route) >= 0 ? "/" + route : "/";
       url.search = "";
       url.hash = "";
@@ -411,6 +427,6 @@ document.querySelector("#search").addEventListener("input",()=>{hideDragonHover(
   });
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
-<script src="product.js?v=0.10.0"></script>
+<script src="product.js?v=0.11.0"></script>
 </body>
 </html>

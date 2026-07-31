@@ -1,6 +1,6 @@
 # Dragonfire War Council
 
-An original, static-first PvP research tool for Dragonfire players. The current alpha combines a versioned evidence catalog, a clearly labeled prototype battle engine, reusable formations, a core-dragon Team Builder, a multi-army Team Optimizer, and a private-by-default roster.
+An original, static-first PvP research tool for Dragonfire players. The current alpha combines a versioned evidence catalog, a clearly labeled prototype battle engine, reusable formations, a dedicated My Team roster editor, a core-dragon Team Builder, a multi-army Team Optimizer, and a private-by-default roster.
 
 ## Run locally
 
@@ -12,11 +12,12 @@ Open `http://127.0.0.1:4173`. The site has no frontend build step or account sys
 
 ## Product loop
 
-1. **Battle Lab** compares two three-dragon formations over a seeded Monte Carlo run.
-2. **Data Lab** exposes sourced level-one attributes and mechanic coverage. Competitive rankings are intentionally unpublished until power curves, Commands, Vanguards, Habit scaling, and battle outcomes are validated.
-3. **Team Builder** starts from one dragon the player wants to use. It tests every partner pair, lane order, and PvP troop type, then compares current teams with a core-only future investment target. It also surfaces partner movement, Habit unlock breakpoints, risk conditions, and modeled breaker teams.
-4. **Team Optimizer** turns the complete roster into disjoint PvP, siege, and development squads. Its compact dragon grid supports desktop hover previews and a focused editor drawer for Power, Stars, level, ownership, and Habit ranks.
-5. **Dragon Library** exposes the data and confidence behind each recommendation.
+1. **My Team** is the everyday roster editor. Search or filter every imported dragon, toggle ownership, adjust Power and level with sliders and step buttons, set Stars directly, and edit every unlocked Habit from a dedicated tab.
+2. **Battle Lab** compares two three-dragon formations over a seeded Monte Carlo run.
+3. **Data Lab** exposes sourced level-one attributes and mechanic coverage. Competitive rankings are intentionally unpublished until power curves, Commands, Vanguards, Habit scaling, and battle outcomes are validated.
+4. **Team Builder** starts from one dragon the player wants to use. It tests every partner pair, lane order, and PvP troop type, then compares current teams with a core-only future investment target. It also surfaces partner movement, Habit unlock breakpoints, risk conditions, and modeled breaker teams.
+5. **Team Optimizer** turns the complete roster into disjoint PvP, siege, and development squads. Its compact dragon grid supports desktop hover previews and a focused editor drawer for Power, Stars, level, ownership, and Habit ranks.
+6. **Dragon Library** exposes the data and confidence behind each recommendation.
 
 ## Canonical game-data pipeline
 
@@ -41,7 +42,7 @@ New visitors begin with the 31 commonly available catalog dragons selected. Shee
 - Epic: 2 Stars, level 30, 16,000 estimated power
 - Rare: 3 Stars, level 20, 10,000 estimated power
 
-Roster data is stored only in browser `localStorage` under `dragonfire-war-council-v3`. Saved formations use `dragonfire-saved-formations-v1`. Restore Defaults returns to this recommended starter roster. Import/export remains the portable backup mechanism; there is no cloud synchronization. The Team Optimizer labels estimated power and prompts the player to replace it with in-game values for accurate results.
+Roster data is stored only in browser `localStorage` under `dragonfire-war-council-v3`. Saved formations use `dragonfire-saved-formations-v1`. Restore Defaults returns to this recommended starter roster. Import/export remains the portable backup mechanism; there is no cloud synchronization. Importing an older roster now opens My Team immediately so the player can review and update it with button- and slider-first controls.
 
 ## Analytics and community data
 
