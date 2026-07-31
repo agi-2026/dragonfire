@@ -1,6 +1,6 @@
 # Dragonfire War Council
 
-An original, static-first PvP research tool for Dragonfire players. The current alpha combines a versioned evidence catalog, a clearly labeled prototype battle engine, reusable formations, a multi-army team builder, and a private-by-default roster.
+An original, static-first PvP research tool for Dragonfire players. The current alpha combines a versioned evidence catalog, a clearly labeled prototype battle engine, reusable formations, a core-dragon Team Builder, a multi-army Team Optimizer, and a private-by-default roster.
 
 ## Run locally
 
@@ -14,8 +14,9 @@ Open `http://127.0.0.1:4173`. The site has no frontend build step or account sys
 
 1. **Battle Lab** compares two three-dragon formations over a seeded Monte Carlo run.
 2. **Data Lab** exposes sourced level-one attributes and mechanic coverage. Competitive rankings are intentionally unpublished until power curves, Commands, Vanguards, Habit scaling, and battle outcomes are validated.
-3. **Team Builder** turns the roster into disjoint PvP, siege, and development squads. Its compact dragon grid supports desktop hover previews and a focused editor drawer for Power, Stars, level, ownership, and Habit ranks.
-4. **Dragon Library** exposes the data and confidence behind each recommendation.
+3. **Team Builder** starts from one dragon the player wants to use. It tests every partner pair, lane order, and PvP troop type, then compares current teams with a core-only future investment target. It also surfaces partner movement, Habit unlock breakpoints, risk conditions, and modeled breaker teams.
+4. **Team Optimizer** turns the complete roster into disjoint PvP, siege, and development squads. Its compact dragon grid supports desktop hover previews and a focused editor drawer for Power, Stars, level, ownership, and Habit ranks.
+5. **Dragon Library** exposes the data and confidence behind each recommendation.
 
 ## Canonical game-data pipeline
 
@@ -40,7 +41,7 @@ New visitors begin with the 31 commonly available catalog dragons selected. Shee
 - Epic: 2 Stars, level 30, 16,000 estimated power
 - Rare: 3 Stars, level 20, 10,000 estimated power
 
-Roster data is stored only in browser `localStorage` under `dragonfire-war-council-v3`. Saved formations use `dragonfire-saved-formations-v1`. Restore Defaults returns to this recommended starter roster. Import/export remains the portable backup mechanism; there is no cloud synchronization. The Team Builder labels estimated power and prompts the player to replace it with in-game values for accurate results.
+Roster data is stored only in browser `localStorage` under `dragonfire-war-council-v3`. Saved formations use `dragonfire-saved-formations-v1`. Restore Defaults returns to this recommended starter roster. Import/export remains the portable backup mechanism; there is no cloud synchronization. The Team Optimizer labels estimated power and prompts the player to replace it with in-game values for accurate results.
 
 ## Analytics and community data
 
@@ -83,6 +84,8 @@ This follows the useful product loop popularized by matchup simulators such as P
 - Tessarion's per-round scaling and Blazing Leader targeting
 - Seeded damage variance, Burn, Panic, Stagger, healing/recovery, and a round cap
 - A representative battle log plus aggregate win rate, duration, and remaining health
+- Core-dragon team search across every legal partner pair, all six lane orders, and every non-siege troop type
+- A core-only future projection for Stars, level, and unlocked Habit ranks, with current-versus-potential partner movement
 
 ## What is not yet confirmed
 

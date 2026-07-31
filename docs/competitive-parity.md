@@ -4,11 +4,11 @@ Dragonfire War Council should match the useful workflow of established Dragonfir
 
 ## Product comparison
 
-| Capability | Established simulator benchmark | War Council 0.9 | Decision |
+| Capability | Established simulator benchmark | War Council 0.10 | Decision |
 | --- | --- | --- | --- |
 | Personal roster | Stars, level, Habits | Power, Stars, level, Habit ranks, ownership | Keep and add verified stat derivation |
 | Combat engine | Claimed round-by-round calibration from game captures | Seeded prototype with incomplete formulas | Highest-priority rebuild |
-| Formation search | Thousands of lineups, lanes, and troop combinations | Disjoint multi-army heuristic | Run the real engine inside our disjoint optimizer |
+| Formation search | Thousands of lineups, lanes, and troop combinations | Core-dragon exhaustive partner/lane/troop search plus disjoint multi-army heuristic | Run the real engine inside both search paths |
 | Scenarios | PvP, PvE, and Siege | PvP prototype plus budget Siege allocation | Add scenario-specific rules and benchmarks |
 | Dragon mechanics | Stats, Orders, Vanguards, affinities, Habits | Cross-checked base stats, complete English Command/Vanguard text, affinities, partial Habit model | Structure and verify every effect |
 | Results | Win rate, best troop, upgrade priority | Prototype outcome rate and explainable heuristic reasons | Add confidence intervals, counters, and marginal upgrade value |
@@ -18,10 +18,12 @@ Dragonfire War Council should match the useful workflow of established Dragonfir
 ## War Council differentiators to preserve
 
 - Allocate several non-overlapping PvP armies instead of optimizing one formation in isolation.
+- Build around one chosen dragon and compare its best partners now against a core-only future investment target.
+- Surface Habit unlock breakpoints, rank movement, and modeled teams that can disrupt the chosen core.
 - Reserve a low-investment Siege army without consuming the strongest PvP dragons.
 - Keep public game evidence separate from private player roster data.
 - Attach a source and confidence state to every mechanic.
-- Save a Team Builder result and load it directly into either side of Battle Lab.
+- Save a Team Builder or Team Optimizer result and load it directly into Battle Lab.
 - Show why a recommendation changed, not only the winning lineup.
 
 ## Implementation order

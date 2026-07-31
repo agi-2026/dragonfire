@@ -13,7 +13,7 @@
     @media(max-width:620px){.shell{padding:0 10px 28px}.topbar{margin:0 -10px 12px;padding:12px 10px;align-items:flex-start}.brand p{display:none}.actions .btn{padding:8px}.btn span{display:none}.optimizer-controls,.lanes{grid-template-columns:1fr}.lane{min-height:92px}.grid3{grid-template-columns:1fr}.summary-strip{grid-template-columns:1fr 1fr}}
     .dragon-name,.dragon-meta{display:block}.habit-row{grid-template-columns:1fr 72px 72px}.impact-input{padding:7px 5px;text-align:center}
   </style>
-  <link rel="stylesheet" href="product.css?v=0.9.0-1">
+  <link rel="stylesheet" href="product.css?v=0.10.0">
 </head>
 <body>
 <div class="shell">
@@ -25,7 +25,8 @@
     <button data-route="home" class="active">Overview</button>
     <button data-route="battle">Battle Lab <span class="alpha-tag">Alpha</span></button>
     <button data-route="rankings">Data Lab</button>
-    <button data-route="builder">Team Builder</button>
+    <button data-route="teambuilder">Team Builder</button>
+    <button data-route="builder">Team Optimizer</button>
     <button data-route="dragons">Dragons</button>
     <button data-route="roadmap">Roadmap</button>
   </nav>
@@ -36,7 +37,7 @@
         <div class="eyebrow">COMMUNITY COMBAT LAB · EVIDENCE BUILD</div>
         <h2>Stop guessing.<br><span>Test the formation.</span></h2>
         <p>Simulate three-dragon battles, understand why a matchup swings, and build teams around Habits—not just the biggest power number.</p>
-        <div class="hero-actions"><button class="btn primary" data-go="battle">Run a battle</button><button class="btn" data-go="builder">Build my teams</button></div>
+        <div class="hero-actions"><button class="btn primary" data-go="battle">Run a battle</button><button class="btn" data-go="teambuilder">Build around a dragon</button></div>
         <div class="trust-row"><span><b>33</b> dragon profiles sourced</span><span><b>132</b> base attributes tracked</span><span><b>Private</b> by default</span></div>
       </div>
       <div class="hero-visual" aria-label="Three-lane battle preview">
@@ -50,7 +51,8 @@
     <div class="module-grid">
       <button class="module-card battle-card" data-go="battle"><span class="module-icon">⚔</span><span><small>SIMULATE</small><b>Battle Lab</b><em>Run repeatable matchups with troop affinity, lane order, Habits, status effects, and combat logs.</em></span><i>→</i></button>
       <button class="module-card" data-go="rankings"><span class="module-icon">♛</span><span><small>VERIFY</small><b>Data Lab</b><em>Inspect real base attributes, source coverage, and the evidence still required before competitive rankings return.</em></span><i>→</i></button>
-      <button class="module-card" data-go="builder"><span class="module-icon">✦</span><span><small>ASSEMBLE</small><b>Team Builder</b><em>Optimize multiple disjoint PvP armies without sacrificing a budget siege squad.</em></span><i>→</i></button>
+      <button class="module-card core-builder-card" data-go="teambuilder"><span class="module-icon">◆</span><span><small>BUILD AROUND ONE</small><b>Team Builder</b><em>Choose a favorite dragon, rank its best partners now and at future investment, then inspect threats.</em></span><i>→</i></button>
+      <button class="module-card" data-go="builder"><span class="module-icon">✦</span><span><small>OPTIMIZE ROSTER</small><b>Team Optimizer</b><em>Optimize multiple disjoint PvP armies without sacrificing a budget siege squad.</em></span><i>→</i></button>
       <button class="module-card" data-go="dragons"><span class="module-icon">◈</span><span><small>RESEARCH</small><b>Dragon Library</b><em>Inspect stars, Habit unlocks, affinities, roles, and confidence notes in one place.</em></span><i>→</i></button>
     </div>
     <div class="status-grid">
@@ -96,6 +98,7 @@
   </section>
 
   <section class="product-view" data-view="builder">
+  <div class="page-heading"><div><div class="eyebrow">FULL-ROSTER PLANNER · DISJOINT ARMIES</div><h2>Team Optimizer</h2><p>Turn every dragon you own into the strongest set of non-overlapping PvP, siege, and development armies.</p></div><span class="confidence medium">EXPLAINABLE ROSTER MODEL</span></div>
   <main class="layout">
     <section class="panel">
       <div class="panel-head"><h2>Your dragons</h2><div class="roster-head-actions"><span class="count" id="rosterCount"></span><button class="btn compact-btn" id="setupRosterBtn">Choose dragons</button></div></div>
@@ -115,6 +118,26 @@
       <div class="results" id="results"><div class="empty"><div><div class="sigil">◈</div><h3>Ready to assemble your armies</h3><p>Update any dragon, then optimize. Your roster is saved only in this browser.</p></div></div></div>
     </section>
   </main>
+  </section>
+
+  <section class="product-view" data-view="teambuilder">
+    <div class="page-heading"><div><div class="eyebrow">CORE-DRAGON LAB · CURRENT VS POTENTIAL</div><h2>Team Builder</h2><p>Choose one dragon you want to play. We will rank the strongest formations around it today, model its future ceiling, and identify what can break the core.</p></div><span class="confidence medium">EXPLAINABLE MODEL · NOT A WIN-RATE CLAIM</span></div>
+    <div class="core-builder-shell">
+      <aside class="panel core-builder-controls">
+        <div class="core-builder-control-head"><span>01</span><div><b>Choose your core</b><small>Only dragons in your active roster appear here.</small></div></div>
+        <label>Core dragon<select class="select" id="coreDragonSelect"></select></label>
+        <div id="coreDragonPreview" class="core-dragon-preview"></div>
+        <div class="core-builder-control-head"><span>02</span><div><b>Set the potential target</b><small>Compare today with the investment ceiling you are considering.</small></div></div>
+        <div class="core-target-grid">
+          <label>Target Stars<select class="select" id="coreTargetStars"><option value="2">2★</option><option value="4">4★</option><option value="6">6★</option><option value="8">8★</option><option value="10" selected>10★</option></select></label>
+          <label>Target level<select class="select" id="coreTargetLevel"><option value="40">40</option><option value="45">45</option><option value="50" selected>50</option></select></label>
+          <label>Future Habit level<select class="select" id="coreTargetHabit"><option value="1">Lv 1</option><option value="2">Lv 2</option><option value="3" selected>Lv 3</option><option value="4">Lv 4</option><option value="5">Lv 5</option></select></label>
+        </div>
+        <button class="btn primary core-build-button" id="buildAroundCore">◆ Build around this dragon</button>
+        <p class="core-model-note">Potential Power is a relative projection from your current Power, Stars, and level. It helps compare investment paths; it is not an official upgrade formula.</p>
+      </aside>
+      <main id="coreBuilderResults" class="core-builder-results" aria-live="polite"><div class="panel core-builder-empty"><span>◆</span><h3>Choose the dragon you want to invest in</h3><p>We will test every partner pair, lane order, and PvP troop option from your roster.</p></div></main>
+    </div>
   </section>
 
   <section class="product-view" data-view="dragons">
@@ -378,7 +401,7 @@ document.querySelector("#search").addEventListener("input",()=>{hideDragonHover(
     try {
       var url = new URL(event.url);
       var route = url.hash.replace(/^#/, "");
-      var publicRoutes = ["battle", "rankings", "builder", "dragons", "roadmap"];
+      var publicRoutes = ["battle", "rankings", "teambuilder", "builder", "dragons", "roadmap"];
       url.pathname = publicRoutes.indexOf(route) >= 0 ? "/" + route : "/";
       url.search = "";
       url.hash = "";
@@ -388,6 +411,6 @@ document.querySelector("#search").addEventListener("input",()=>{hideDragonHover(
   });
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
-<script src="product.js?v=0.9.0-1"></script>
+<script src="product.js?v=0.10.0"></script>
 </body>
 </html>

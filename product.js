@@ -1,5 +1,5 @@
 (() => {
-  const ROUTES = new Set(["home", "battle", "rankings", "builder", "dragons", "roadmap"]);
+  const ROUTES = new Set(["home", "battle", "rankings", "teambuilder", "builder", "dragons", "roadmap"]);
   const battleState = {
     a: [null, null, null],
     b: [null, null, null],
@@ -31,6 +31,7 @@
     }
     if (document.body.dataset.route === "rankings") renderRankings();
     if (document.body.dataset.route === "dragons") renderLibrary();
+    if (document.body.dataset.route === "teambuilder") renderCoreBuilder(false);
   }
 
   function routeTo(route, updateHash = true) {
@@ -46,6 +47,7 @@
     if (updateHash && location.hash !== `#${route}`) history.pushState(null, "", `#${route}`);
     if (route === "battle") renderBattleSetup();
     if (route === "rankings") renderRankings();
+    if (route === "teambuilder") renderCoreBuilder(false);
     if (route === "dragons") renderLibrary();
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -88,6 +90,180 @@
   function maxedDragon(source) {
     return { ...clone(source), active: true, power: 100000, starRank: 10, reignLevel: 50, habitRanks: [5, 5, 5, 5, 5], habitImpact: [] };
   }
+
+  function projectedDragon(source, targetStars, targetLevel, targetHabitRank) {
+    const dragon = clone(source);
+    const stars = Math.max(Number(source.starRank) || 1, Number(targetStars) || 10);
+    const level = Math.max(Number(source.reignLevel) || 1, Number(targetLevel) || 50);
+    const starGain = stars - (Number(source.starRank) || 1);
+    const levelGain = level - (Number(source.reignLevel) || 1);
+    const starRate = { legendary: 0.105, epic: 0.085, rare: 0.07 }[source.rarity] || 0.08;
+    dragon.starRank = stars;
+    dragon.reignLevel = level;
+    dragon.power = Math.round(Math.max(1, Number(source.power) || 1) * (1 + starGain * starRate) * (1 + levelGain * 0.016));
+    dragon.habitRanks = Array.from({ length: 5 }, (_, index) => index < unlockedCount(dragon) ? Math.max(habitRank(source, index), Number(targetHabitRank) || 1) : 0);
+    dragon.estimatedPower = true;
+    return dragon;
+  }
+
+  function bestCoreFormations(core, pool) {
+    const others = pool.filter((dragon) => dragon.id !== core.id);
+    const troopTypes = Object.keys(TROOPS).filter((troop) => troop !== "siege");
+    const formations = [];
+    for (let first = 0; first < others.length - 1; first += 1) {
+      for (let second = first + 1; second < others.length; second += 1) {
+        const trio = [core, others[first], others[second]];
+        let best = null;
+        for (const permutation of PERMS) {
+          const order = permutation.map((index) => trio[index]);
+          for (const troop of troopTypes) {
+            const model = scoreOrder(order, troop, "pvp", false);
+            if (!best || model.score > best.score) best = { order, troop, score: model.score, raw: model.raw };
+          }
+        }
+        const explained = scoreOrder(best.order, best.troop, "pvp", true);
+        formations.push({
+          key: trio.map((dragon) => dragon.name).sort().join("|"),
+          order: best.order,
+          troop: best.troop,
+          score: best.score,
+          raw: best.raw,
+          uplift: best.raw ? (best.score / best.raw - 1) * 100 : 0,
+          reasons: explained.reasons.slice(0, 4),
+        });
+      }
+    }
+    return formations.sort((a, b) => b.score - a.score);
+  }
+
+  function coreBuilderTargets() {
+    return {
+      stars: Number(document.querySelector("#coreTargetStars").value) || 10,
+      level: Number(document.querySelector("#coreTargetLevel").value) || 50,
+      habit: Number(document.querySelector("#coreTargetHabit").value) || 3,
+    };
+  }
+
+  function corePreviewMarkup(core, projected) {
+    const currentHabits = unlockedCount(core);
+    const futureHabits = unlockedCount(projected);
+    return `<div class="core-preview-identity">${dragonAvatar(core,"core-builder-avatar")}<span><b>${esc(core.name)}</b><small>${esc(core.rarity)} · ${esc(core.role)} · ${esc(core.damageType)} damage</small></span></div><div class="core-preview-stats"><span><small>NOW</small><b>${fmt(core.power)}</b><em>${core.starRank}★ · Lv ${core.reignLevel} · ${currentHabits} Habits</em></span><i>→</i><span><small>POTENTIAL</small><b>${fmt(projected.power)}</b><em>${projected.starRank}★ · Lv ${projected.reignLevel} · ${futureHabits} Habits</em></span></div>`;
+  }
+
+  function formationRankMap(formations) {
+    return new Map(formations.map((formation, index) => [formation.key, index + 1]));
+  }
+
+  function formationCardMarkup(formation, index, comparisonRanks, mode) {
+    const comparisonRank = comparisonRanks.get(formation.key);
+    const shift = comparisonRank ? comparisonRank - (index + 1) : 0;
+    const shiftLabel = shift > 0 ? `↑ ${shift} vs ${mode === "current" ? "potential" : "current"}` : shift < 0 ? `↓ ${Math.abs(shift)} vs ${mode === "current" ? "potential" : "current"}` : "same rank";
+    const names = formation.order.map((dragon) => dragon.name);
+    return `<article class="core-formation-card ${mode}" data-team="${esc(names.join("|"))}" data-troop="${formation.troop}"><header><span class="core-rank">#${index + 1}</span><div><b>${names.map(esc).join(" · ")}</b><small>${esc(TROOPS[formation.troop])} · ${shiftLabel}</small></div><strong>${formation.uplift.toFixed(1)}%<small>synergy uplift</small></strong></header><div class="core-formation-lanes">${formation.order.map((dragon, lane) => `<div class="core-lane ${lane === 1 ? "center" : ""}">${dragonAvatar(dragon,"core-lane-avatar")}<span><small>${POSITIONS[lane]}</small><b>${esc(dragon.name)}</b><em>${dragon.starRank}★ · Lv ${dragon.reignLevel}</em></span></div>`).join("")}</div><div class="core-reasons">${formation.reasons.slice(0, 3).map((reason) => `<span><i>+</i>${esc(reason.text)}</span>`).join("")}</div><footer><button class="btn compact-btn core-test-team">⚔ Test current roster</button><button class="btn compact-btn core-save-team">Save lineup</button></footer></article>`;
+  }
+
+  function partnerRankingMarkup(formations, coreName) {
+    const partners = new Map();
+    formations.forEach((formation, index) => formation.order.filter((dragon) => dragon.name !== coreName).forEach((dragon) => {
+      if (!partners.has(dragon.name)) partners.set(dragon.name, { dragon, rank: index + 1, formation });
+    }));
+    return [...partners.values()].sort((a, b) => a.rank - b.rank).slice(0, 6).map((item, index) => `<div class="partner-row"><span>${index + 1}</span>${dragonAvatar(item.dragon,"partner-avatar")}<div><b>${esc(item.dragon.name)}</b><small>Best formation #${item.rank} · ${esc(item.dragon.role)}</small></div><strong>+${item.formation.uplift.toFixed(1)}%</strong></div>`).join("");
+  }
+
+  function counterStatFor(damageType) {
+    return { physical: "instinct", tactical: "intelligence", fire: "initiative" }[damageType] || "instinct";
+  }
+
+  function breakerTeams(formation, pool) {
+    const attackTypes = [...new Set(formation.order.map((dragon) => dragon.damageType))];
+    const seen = new Set();
+    const threats = [];
+    for (const candidate of buildCandidates(pool, "pvp")) {
+      const team = resolveTeam(candidate);
+      if (team.length !== 3) continue;
+      const key = team.map((dragon) => dragon.name).sort().join("|");
+      if (key === formation.key || seen.has(key)) continue;
+      seen.add(key);
+      const defense = team.reduce((sum, dragon) => {
+        const evidence = canonicalByName.get(dragon.name);
+        if (!evidence) return sum;
+        return sum + attackTypes.reduce((subtotal, type) => subtotal + (evidence.baseStats[counterStatFor(type)] || 0), 0) / attackTypes.length;
+      }, 0) / team.length;
+      const control = team.filter((dragon) => dragon.role === "control" || dragon.tags?.some((tag) => ["stun", "stagger", "panic", "taunt", "overwhelm"].includes(tag))).length;
+      const sustain = team.filter((dragon) => dragon.role === "healer" || dragon.tags?.some((tag) => ["heal", "recovery", "cleanse", "resistance"].includes(tag))).length;
+      const threatScore = candidate.score + defense * 95 + control * 2600 + sustain * 1300;
+      threats.push({ team, key, troop: candidate.troop, score: threatScore, defense, control, sustain });
+      if (seen.size >= 1200) break;
+    }
+    return threats.sort((a, b) => b.score - a.score).slice(0, 3);
+  }
+
+  function coreRiskNotes(core) {
+    const notes = [`High ${counterStatFor(core.damageType)} defenders reduce ${core.damageType} pressure.`];
+    if (core.role === "healer" || core.tags?.some((tag) => ["heal", "recovery", "cleanse"].includes(tag))) notes.push("Fast control and burst can deny sustain before it compounds.");
+    if (core.role === "tank" || core.tags?.some((tag) => ["taunt", "mitigation"].includes(tag))) notes.push("Cleanse, resistance, and sustained damage can outlast the frontline plan.");
+    if (core.tags?.includes("panic")) notes.push("Cleanse and Resistance can break Panic setup before the payoff lands.");
+    if (core.tags?.includes("burn")) notes.push("Anti-fire mitigation and cleanse reduce Burn-dependent value.");
+    if (notes.length < 3) notes.push("Initiative loss or lane disruption can prevent the intended combo order.");
+    return notes.slice(0, 3);
+  }
+
+  function investmentMilestonesMarkup(core, projected) {
+    const milestones = [];
+    for (let index = 0; index < 5; index += 1) {
+      const star = (index + 1) * 2;
+      if (star > core.starRank && star <= projected.starRank) milestones.push(`<div><span>${star}★</span><b>Unlock H${index + 1} · ${esc(habitName(core, index))}</b><small>${esc(habitDesc(core, index))}</small></div>`);
+    }
+    if (projected.reignLevel > core.reignLevel) milestones.unshift(`<div><span>LV</span><b>${core.reignLevel} → ${projected.reignLevel}</b><small>Relative Power projection: ${fmt(core.power)} → ${fmt(projected.power)}.</small></div>`);
+    return milestones.join("") || `<div><span>✓</span><b>Target already reached</b><small>Raise the target to expose another modeled breakpoint.</small></div>`;
+  }
+
+  function renderCoreBuilder() {
+    const active = poweredRoster().sort((a, b) => b.power - a.power || a.name.localeCompare(b.name));
+    const select = document.querySelector("#coreDragonSelect");
+    const previous = select.value;
+    select.innerHTML = active.map((dragon) => `<option value="${esc(dragon.name)}" ${dragon.name === previous ? "selected" : ""}>${esc(dragon.name)} · ${fmt(dragon.power)} · ${dragon.starRank}★</option>`).join("");
+    const results = document.querySelector("#coreBuilderResults");
+    if (active.length < 3) {
+      document.querySelector("#coreDragonPreview").innerHTML = "";
+      results.innerHTML = `<div class="panel core-builder-empty"><span>!</span><h3>At least three powered dragons are required</h3><p>Open Team Optimizer, choose your roster, and enter current Power before building around a core.</p><button class="btn primary" data-go="builder">Set up my roster</button></div>`;
+      return;
+    }
+    if (!select.value) select.value = active[0].name;
+    const core = active.find((dragon) => dragon.name === select.value) || active[0];
+    const target = coreBuilderTargets();
+    const projectedPool = active.map((dragon) => dragon.name === core.name ? projectedDragon(dragon, target.stars, target.level, target.habit) : clone(dragon));
+    const projectedCore = projectedPool.find((dragon) => dragon.name === core.name);
+    document.querySelector("#coreDragonPreview").innerHTML = corePreviewMarkup(core, projectedCore);
+
+    const currentFormations = bestCoreFormations(core, active);
+    const potentialFormations = bestCoreFormations(projectedCore, projectedPool);
+    const currentRanks = formationRankMap(currentFormations);
+    const potentialRanks = formationRankMap(potentialFormations);
+    const currentBest = currentFormations[0];
+    const threats = breakerTeams(currentBest, active);
+    const powerGain = core.power ? (projectedCore.power / core.power - 1) * 100 : 0;
+    const sourcedCore = canonicalByName.get(core.name);
+
+    results.innerHTML = `<section class="panel core-builder-summary"><div class="core-summary-hero">${dragonAvatar(core,"core-summary-avatar")}<div><div class="eyebrow">BUILD AROUND ${esc(core.name)}</div><h3>${esc(core.name)} has ${currentFormations.length} legal partner pairs</h3><p>Current ranking uses today’s Power, Stars, level, and Habit ranks. Potential ranking upgrades only ${esc(core.name)} to ${projectedCore.starRank}★, level ${projectedCore.reignLevel}, and Habit level ${target.habit}; every partner stays exactly as entered.</p></div><div class="core-ceiling"><small>MODELED CORE GROWTH</small><b>+${powerGain.toFixed(0)}%</b><span>${unlockedCount(core)} → ${unlockedCount(projectedCore)} unlocked Habits</span></div></div>${sourcedCore ? `<div class="core-source-strip"><span><b>Command:</b> ${esc(sourcedCore.command.text)}</span><span><b>Vanguard:</b> ${esc(sourcedCore.vanguard.text)}</span><em>Source text shown for context; effects remain partially encoded.</em></div>` : ""}</section>
+      <section class="core-ranking-grid"><div><div class="core-section-title"><span>01</span><div><h3>Current ranking</h3><p>Best formations using your roster exactly as entered.</p></div></div><div class="core-formation-list">${currentFormations.slice(0, 5).map((formation, index) => formationCardMarkup(formation, index, potentialRanks, "current")).join("")}</div></div><div><div class="core-section-title"><span>02</span><div><h3>Potential ranking</h3><p>Only the selected core advances; its partners remain current.</p></div></div><div class="core-formation-list">${potentialFormations.slice(0, 5).map((formation, index) => formationCardMarkup(formation, index, currentRanks, "potential")).join("")}</div></div></section>
+      <section class="core-partner-grid"><article class="panel"><div class="core-section-title compact"><span>A</span><div><h3>Best partners now</h3><p>Partner’s highest-ranked formation with ${esc(core.name)}.</p></div></div><div class="partner-list">${partnerRankingMarkup(currentFormations, core.name)}</div></article><article class="panel"><div class="core-section-title compact"><span>B</span><div><h3>Best partners at potential</h3><p>Who rises when Star-gated kits come online.</p></div></div><div class="partner-list">${partnerRankingMarkup(potentialFormations, core.name)}</div></article></section>
+      <section class="core-analysis-grid"><article class="panel core-breakpoints"><div class="core-section-title compact"><span>★</span><div><h3>Investment breakpoints</h3><p>What the selected target unlocks for the core dragon.</p></div></div><div class="breakpoint-list">${investmentMilestonesMarkup(core, projectedCore)}</div></article><article class="panel core-threats"><div class="core-section-title compact"><span>!</span><div><h3>Threat profile</h3><p>Conditions that can break the core plan.</p></div></div><div class="threat-note-list">${coreRiskNotes(core).map((note) => `<span>${esc(note)}</span>`).join("")}</div></article></section>
+      <section class="panel breaker-section"><div class="core-section-title compact"><span>×</span><div><h3>Modeled breaker teams</h3><p>High-pressure combinations from your active roster whose defensive stats and control line up well into the current #1 core formation.</p></div></div><div class="breaker-grid">${threats.map((threat, index) => `<article><header><span>#${index + 1}</span><b>${threat.team.map((dragon) => esc(dragon.name)).join(" · ")}</b><small>${esc(TROOPS[threat.troop])}</small></header><div>${threat.team.map((dragon) => dragonAvatar(dragon,"breaker-avatar")).join("")}</div><p>Avg. relevant defense ${threat.defense.toFixed(0)} · ${threat.control} control source${threat.control === 1 ? "" : "s"} · ${threat.sustain} sustain source${threat.sustain === 1 ? "" : "s"}</p></article>`).join("")}</div><div class="core-disclaimer">These are matchup hypotheses from the explainable synergy model, not proven counters. Battle-report calibration remains the publication gate.</div></section>`;
+  }
+
+  ["coreDragonSelect", "coreTargetStars", "coreTargetLevel", "coreTargetHabit"].forEach((id) => document.querySelector(`#${id}`).addEventListener("change", renderCoreBuilder));
+  document.querySelector("#buildAroundCore").addEventListener("click", renderCoreBuilder);
+  document.querySelector("#coreBuilderResults").addEventListener("click", (event) => {
+    const routeButton = event.target.closest("[data-go]");
+    if (routeButton) return routeTo(routeButton.dataset.go);
+    const card = event.target.closest("[data-team]");
+    if (!card) return;
+    const dragonNames = card.dataset.team.split("|");
+    const troop = card.dataset.troop;
+    if (event.target.closest(".core-test-team")) applyFormation("a", { dragonNames, troop, mode: "personal" });
+    if (event.target.closest(".core-save-team")) saveFormationData(dragonNames, troop, "personal");
+  });
 
   function renderBattleSetup() {
     const available = poweredRoster();
@@ -563,7 +739,7 @@
     button.disabled = true;
     status.textContent = "Sending…";
     try {
-      const response = await fetch("/api/contribute-roster", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modelVersion: "0.9.0", consentVersion: "2026-07-29", roster: active }) });
+      const response = await fetch("/api/contribute-roster", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modelVersion: "0.10.0", consentVersion: "2026-07-29", roster: active }) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Contribution service is not connected yet");
       status.textContent = "Thank you — snapshot received.";
