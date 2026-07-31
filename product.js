@@ -88,8 +88,8 @@
     const powerMax = Math.max(100000, Math.ceil(Math.max(1, dragon.power) * 1.5 / 10000) * 10000);
     const stars = Array.from({ length: 10 }, (_, index) => index + 1);
     return `<div class="my-team-progression">
-      <section class="my-team-stat-control"><div class="my-team-stat-head"><span><small>COMBAT POWER</small><b id="myTeamPowerValue">${fmt(dragon.power)}</b></span><em>${dragon.estimatedPower ? "Starter estimate" : "Player updated"}</em></div><input class="my-team-range power-range" type="range" min="0" max="${powerMax}" step="1" value="${dragon.power}" data-myteam-range="power" aria-label="${esc(dragon.name)} Power"><div class="my-team-stepper"><button data-myteam-step="power" data-delta="-1000">−1,000</button><button data-myteam-step="power" data-delta="-100">−100</button><button data-myteam-step="power" data-delta="-1">−1</button><button data-myteam-step="power" data-delta="1">+1</button><button data-myteam-step="power" data-delta="100">+100</button><button data-myteam-step="power" data-delta="1000">+1,000</button></div></section>
-      <section class="my-team-stat-control"><div class="my-team-stat-head"><span><small>REIGN LEVEL</small><b id="myTeamLevelValue">${dragon.reignLevel}</b></span><em>1–50</em></div><input class="my-team-range" type="range" min="1" max="50" step="1" value="${dragon.reignLevel}" data-myteam-range="reignLevel" aria-label="${esc(dragon.name)} Reign level"><div class="my-team-level-actions"><button data-myteam-step="reignLevel" data-delta="-1">−</button>${[20, 30, 40, 45, 50].map((level) => `<button class="${level === dragon.reignLevel ? "active" : ""}" data-myteam-set="reignLevel" data-value="${level}">${level}</button>`).join("")}<button data-myteam-step="reignLevel" data-delta="1">+</button></div></section>
+      <section class="my-team-stat-control"><div class="my-team-stat-head"><label><small>COMBAT POWER</small><input class="my-team-value-input power" id="myTeamPowerInput" type="number" min="0" max="10000000" step="1" value="${dragon.power}" data-myteam-number="power" aria-label="${esc(dragon.name)} Power value"></label><em>${dragon.estimatedPower ? "Starter estimate" : "Player updated"}</em></div><input class="my-team-range power-range" type="range" min="0" max="${powerMax}" step="1" value="${dragon.power}" data-myteam-range="power" aria-label="${esc(dragon.name)} Power slider"><div class="my-team-stepper"><button data-myteam-step="power" data-delta="-100">−100</button><button data-myteam-step="power" data-delta="-5">−5</button><button data-myteam-step="power" data-delta="5">+5</button><button data-myteam-step="power" data-delta="100">+100</button></div></section>
+      <section class="my-team-stat-control"><div class="my-team-stat-head"><label><small>REIGN LEVEL</small><input class="my-team-value-input level" id="myTeamLevelInput" type="number" min="1" max="50" step="1" value="${dragon.reignLevel}" data-myteam-number="reignLevel" aria-label="${esc(dragon.name)} Reign level value"></label><em>1–50</em></div><div class="my-team-range-row"><button data-myteam-step="reignLevel" data-delta="-1" aria-label="Decrease ${esc(dragon.name)} level by one">−</button><input class="my-team-range" type="range" min="1" max="50" step="1" value="${dragon.reignLevel}" data-myteam-range="reignLevel" aria-label="${esc(dragon.name)} Reign level slider"><button data-myteam-step="reignLevel" data-delta="1" aria-label="Increase ${esc(dragon.name)} level by one">+</button></div></section>
       <section class="my-team-stat-control stars-control"><div class="my-team-stat-head"><span><small>STAR RANK</small><b>${dragon.starRank}★</b></span><em>${unlockedCount(dragon)} of 5 Habits unlocked</em></div><div class="my-team-star-buttons" role="group" aria-label="${esc(dragon.name)} Star rank">${stars.map((star) => `<button class="${star === dragon.starRank ? "active" : ""}" data-myteam-star="${star}" aria-pressed="${star === dragon.starRank}">${star}<small>★</small></button>`).join("")}</div><p>One Habit unlocks at 2★, 4★, 6★, 8★, and 10★.</p></section>
     </div>`;
   }
@@ -188,24 +188,32 @@
     }
   });
   document.querySelector("#myTeamEditor").addEventListener("input", (event) => {
-    if (!event.target.matches("[data-myteam-range]")) return;
+    if (!event.target.matches("[data-myteam-range], [data-myteam-number]")) return;
     const dragon = roster.find((item) => item.id === myTeamSelectedId);
-    if (!dragon) return;
-    const field = event.target.dataset.myteamRange;
-    dragon[field] = Number(event.target.value);
+    if (!dragon || event.target.value === "") return;
+    const field = event.target.dataset.myteamRange || event.target.dataset.myteamNumber;
+    const limits = field === "power" ? [0, 10000000] : [1, 50];
+    const value = Number(event.target.value);
+    if (!Number.isFinite(value)) return;
+    dragon[field] = Math.max(limits[0], Math.min(limits[1], value));
     if (field === "power") {
       dragon.estimatedPower = false;
-      document.querySelector("#myTeamPowerValue").textContent = fmt(dragon.power);
+      const input = document.querySelector("#myTeamPowerInput");
+      const range = document.querySelector('[data-myteam-range="power"]');
+      if (dragon.power > Number(range.max)) range.max = Math.ceil(dragon.power * 1.5 / 10000) * 10000;
+      input.value = dragon.power;
+      range.value = dragon.power;
       const cardPower = [...document.querySelectorAll("[data-myteam-card-power]")].find((node) => node.dataset.myteamCardPower === dragon.id);
       if (cardPower) cardPower.textContent = fmt(dragon.power);
     } else {
-      document.querySelector("#myTeamLevelValue").textContent = dragon.reignLevel;
+      document.querySelector("#myTeamLevelInput").value = dragon.reignLevel;
+      document.querySelector('[data-myteam-range="reignLevel"]').value = dragon.reignLevel;
       const cardLevel = [...document.querySelectorAll("[data-myteam-card-level]")].find((node) => node.dataset.myteamCardLevel === dragon.id);
       if (cardLevel) cardLevel.textContent = `Lv ${dragon.reignLevel}`;
     }
   });
   document.querySelector("#myTeamEditor").addEventListener("change", (event) => {
-    if (!event.target.matches("[data-myteam-range]")) return;
+    if (!event.target.matches("[data-myteam-range], [data-myteam-number]")) return;
     const dragon = roster.find((item) => item.id === myTeamSelectedId);
     if (dragon) persistMyTeam(`${dragon.name} updated`);
   });
@@ -888,7 +896,7 @@
     button.disabled = true;
     status.textContent = "Sending…";
     try {
-      const response = await fetch("/api/contribute-roster", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modelVersion: "0.11.0", consentVersion: "2026-07-29", roster: active }) });
+      const response = await fetch("/api/contribute-roster", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modelVersion: "0.11.1", consentVersion: "2026-07-29", roster: active }) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Contribution service is not connected yet");
       status.textContent = "Thank you — snapshot received.";

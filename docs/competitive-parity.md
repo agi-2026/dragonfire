@@ -4,7 +4,7 @@ Dragonfire War Council should match the useful workflow of established Dragonfir
 
 ## Product comparison
 
-| Capability | Established simulator benchmark | War Council 0.11 | Decision |
+| Capability | Established simulator benchmark | War Council 0.11.1 | Decision |
 | --- | --- | --- | --- |
 | Personal roster | Stars, level, Habits | Dedicated My Team editor for Power, Stars, level, Habit ranks, ownership, filters, and local autosave | Keep and add verified stat derivation |
 | Combat engine | Claimed round-by-round calibration from game captures | Seeded prototype with incomplete formulas | Highest-priority rebuild |

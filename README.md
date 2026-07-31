@@ -12,7 +12,7 @@ Open `http://127.0.0.1:4173`. The site has no frontend build step or account sys
 
 ## Product loop
 
-1. **My Team** is the everyday roster editor. Search or filter every imported dragon, toggle ownership, adjust Power and level with sliders and step buttons, set Stars directly, and edit every unlocked Habit from a dedicated tab.
+1. **My Team** is the everyday roster editor. Search or filter every imported dragon, toggle ownership, enter Power or level directly, fine-tune them with sliders and step buttons, set Stars directly, and edit every unlocked Habit from a dedicated tab.
 2. **Battle Lab** compares two three-dragon formations over a seeded Monte Carlo run.
 3. **Data Lab** exposes sourced level-one attributes and mechanic coverage. Competitive rankings are intentionally unpublished until power curves, Commands, Vanguards, Habit scaling, and battle outcomes are validated.
 4. **Team Builder** starts from one dragon the player wants to use. It tests every partner pair, lane order, and PvP troop type, then compares current teams with a core-only future investment target. It also surfaces partner movement, Habit unlock breakpoints, risk conditions, and modeled breaker teams.
