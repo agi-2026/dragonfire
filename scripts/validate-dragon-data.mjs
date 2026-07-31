@@ -25,6 +25,10 @@ for (const dragon of catalog.dragons || []) {
   for (const stat of ["strength", "instinct", "intelligence", "initiative"]) {
     if (!Number.isFinite(dragon.baseStats?.[stat]) || dragon.baseStats[stat] <= 0) errors.push(`${dragon.name}: invalid ${stat}`);
   }
+  if (!Number.isFinite(dragon.baseTroops) || dragon.baseTroops <= 0) errors.push(`${dragon.name}: invalid base troops`);
+  if (!dragon.marchSpeed) errors.push(`${dragon.name}: missing march speed`);
+  if (!dragon.vanguard?.text) errors.push(`${dragon.name}: missing Vanguard source text`);
+  if (!dragon.command?.text) errors.push(`${dragon.name}: missing Command source text`);
   if (dragon.habits?.length !== 5) errors.push(`${dragon.name}: expected 5 Habits`);
   dragon.habits?.forEach((habit, index) => {
     if (habit.slot !== index + 1 || habit.unlockStar !== expectedUnlocks[index]) errors.push(`${dragon.name}: invalid Habit ${index + 1} unlock`);

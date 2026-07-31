@@ -4,13 +4,13 @@ Dragonfire War Council should match the useful workflow of established Dragonfir
 
 ## Product comparison
 
-| Capability | Established simulator benchmark | War Council 0.8 | Decision |
+| Capability | Established simulator benchmark | War Council 0.9 | Decision |
 | --- | --- | --- | --- |
 | Personal roster | Stars, level, Habits | Power, Stars, level, Habit ranks, ownership | Keep and add verified stat derivation |
 | Combat engine | Claimed round-by-round calibration from game captures | Seeded prototype with incomplete formulas | Highest-priority rebuild |
 | Formation search | Thousands of lineups, lanes, and troop combinations | Disjoint multi-army heuristic | Run the real engine inside our disjoint optimizer |
 | Scenarios | PvP, PvE, and Siege | PvP prototype plus budget Siege allocation | Add scenario-specific rules and benchmarks |
-| Dragon mechanics | Stats, Orders, Vanguards, affinities, Habits | Base stats, Vanguard source text, affinities, partial Habit model | Structure and verify every effect |
+| Dragon mechanics | Stats, Orders, Vanguards, affinities, Habits | Cross-checked base stats, complete English Command/Vanguard text, affinities, partial Habit model | Structure and verify every effect |
 | Results | Win rate, best troop, upgrade priority | Prototype outcome rate and explainable heuristic reasons | Add confidence intervals, counters, and marginal upgrade value |
 | Rankings | Computed tier list | Publication-gated Data Lab | Keep the gate; publish only after calibration |
 | Persistence | Browser and optional cloud | Browser-local JSON import/export and saved teams | Keep private default; add optional account sync later |

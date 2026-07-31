@@ -6,7 +6,7 @@
   };
   const battleOverrides = { a: null, b: null };
   const SAVED_FORMATIONS_KEY = "dragonfire-saved-formations-v1";
-  const CATALOG_URL = "/data/dragon-catalog.v1.json?v=1";
+  const CATALOG_URL = "/data/dragon-catalog.v1.json?v=2";
   let canonicalCatalog = null;
   let canonicalCatalogError = null;
   let canonicalByName = new Map();
@@ -20,10 +20,12 @@
       if (!Array.isArray(catalog.dragons) || catalog.dragons.length !== 33) throw new Error("Catalog failed its 33-dragon integrity check");
       canonicalCatalog = catalog;
       canonicalByName = new Map(catalog.dragons.map((dragon) => [dragon.name, dragon]));
+      window.DRAGON_CANONICAL = Object.fromEntries(catalog.dragons.map((dragon) => [dragon.name, dragon]));
       catalog.dragons.forEach((dragon) => {
         HN[dragon.name] = dragon.habits.map((habit) => habit.name);
       });
       renderRoster();
+      if (drawerDragonIndex !== null) renderDragonDrawer(drawerDragonIndex);
     } catch (error) {
       canonicalCatalogError = error;
     }
@@ -464,18 +466,18 @@
   function renderEvidenceMilestones() {
     if (!canonicalCatalog) return;
     const dragons = canonicalCatalog.dragons;
+    const sourcedCommands = dragons.filter((dragon) => dragon.command.text).length;
     const sourcedVanguards = dragons.filter((dragon) => dragon.vanguard.text).length;
     const namedHabits = dragons.reduce((sum, dragon) => sum + dragon.habits.filter((habit) => habit.name).length, 0);
-    const verifiedCommands = dragons.filter((dragon) => dragon.command.structuredEffectsStatus === "verified").length;
-    const verifiedEffects = verifiedCommands + dragons.filter((dragon) => dragon.vanguard.structuredEffectsStatus === "verified").length + dragons.flatMap((dragon) => dragon.habits).filter((habit) => habit.levelEffectsStatus === "verified").length;
+    const verifiedEffects = dragons.filter((dragon) => dragon.command.structuredEffectsStatus === "verified").length + dragons.filter((dragon) => dragon.vanguard.structuredEffectsStatus === "verified").length + dragons.flatMap((dragon) => dragon.habits).filter((habit) => habit.levelEffectsStatus === "verified").length;
     document.querySelector("#catalogProfileCount").textContent = dragons.length;
     document.querySelector("#catalogStatCount").textContent = dragons.length * 4;
     document.querySelector("#catalogMechanicCount").textContent = verifiedEffects;
     document.querySelector("#metaFormations").innerHTML = [
-      ["Base attributes", `${dragons.length}/33`, "Strength, Instinct, Intelligence, and Initiative sourced at level one", dragons.length / 33],
+      ["Cross-checked attributes", `${dragons.length * 4}/132`, "Every level-one stat agrees across two community datasets", dragons.length / 33],
+      ["Command descriptions", `${sourcedCommands}/33`, "English source text collected; structured effects still require review", sourcedCommands / 33],
       ["Vanguard descriptions", `${sourcedVanguards}/33`, "Source text collected; structured effects still require review", sourcedVanguards / 33],
       ["Habit identities", `${namedHabits}/165`, "Names and Star unlocks sourced; level scaling remains unverified", namedHabits / 165],
-      ["Verified Commands", `${verifiedCommands}/33`, "Competitive publication remains blocked until Commands are encoded", verifiedCommands / 33],
     ].map(([label, value, copy, progress]) => `<article class="panel evidence-milestone"><span>${esc(label)}</span><b>${esc(value)}</b><p>${esc(copy)}</p><div><i style="width:${Math.round(progress * 100)}%"></i></div></article>`).join("");
   }
 
@@ -494,15 +496,15 @@
     document.querySelector("#rankingsBody").innerHTML = rows.map((dragon, index) => {
       const rosterDragon = DEFAULT_ROSTER.find((item) => item.name === dragon.name);
       const mechanicCount = Number(dragon.command.structuredEffectsStatus === "verified") + Number(dragon.vanguard.structuredEffectsStatus === "verified") + dragon.habits.filter((habit) => habit.levelEffectsStatus === "verified").length;
-      return `<tr><td class="rank-num">${index + 1}</td><td><span class="rank-dragon">${rosterDragon ? dragonAvatar(rosterDragon,"rank-avatar") : ""}<span><b>${esc(dragon.name)}</b><small>${esc(dragon.rarity)} · ${esc(dragon.breed)} · Lv1 base</small></span></span></td><td><b class="base-stat str">${dragon.baseStats.strength}</b></td><td><b class="base-stat inst">${dragon.baseStats.instinct}</b></td><td><b class="base-stat int">${dragon.baseStats.intelligence}</b></td><td><b class="base-stat init">${dragon.baseStats.initiative}</b></td><td><span class="mechanic-coverage ${mechanicCount ? "partial" : "pending"}">${mechanicCount}/7 verified</span></td><td><a class="source-link" href="https://wyrmtable.com/dragons" target="_blank" rel="noreferrer">Community source ↗</a></td></tr>`;
+      return `<tr><td class="rank-num">${index + 1}</td><td><span class="rank-dragon">${rosterDragon ? dragonAvatar(rosterDragon,"rank-avatar") : ""}<span><b>${esc(dragon.name)}</b><small>${esc(dragon.rarity)} · ${esc(dragon.breed)} · Lv1 base</small></span></span></td><td><b class="base-stat str">${dragon.baseStats.strength}</b></td><td><b class="base-stat inst">${dragon.baseStats.instinct}</b></td><td><b class="base-stat int">${dragon.baseStats.intelligence}</b></td><td><b class="base-stat init">${dragon.baseStats.initiative}</b></td><td><span class="mechanic-coverage sourced">2/2 ability texts</span><small class="coverage-detail">${mechanicCount}/7 effects encoded</small></td><td><span class="source-stack"><a class="source-link" href="https://wyrmtable.com/dragons" target="_blank" rel="noreferrer">Stats ↗</a><a class="source-link" href="https://dragonfire-hub.com/" target="_blank" rel="noreferrer">Abilities ↗</a></span></td></tr>`;
     }).join("") || `<tr><td colspan="8">No dragons match these filters.</td></tr>`;
   }
 
   ["rankSearch", "rankRarity", "rankSort"].forEach((id) => document.querySelector(`#${id}`).addEventListener(id === "rankSearch" ? "input" : "change", renderRankings));
   document.querySelector("#rankExport").addEventListener("click", () => {
     if (!canonicalCatalog) return toast("Evidence catalog is still loading", true);
-    const lines = [["Dragon", "Rarity", "Breed", "Level-one Strength", "Level-one Instinct", "Level-one Intelligence", "Level-one Initiative", "Evidence confidence", "Source"]];
-    evidenceRows().forEach((dragon) => lines.push([dragon.name, dragon.rarity, dragon.breed, dragon.baseStats.strength, dragon.baseStats.instinct, dragon.baseStats.intelligence, dragon.baseStats.initiative, dragon.evidence.confidence, "https://wyrmtable.com/api/dragons"]));
+    const lines = [["Dragon", "Rarity", "Breed", "Level-one Strength", "Level-one Instinct", "Level-one Intelligence", "Level-one Initiative", "Base troops", "March speed", "Command source text", "Vanguard source text", "Evidence confidence", "Stat source", "Ability source"]];
+    evidenceRows().forEach((dragon) => lines.push([dragon.name, dragon.rarity, dragon.breed, dragon.baseStats.strength, dragon.baseStats.instinct, dragon.baseStats.intelligence, dragon.baseStats.initiative, dragon.baseTroops, dragon.marchSpeed, dragon.command.text, dragon.vanguard.text, dragon.evidence.confidence, "https://wyrmtable.com/api/dragons", "https://dragonfire-hub.com/"]));
     const csv = lines.map((line) => line.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(",")).join("\n");
     const link = document.createElement("a");
     link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
@@ -561,7 +563,7 @@
     button.disabled = true;
     status.textContent = "Sending…";
     try {
-      const response = await fetch("/api/contribute-roster", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modelVersion: "0.8.1", consentVersion: "2026-07-29", roster: active }) });
+      const response = await fetch("/api/contribute-roster", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modelVersion: "0.9.0", consentVersion: "2026-07-29", roster: active }) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Contribution service is not connected yet");
       status.textContent = "Thank you — snapshot received.";
@@ -605,7 +607,7 @@
         ["INIT", stats?.initiative, "init"],
       ].map(([label, value, type]) => `<span><small>${label}</small><b class="base-stat ${type}">${value ?? "—"}</b></span>`).join("");
       const sourceStatus = evidence ? "Community-sourced" : canonicalCatalog ? "Catalog match missing" : "Catalog loading";
-      return `<article class="panel library-card"><div class="library-top"><div class="library-name">${dragonAvatar(dragon,"library-avatar")}<span><h3>${esc(dragon.name)}</h3><small>${esc(evidence?.rarity || dragon.rarity)} · ${esc(evidence?.breed || dragon.breed)} · ${esc(dragon.role)}</small></span></div><div class="library-power">${dragon.power ? fmt(dragon.power) : "Not set"}<small>Your roster · ${dragon.starRank}★ · Lv ${dragon.reignLevel}</small></div></div><div class="library-base-stats">${baseStats}</div><div class="library-evidence"><span><b>Level-one base</b><small>Player modifiers excluded</small></span><span class="evidence-badge ${evidence ? "sourced" : "pending"}">${sourceStatus}</span></div>${evidence?.vanguard.text ? `<div class="library-vanguard"><b>Vanguard source text</b><span>${esc(evidence.vanguard.text)}</span><small>Not yet encoded in the competitive engine</small></div>` : ""}<div class="kit-tags">${(dragon.tags || []).slice(0, 7).map((tag) => `<span class="kit-tag">${esc(tag)}</span>`).join("") || `<span class="kit-tag">kit data pending</span>`}</div><div class="habit-list">${habitRows}</div><div class="affinity-strip">${affinity}</div>${missing ? `<div class="data-gap">${missing} unlocked Habit description${missing > 1 ? "s" : ""} still use conservative model values.</div>` : ""}${evidence ? `<a class="library-source source-link" href="https://wyrmtable.com/dragons" target="_blank" rel="noreferrer">Inspect community source ↗</a>` : ""}</article>`;
+      return `<article class="panel library-card"><div class="library-top"><div class="library-name">${dragonAvatar(dragon,"library-avatar")}<span><h3>${esc(dragon.name)}</h3><small>${esc(evidence?.rarity || dragon.rarity)} · ${esc(evidence?.breed || dragon.breed)} · ${esc(dragon.role)}</small></span></div><div class="library-power">${dragon.power ? fmt(dragon.power) : "Not set"}<small>Your roster · ${dragon.starRank}★ · Lv ${dragon.reignLevel}</small></div></div><div class="library-base-stats">${baseStats}</div><div class="library-evidence"><span><b>Level-one base · ${evidence?.baseTroops ?? "—"} troops</b><small>${esc(evidence?.marchSpeed || "Unknown")} march · player modifiers excluded</small></span><span class="evidence-badge ${evidence ? "sourced" : "pending"}">${sourceStatus}</span></div><div class="library-abilities">${evidence?.command.text ? `<div class="library-ability command"><b>Command source text</b><span>${esc(evidence.command.text)}</span><small>Collected, not yet encoded in the competitive engine</small></div>` : ""}${evidence?.vanguard.text ? `<div class="library-ability vanguard"><b>Vanguard source text</b><span>${esc(evidence.vanguard.text)}</span><small>Collected, not yet encoded in the competitive engine</small></div>` : ""}</div><div class="kit-tags">${(dragon.tags || []).slice(0, 7).map((tag) => `<span class="kit-tag">${esc(tag)}</span>`).join("") || `<span class="kit-tag">kit data pending</span>`}</div><div class="habit-list">${habitRows}</div><div class="affinity-strip">${affinity}</div>${missing ? `<div class="data-gap">${missing} unlocked Habit description${missing > 1 ? "s" : ""} still use conservative model values.</div>` : ""}${evidence ? `<div class="library-sources"><a class="source-link" href="https://wyrmtable.com/dragons" target="_blank" rel="noreferrer">Inspect stat source ↗</a><a class="source-link" href="https://dragonfire-hub.com/" target="_blank" rel="noreferrer">Inspect ability source ↗</a></div>` : ""}</article>`;
     }).join("") || `<div class="panel battle-empty"><h3>No matching dragons</h3><p>Try a broader filter.</p></div>`;
   }
 

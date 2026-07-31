@@ -19,15 +19,16 @@ Open `http://127.0.0.1:4173`. The site has no frontend build step or account sys
 
 ## Canonical game-data pipeline
 
-The public catalog lives in [`data/dragon-catalog.v1.json`](./data/dragon-catalog.v1.json). It currently contains all 33 known dragons and 132 level-one Strength, Instinct, Intelligence, and Initiative values. Each record retains source and verification metadata; community-sourced values are never relabeled as independently verified.
+The public catalog lives in [`data/dragon-catalog.v1.json`](./data/dragon-catalog.v1.json). It currently contains all 33 known dragons, 132 level-one Strength, Instinct, Intelligence, and Initiative values, 33 English Command descriptions, 33 English Vanguard descriptions, base troop counts, and march speeds. All 132 stat values agree across two public community datasets. Each record retains source and verification metadata; community-sourced values are never relabeled as independently verified.
 
 ```bash
-npm run sync:data   # refresh the versioned snapshot from the public Wyrmtable API
-npm run check:data  # enforce 33 unique dragons, four stats, and five Habit slots
+npm run sync:data      # refresh Wyrmtable identities, then cross-check and enrich from Dragonfire Hub
+npm run sync:mechanics # refresh Command, Vanguard, base troop, and march-speed evidence only
+npm run check:data     # enforce 33 unique dragons plus complete stats, Commands, Vanguards, and Habit slots
 npm run check       # validate the catalog and JavaScript syntax
 ```
 
-The factual snapshot uses the public [Wyrmtable dragon API](https://wyrmtable.com/api/dragons) and the [official Dragon guide](https://news.gotdragonfire.com/a-guide-to-dragons/) for system semantics. No competing site's interface, code, ranking algorithm, or branding is copied. Unknown mechanic formulas use the publication policy `exclude-from-competitive-ranking`.
+The factual snapshot uses the public [Wyrmtable dragon API](https://wyrmtable.com/api/dragons), the public [Dragonfire Hub catalog](https://dragonfire-hub.com/) for English Command and Vanguard evidence plus an independent stat cross-check, and the [official Dragon guide](https://news.gotdragonfire.com/a-guide-to-dragons/) for system semantics. No competing site's interface, code, ranking algorithm, or branding is copied. Collected ability descriptions are shown to users, but their structured effects remain `unverified`; unknown mechanic formulas use the publication policy `exclude-from-competitive-ranking`.
 
 The feature-parity boundary and implementation sequence are documented in [`docs/competitive-parity.md`](./docs/competitive-parity.md).
 
@@ -85,7 +86,7 @@ This follows the useful product loop popularized by matchup simulators such as P
 
 ## What is not yet confirmed
 
-The game does not expose a complete public combat formula. Command coefficients, troop-capacity conversion, defense curves, exact targeting priorities, resistance, status chances, and several Habit descriptions are still modeled conservatively. Battle Lab output is a formation hypothesis, not a predicted win rate, and the competitive leaderboard stays gated until those mechanics are validated.
+The game does not expose a complete public combat formula. English Command and Vanguard descriptions are now complete in the evidence catalog, but their exact execution order, troop-capacity conversion, defense curves, targeting priorities, resistance, status chances, and Habit level scaling are still modeled conservatively. Battle Lab output is a formation hypothesis, not a predicted win rate, and the competitive leaderboard stays gated until those mechanics are encoded and validated against battle outcomes.
 
 ## Calibration plan
 

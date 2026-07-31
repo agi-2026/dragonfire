@@ -1,7 +1,7 @@
 {
   "schema": "dragonfire-war-council/dragon-catalog-v1",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-30T06:31:42.255Z",
+  "generatedAt": "2026-07-31T00:07:53.169Z",
   "gameDataAsOf": "2026-07-29",
   "policy": {
     "unknownMechanics": "exclude-from-competitive-ranking",
@@ -36,6 +36,19 @@
         "starRank"
       ],
       "verification": "Authoritative for system semantics, not a complete numeric dragon table."
+    },
+    {
+      "id": "dragonfire-hub-public-catalog",
+      "type": "community-database",
+      "url": "https://dragonfire-hub.com/",
+      "fields": [
+        "baseStatsCrossCheck",
+        "baseTroops",
+        "marchSpeed",
+        "vanguardText",
+        "commandText"
+      ],
+      "verification": "All 132 level-one stat values match the independent Wyrmtable snapshot. Command and Vanguard descriptions remain community-sourced and are not yet encoded as verified simulator effects."
     }
   ],
   "dragons": [
@@ -60,11 +73,13 @@
       },
       "vanguard": {
         "text": "Fire Dmg +16% | Strength +20, Initiative +20 to Right Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Rounds 3,6,9: Fire Dmg (+100% or +150% w/ First-Strike) to 3 Enemies",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -101,10 +116,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Average"
     },
     {
       "id": "crimson",
@@ -128,11 +146,13 @@
       },
       "vanguard": {
         "text": "Recovery +20%, Intelligence +25 | Physical Dmg +10% to Right Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Odd Rounds: Stun 1 Enemy (20% chance) (2 rounds) | Rounds 2,5,8: Fire Dmg +140% to 1 Enemy",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -169,10 +189,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Slow"
     },
     {
       "id": "kalspire",
@@ -196,11 +219,13 @@
       },
       "vanguard": {
         "text": "Strength +15, Intelligence +15, Instinct +15 | Dmg Received -8% to Right Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "After Basic Attack: Tactical Dmg +50% to 1 Enemy | Bleed 2nd Enemies adjacency (30% chance) (2 Rounds)",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -237,10 +262,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Slow"
     },
     {
       "id": "malachite",
@@ -265,11 +293,13 @@
       },
       "vanguard": {
         "text": "Recovery +15%, Instinct +25 | Fire Dmg +16% to Left Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Rounds 2,4,7,9: Tactical Dmg +100% to 1 Enemy (same lane) | Recovery +70% to 3 Allies",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -306,10 +336,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Fast"
     },
     {
       "id": "seasmoke",
@@ -334,11 +367,13 @@
       },
       "vanguard": {
         "text": "Strength +15, Intelligence +15, Instinct +15 | Dmg Received -8 to Right Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Each Round: Cleanse upto 3 Positive effects from Enemies (20% chance each) | Rounds 3,6,9: Fire Dmg +190% to 1 Enemy (same lane)",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -375,10 +410,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Fast"
     },
     {
       "id": "sheepstealer",
@@ -401,11 +439,13 @@
       },
       "vanguard": {
         "text": "Recovery Received +20%, Intelligence +25 | Physical Dmg +10% to Right Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Each Round: Recovery Received -30% to 1 Enemy (40% chance) (3 rounds). Rounds 1,4,7,10: Fire Dmg (+100% or +200% w/ Prey) to 1 Enemy (prioritizes enemies that received Recovery within the last 1 round)",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -442,10 +482,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Average"
     },
     {
       "id": "sunfyre",
@@ -467,12 +510,14 @@
         "negative": []
       },
       "vanguard": {
-        "text": "Strength +18, Dmg Dealt +12% | Strength +22 to Right Flank",
-        "structuredEffectsStatus": "unverified"
+        "text": "Tactical Dmg +16% | Instinct +20, Initiative +20 to Left Flank",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Rounds 1,4,7,10: Tactical Dmg +110% to (1 or 2 if <75% troop) Enemy(s) adjancency. If <50% troop, also Fire Dmg +55% & 50% chance to Burn (2 rounds).",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -509,10 +554,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Average"
     },
     {
       "id": "syrax",
@@ -537,11 +585,13 @@
       },
       "vanguard": {
         "text": "Tactical Dmg +16% | Instinct +20, Initiative +20 to Left Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Each Round: Fire Dmg +10% & First-Strike to 1 Ally w/ Fire Dmg (20% chance) (2 Rounds) | Rounds 1,4,6,9: Tactical Dmg +110% to 1 Enemy adjacency",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -578,10 +628,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Very Fast"
     },
     {
       "id": "venator",
@@ -604,11 +657,13 @@
       },
       "vanguard": {
         "text": "Physical Dmg (Command & Habits) +16% | Instinct +20, Initiative +20 to Left Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "After Basic Attack: 2x Physical Dmg (+40% or +80% w/ Double-Strike) to 1 Enemy | Rounds 4,6,8,10: Gain Double-Strike (40% chance) (2 rounds)",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -645,10 +700,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Average"
     },
     {
       "id": "vhagar",
@@ -672,11 +730,13 @@
       },
       "vanguard": {
         "text": "Dmg Received -8% | Tactical Dmg +16 to Left Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Each Round: Taunt (25% or 50% w/ Burn) to 3 Enemies (2 rounds) | Even Rounds: Physical Dmg +120% to 1 Enemy adjacency",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -713,10 +773,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Slow"
     },
     {
       "id": "daemoros",
@@ -738,11 +801,13 @@
       },
       "vanguard": {
         "text": "Physical Dmg +16% | Instinct +20, Initiative +20 to Left Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Odd Rounds: Physical Dmg +125% to 1 Enemy adjacency & Burn +20% (20% chance) (2 rounds)",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -779,10 +844,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Average"
     },
     {
       "id": "feskar",
@@ -806,11 +874,13 @@
       },
       "vanguard": {
         "text": "Strength +15, Intelligence +15, Instinct +15 | Dmg Received -8% to Right Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Each Round: Physical Dmg (Command & Habits) -12% to Enemy (highest Strength) (20% chance) (2 rounds) | Tactical Dmg +100% to 1 Enemy (least troops)",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -847,10 +917,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Fast"
     },
     {
       "id": "rhysarion",
@@ -874,11 +947,13 @@
       },
       "vanguard": {
         "text": "Recovery +15%, Initiative +25 | Dmg Dealt +8% to Right Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Rounds 1,4,7: Physical Dmg +70% to 2 Enemies adjacency | Rounds 2,5,8: Fire Dmg (+20% or +30% w/ Control) to 3 Enemies",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -915,10 +990,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Very Slow"
     },
     {
       "id": "shadowsong",
@@ -940,11 +1018,13 @@
       },
       "vanguard": {
         "text": "Fire Dmg +16% | Strength +20, Initiative +20 to Right Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Rounds 2,5,8: Fire Dmg (+100% or +150% w/ Panic) to 2 Enemies adjacency",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -981,10 +1061,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Average"
     },
     {
       "id": "tairax",
@@ -1007,12 +1090,14 @@
         "negative": []
       },
       "vanguard": {
-        "text": "Fire Dmg +10% | Intelligence +12 to Left Flank",
-        "structuredEffectsStatus": "unverified"
+        "text": "Tactical Dmg +16% | Instinct +20, Initiative +20 to Left Flank",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Afflict Stagger (25% chance) (Odd rounds) | Rounds 2,5,8: Fire Dmg +115% to 1 Enemy (prioritizes non-Burn targets) | Burn (50% chance) (2 rounds)",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -1049,10 +1134,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Average"
     },
     {
       "id": "tashix",
@@ -1076,11 +1164,13 @@
       },
       "vanguard": {
         "text": "Recovery Received +20%, Intelligence +25 | Physical Dmg +10% to Right Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Each Round: Fire Dmg +2.5% per-stack (Max 10) | Rounds 3,6,9: Fire Dmg +200% to 1 Enemy adjacency",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -1117,10 +1207,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Fast"
     },
     {
       "id": "tessarion",
@@ -1144,11 +1237,13 @@
       },
       "vanguard": {
         "text": "Strength +15, Intelligence +15, Instinct +15 | Dmg Received -8% to Right Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Rounds 1,4,7: Fire Dmg +95% to 1 Enemy (prioritizes Physical Dmg Dealers) | Reduce Dmg Dealt (-10% or -20% to enemy Physical Dmg) (50% chance) (2 rounds) | Rounds 3,6,9: Physical Dmg +60% to 1 Enemy (same lane)",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -1185,10 +1280,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Slow"
     },
     {
       "id": "vaeldra",
@@ -1210,11 +1308,13 @@
       },
       "vanguard": {
         "text": "Dmg Received -8% | Tactical Dmg +16% to Left Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Each Round: Taunt 3 Enemies (25% chance) (2 rounds) | Odd Rounds: Physical Dmg +45% to 2 Enemies adjacency",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -1251,10 +1351,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Average"
     },
     {
       "id": "velar",
@@ -1276,11 +1379,13 @@
       },
       "vanguard": {
         "text": "Tactical Dmg +16% | Instinct +20, Initiative +20 to Left Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Rounds 2,4,6,8: Advantage +15% to 2 Allies (20% chance) (2 rounds) | Rounds 3,5,7,9: Tactical Dmg +45% to 3 Enemies",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -1317,10 +1422,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Average"
     },
     {
       "id": "vermax",
@@ -1343,11 +1451,13 @@
       },
       "vanguard": {
         "text": "Physical Dmg (Command & Habits) +16% | Instinct & Initiative +20 to Left Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "After each Basic Attack: Physical Dmg +50% | Dmg Dealt +2.5% per-stack to 1 Ally w/ Tactical Dmg (Max 10) (2x Dmg to enemy w/ Fire Dmg)",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -1384,10 +1494,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Average"
     },
     {
       "id": "zivern",
@@ -1410,11 +1523,13 @@
       },
       "vanguard": {
         "text": "Tactical Dmg +16% | Instinct +20, Initiative +20 to Left Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Rounds 1,4,6,9: Tactical Dmg Received +15% to 1 Enemy (same lane) (40% chance) | Tactical Dmg +75% to 2 Enemies adjacency",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -1451,10 +1566,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Slow"
     },
     {
       "id": "antares",
@@ -1478,11 +1596,13 @@
       },
       "vanguard": {
         "text": "Fire Dmg +16% | Strength +20, Initiative +20 to Right Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Each Round: Vulnerable +10% to 1 Enemy adjacency (20% chance) (2 rounds) | Fire Dmg +65% to 2 Enemies adjacency",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -1519,10 +1639,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Fast"
     },
     {
       "id": "arrax",
@@ -1545,11 +1668,13 @@
       },
       "vanguard": {
         "text": "Dmg Received -8% | Tactical Dmg +16% to Left Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Weakened 1 Enemy (25% chance) (rounds 2,4,6,8) | Physical Dmg +40% to 2 Enemies (adjacency) (rounds 2,4,5,6,8)",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -1586,10 +1711,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Average"
     },
     {
       "id": "arulix",
@@ -1611,11 +1739,13 @@
       },
       "vanguard": {
         "text": "Strength, Intelligence, Instinct +15 | Dmg Received -8% to Right Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Reduce Fire Dmg Dealt -15% to all enemies w/ Fire Dmg (25% chance) (1 round) | Tactical Dmg +45% to all enemies that deal Physical Dmg (rounds 1-3,5,8)",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -1652,10 +1782,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Average"
     },
     {
       "id": "bevlorin",
@@ -1677,11 +1810,13 @@
       },
       "vanguard": {
         "text": "Dmg Received -8% | Tactical Dmg +16% to Left Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Each Round: Fire Dmg -10% to 3 Enemies w/ Fire Dmg (20% chance) (2 rounds) | Rounds 1,5,9: Physical Dmg +30% to 3 Enemies | Rounds 3,7: Physical Dmg +90% to 1 Enemy (same lane).",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -1718,10 +1853,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Average"
     },
     {
       "id": "dawnseeker",
@@ -1745,11 +1883,13 @@
       },
       "vanguard": {
         "text": "Recovery +15%, Instinct +25 | Fire Dmg +16% to Left Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Instinct & Initiative +20% (30% chance) (1 round) | Tactical Dmg +50% to 1 Enemy (same lane) (rounds 1,2,4,7) | Recovery +30% to 2 Allies adjacency (rounds 2,5,8)",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -1786,10 +1926,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Very Fast"
     },
     {
       "id": "jagadrix",
@@ -1811,11 +1954,13 @@
       },
       "vanguard": {
         "text": "Fire Dmg +16% | Strength +20, Initiative +20 to Right Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Each Round: Instinct & Initiative -15% to 1 Enemy (same lane) (30% chance) (2 rounds) | Rounds 2,5,8: Fire Dmg +120% to 1 Enemy (same lane)",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -1852,10 +1997,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Average"
     },
     {
       "id": "nyrena",
@@ -1878,11 +2026,13 @@
       },
       "vanguard": {
         "text": "Strength, Intelligence, Instinct +15 | Dmg Received -8% to Right Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "-10% Physical Dmg to 3 Enemies (10% chance) (1 round or 2 rounds w/ Burn) | Fire Dmg +20% to 3 Enemies (rounds 1,3) | Tactical Dmg +80% to 1 Enemy (same lane) (rounds 5,7,9)",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -1919,10 +2069,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Slow"
     },
     {
       "id": "shadowrend",
@@ -1944,12 +2097,14 @@
         "negative": []
       },
       "vanguard": {
-        "text": "Fire Dmg +16% | Instinct +20, Initiative +20 to Left Flank",
-        "structuredEffectsStatus": "unverified"
+        "text": "Physical Dmg +16% | Instinct +20, Initiative +20 to Left Flank",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Each Round: Dmg Dealt +20% & Panic to 1 Enemy adjacency (25% chance) (2 rounds) | Rounds 4,7,9,10: Physical Dmg +80% to 2 Enemies adjacency",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -1986,10 +2141,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Slow"
     },
     {
       "id": "shimmer",
@@ -2012,11 +2170,13 @@
       },
       "vanguard": {
         "text": "Recovery +15%, Instinct +25 | Fire Dmg +16% to Left Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Each Round: Strength +18% & Initiative +9% to Ally (highest Strength) (30% chance) (2 rounds) | Tactical Dmg +50% to 2 Enemies adjacency.",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -2053,10 +2213,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Slow"
     },
     {
       "id": "solstryker",
@@ -2078,11 +2241,13 @@
       },
       "vanguard": {
         "text": "Strength +15, Intelligence +15, Instinct +15 | Dmg Received -8% to Right Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Odd Rounds: Physical Dmg +30% | Physical Dmg -12% to 1 Enemy (20% chance) (2 rounds)",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -2119,10 +2284,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Average"
     },
     {
       "id": "thunderstrike",
@@ -2144,11 +2312,13 @@
       },
       "vanguard": {
         "text": "Physical Dmg (Command & Habits) +16% | Instinct +20, Initiative +20 to Left Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Odd Rounds: Physical Dmg +100% to 1 Enemy (same lane)",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -2185,10 +2355,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Average"
     },
     {
       "id": "vesper",
@@ -2212,11 +2385,13 @@
       },
       "vanguard": {
         "text": "Tactical Dmg +16% | Instinct +20, Initiative +20 to Left Flank",
-        "structuredEffectsStatus": "unverified"
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "command": {
-        "text": null,
-        "structuredEffectsStatus": "missing"
+        "text": "Each Round: Slow 1 Enemy (same lane) (20% chance) (2 rounds) | Tactical Dmg +70% to 1 Enemy (same lane)",
+        "structuredEffectsStatus": "unverified",
+        "sourceId": "dragonfire-hub-public-catalog"
       },
       "habits": [
         {
@@ -2253,10 +2428,13 @@
       "evidence": {
         "confidence": "community-sourced",
         "sourceIds": [
-          "wyrmtable-public-api"
+          "wyrmtable-public-api",
+          "dragonfire-hub-public-catalog"
         ],
         "independentlyVerified": false
-      }
+      },
+      "baseTroops": 100,
+      "marchSpeed": "Fast"
     }
   ]
 }
