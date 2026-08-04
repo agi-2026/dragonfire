@@ -1,7 +1,7 @@
 {
   "name": "dragonfire-war-council",
   "private": true,
-  "version": "0.16.0",
+  "version": "0.16.1",
   "type": "module",
   "scripts": {
     "sync:data": "node scripts/sync-dragon-data.mjs && node scripts/sync-mechanics-data.mjs && node scripts/sync-community-habits.mjs",
@@ -9,7 +9,7 @@
     "sync:habits": "node scripts/sync-community-habits.mjs",
     "report:mechanics": "node scripts/report-mechanics-gaps.mjs",
     "check:data": "node scripts/validate-dragon-data.mjs",
-    "check": "npm run check:data && node --check simulation-engine.js && node --check product.js && node scripts/check-simulation-engine.mjs && node scripts/check-calibration-fixtures.mjs && node scripts/check-team-builder-scenario.mjs"
+    "check": "npm run check:data && node --check simulation-engine.js && node --check product.js && node scripts/check-simulation-engine.mjs && node scripts/check-calibration-fixtures.mjs && node scripts/check-team-builder-scenario.mjs && node scripts/check-optimizer-progress.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1"
