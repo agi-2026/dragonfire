@@ -14,7 +14,7 @@
     .dragon-name,.dragon-meta{display:block}.habit-row{grid-template-columns:1fr 72px 72px}.impact-input{padding:7px 5px;text-align:center}
     @media(min-width:981px){.optimizer-controls{grid-template-columns:1.35fr .7fr .75fr 1.25fr 1.1fr}.optimizer-controls .select{font-size:13px}}
   </style>
-  <link rel="stylesheet" href="product.css?v=0.15.0">
+  <link rel="stylesheet" href="product.css?v=0.16.0">
 </head>
 <body>
 <div class="shell">
@@ -115,7 +115,7 @@
   </section>
 
   <section class="product-view" data-view="builder">
-  <div class="page-heading"><div><div class="eyebrow">FULL-ROSTER PLANNER · DISJOINT ARMIES</div><h2>Team Optimizer</h2><p>Turn every dragon you own into the strongest set of non-overlapping PvP, siege, and development armies.</p></div><span class="confidence medium">ROUND-BASED ENGINE v0.14</span></div>
+  <div class="page-heading"><div><div class="eyebrow">FULL-ROSTER PLANNER · DISJOINT ARMIES</div><h2>Team Optimizer</h2><p>Turn every dragon you own into the strongest set of non-overlapping PvP, siege, and development armies.</p></div><span class="confidence medium">ROUND-BASED ENGINE v0.16</span></div>
   <main class="layout">
     <section class="panel">
       <div class="panel-head"><h2>Your dragons</h2><div class="roster-head-actions"><span class="count" id="rosterCount"></span><button class="btn compact-btn" id="setupRosterBtn">Choose dragons</button></div></div>
@@ -124,7 +124,7 @@
       <div class="roster-list" id="rosterList"></div>
     </section>
     <section class="panel">
-      <div class="panel-head"><h2>Optimized war council</h2><div class="panel-head-actions"><span class="count">Combat engine v0.14</span><button class="btn primary" id="optimizeBtn" aria-label="Optimize all teams">⚡ <span>Optimize teams</span></button></div></div>
+      <div class="panel-head"><h2>Optimized war council</h2><div class="panel-head-actions"><span class="count">Combat engine v0.16</span><button class="btn primary" id="optimizeBtn" aria-label="Optimize all teams">⚡ <span>Optimize teams</span></button></div></div>
       <div class="optimizer-controls">
         <div class="control"><label for="optimizerLens">Optimization lens</label><select class="select" id="optimizerLens"><option value="level50" selected>Level 50 priority</option><option value="current">Current roster</option><option value="maxkit">Max-kit research</option></select></div>
         <div class="control"><label for="pvpCount">PvP armies</label><select class="select" id="pvpCount"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div>
@@ -196,7 +196,7 @@
     <footer class="onboarding-footer"><button class="btn" id="importOnboarding">Import a roster</button><div><span id="onboardingCount">31 selected</span><button class="btn primary" id="saveOnboarding">Continue with 31 dragons</button></div></footer>
   </section>
 </div>
-<script src="simulation-engine.js?v=0.15.0"></script>
+<script src="simulation-engine.js?v=0.16.0"></script>
 <script>
 const TROOPS={cavalry:"🐎 Cavalry",shieldbearers:"🛡️ Shieldbearers",archers:"🏹 Archers",spearmen:"🔱 Spearmen",siege:"🔥 Siege"};
 const POSITIONS=["Left flank","Vanguard","Right flank"];
@@ -454,6 +454,6 @@ document.querySelector("#search").addEventListener("input",()=>{hideDragonHover(
   });
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
-<script src="product.js?v=0.15.0"></script>
+<script src="product.js?v=0.16.0"></script>
 </body>
 </html>

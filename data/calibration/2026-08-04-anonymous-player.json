@@ -1,0 +1,113 @@
+{
+  "schema": "dragonfire-war-council/calibration-fixture-v1",
+  "capturedOn": "2026-08-04",
+  "sourceType": "player-provided-in-game-screenshots",
+  "privacy": {
+    "sourceImagesCommitted": false,
+    "playerIdentifiersStored": false,
+    "guildStored": false,
+    "mapCoordinatesStored": false
+  },
+  "statSemantics": {
+    "strength": "Increases Physical damage dealt.",
+    "instinct": "Increases Tactical damage dealt and reduces Physical damage received.",
+    "intelligence": "Increases Fire damage dealt and reduces Tactical damage received.",
+    "initiative": "Reduces Fire damage received and determines turn order."
+  },
+  "dragonProfiles": [
+    {
+      "dragon": "Venator",
+      "rarity": "Legendary",
+      "level": 50,
+      "stars": 3,
+      "power": 39520,
+      "troopCapacity": 9082,
+      "stats": { "strength": 308.3, "instinct": 234.2, "intelligence": 221.6, "initiative": 259.5 },
+      "habitRanks": [2],
+      "sourceFile": "IMG_5015.PNG"
+    },
+    {
+      "dragon": "Kalspire",
+      "rarity": "Legendary",
+      "level": 50,
+      "stars": 4,
+      "power": 43540,
+      "troopCapacity": 9082,
+      "stats": { "strength": 325.3, "instinct": 342.3, "intelligence": 222.2, "initiative": 256.2 },
+      "habitRanks": [2, 2],
+      "sourceFile": "IMG_5016.PNG"
+    },
+    {
+      "dragon": "Vhagar",
+      "rarity": "Legendary",
+      "level": 50,
+      "stars": 5,
+      "power": 47840,
+      "troopCapacity": 10082,
+      "stats": { "strength": 354.0, "instinct": 376.5, "intelligence": 262.0, "initiative": 299.4 },
+      "habitRanks": [2, 2],
+      "sourceFile": "IMG_5020.png"
+    }
+  ],
+  "battleSummaries": [
+    {
+      "opponent": "Stone defender tier 13",
+      "attackerTroop": "shieldbearers",
+      "defenderTroop": "cavalry",
+      "troopAdvantage": { "attackerDamagePct": -7, "defenderDamagePct": 7 },
+      "attackerAffinityStatPct": 20,
+      "attacker": [
+        { "dragon": "Kalspire", "level": 49, "remaining": 7190, "maximum": 8960 },
+        { "dragon": "Vhagar", "level": 50, "remaining": 6476, "maximum": 10082 },
+        { "dragon": "Venator", "level": 50, "remaining": 3648, "maximum": 9082 }
+      ],
+      "defender": [
+        { "remaining": 0, "maximum": 12000 },
+        { "remaining": 0, "maximum": 12000 },
+        { "remaining": 4714, "maximum": 12000 }
+      ],
+      "sourceFile": "IMG_5019.PNG"
+    },
+    {
+      "opponent": "Hedge Knights level 50",
+      "attackerTroop": "shieldbearers",
+      "defenderTroop": "cavalry",
+      "troopAdvantage": { "attackerDamagePct": -7, "defenderDamagePct": 7 },
+      "attackerAffinityStatPct": 20,
+      "attacker": [
+        { "dragon": "Kalspire", "level": 49, "remaining": 7355, "maximum": 8960 },
+        { "dragon": "Vhagar", "level": 50, "remaining": 7741, "maximum": 10082 },
+        { "dragon": "Venator", "level": 50, "remaining": 6978, "maximum": 9082 }
+      ],
+      "defender": [
+        { "remaining": 2485, "maximum": 13000 },
+        { "remaining": 3176, "maximum": 13000 },
+        { "remaining": 4218, "maximum": 13000 }
+      ],
+      "sourceFile": "IMG_5018.PNG"
+    },
+    {
+      "opponent": "Hedge Knights level 50",
+      "attackerTroop": "shieldbearers",
+      "defenderTroop": "spearmen",
+      "troopAdvantage": { "attackerDamagePct": 0, "defenderDamagePct": 0 },
+      "attackerAffinityStatPct": 20,
+      "attacker": [
+        { "dragon": "Kalspire", "level": 49, "remaining": 7571, "maximum": 8960 },
+        { "dragon": "Vhagar", "level": 50, "remaining": 8455, "maximum": 10082 },
+        { "dragon": "Venator", "level": 50, "remaining": 7232, "maximum": 9082 }
+      ],
+      "defender": [
+        { "remaining": 2697, "maximum": 13000 },
+        { "remaining": 2793, "maximum": 13000 },
+        { "remaining": 5642, "maximum": 13000 }
+      ],
+      "sourceFile": "IMG_5017.PNG"
+    }
+  ],
+  "limitations": [
+    "Dragon Pit stats include unknown account-wide Stronghold and progression modifiers, so they cannot alone identify a universal level formula.",
+    "Battle screenshots are end-state summaries without round-by-round damage events.",
+    "The reports verify positive Affinity at +20% Dragon Stats and Shieldbearers versus Cavalry at -7%/+7% damage."
+  ]
+}

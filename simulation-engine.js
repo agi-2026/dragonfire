@@ -1,7 +1,7 @@
 (function (global) {
   "use strict";
 
-  const VERSION = "0.15.0";
+  const VERSION = "0.16.0";
   const POSITIONS = ["Left flank", "Vanguard", "Right flank"];
   const COMMAND_NAMES = new Set([
     "Caraxes", "Crimson", "Kalspire", "Malachite", "Seasmoke", "Sheepstealer", "Sunfyre", "Syrax", "Venator", "Vhagar",
@@ -78,19 +78,34 @@
     return Object.fromEntries(Object.entries(base).map(([key, value]) => [key, Number(value) * progression]));
   }
 
-  function affinityMultiplier(dragon, troop) {
-    return dragon.affinity?.[troop] === "+" ? 1.07 : dragon.affinity?.[troop] === "-" ? 0.93 : 1;
+  function affinityStatMultiplier(dragon, troop) {
+    const affinity = dragon.affinity?.[troop];
+    // Positive Affinity is verified in-game at +20% Dragon Stats. The matching
+    // negative value remains a symmetric model assumption until captured.
+    return affinity === "+" ? 1.20 : affinity === "-" ? 0.80 : 1;
+  }
+
+  function troopAdvantageMultiplier(attackerTroop, defenderTroop) {
+    const beats = {
+      cavalry: "shieldbearers",
+      shieldbearers: "archers",
+      archers: "spearmen",
+      spearmen: "cavalry",
+    };
+    if (beats[attackerTroop] === defenderTroop) return 1.07;
+    if (beats[defenderTroop] === attackerTroop) return 0.93;
+    return 1;
   }
 
   function makeFighter(dragon, lane, side, troop) {
-    const stats = scaledStats(dragon);
+    const affinity = affinityStatMultiplier(dragon, troop);
+    const stats = Object.fromEntries(Object.entries(scaledStats(dragon)).map(([key, value]) => [key, value * affinity]));
     const power = Math.max(1, Number(dragon.power) || 1);
-    const affinity = affinityMultiplier(dragon, troop);
     const scale = Math.sqrt(power / 30000);
-    const maxHp = (900 + (stats.strength + stats.instinct + stats.intelligence) * 7.2) * scale * affinity;
+    const maxHp = (900 + (stats.strength + stats.instinct + stats.intelligence) * 7.2) * scale;
     return {
       dragon, lane, side, stats, maxHp, hp: maxHp, alive: true,
-      affinity, initiative: stats.initiative,
+      troop, affinity, initiative: stats.initiative,
       dealt: { physical: 1, tactical: 1, fire: 1, all: 1 },
       received: { physical: 1, tactical: 1, fire: 1, all: 1 },
       commandDealt: { physical: 1, tactical: 1, fire: 1, all: 1 },
@@ -154,7 +169,8 @@
       const isBasic = label === "Basic";
       const commandDealt = isBasic ? 1 : attacker.commandDealt.all * attacker.commandDealt[type];
       const commandReceived = isBasic ? 1 : target.commandReceived.all * target.commandReceived[type];
-      const amount = 155 * coefficient * powerScale * statCurve * attacker.affinity * attacker.dealt.all * attacker.dealt[type] * commandDealt * target.received.all * target.received[type] * commandReceived * panic * vulnerable * resistance * weakened * advantage * sharpened * variance;
+      const troopMatchup = troopAdvantageMultiplier(attacker.troop, target.troop);
+      const amount = 155 * coefficient * powerScale * statCurve * troopMatchup * attacker.dealt.all * attacker.dealt[type] * commandDealt * target.received.all * target.received[type] * commandReceived * panic * vulnerable * resistance * weakened * advantage * sharpened * variance;
       target.hp = Math.max(0, target.hp - amount);
       addEvent(log, round, `${attacker.dragon.name} ${label === "Basic" ? "hits" : "uses " + label + " on"} ${target.dragon.name} for ${Math.round(amount).toLocaleString()} ${type} damage.`, label === "Basic" ? "" : "command");
       if (target.hp <= 0) {
@@ -592,7 +608,8 @@
       const durability = 1 / Math.max(0.5, fighter.received.all * (0.45 + 0.55 * fighter.commandReceived[attackType] * fighter.commandReceived.all));
       const statValue = (fighter.stats.strength + fighter.stats.instinct + fighter.stats.intelligence + fighter.stats.initiative) / 4;
       const baseStatValue = Object.values(scaledStats(fighter.dragon)).reduce((total, value) => total + value, 0) / 4;
-      return sum + fighter.dragon.power * fighter.affinity * (attack * 0.55 + durability * 0.30 + statValue / baseStatValue * 0.15);
+      const kitStatRatio = statValue / fighter.affinity / baseStatValue;
+      return sum + fighter.dragon.power * fighter.affinity * (attack * 0.55 + durability * 0.30 + kitStatRatio * 0.15);
     }, 0);
     const c = coverage(team);
     const reasons = [];
@@ -634,5 +651,6 @@
   global.DragonfireSimulation = {
     VERSION, POSITIONS, configureCatalog, hashSeed, seededRandom, runBattle, simulateMatchup,
     evaluateFormation, formationProfile, coverage, registryCoverage, isHabitEncoded, unknownHabits, habitRank, unlockedCount,
+    affinityStatMultiplier, troopAdvantageMultiplier,
   };
 })(typeof window !== "undefined" ? window : globalThis);

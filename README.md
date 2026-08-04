@@ -92,7 +92,7 @@ This follows the useful product loop popularized by matchup simulators such as P
 
 ## What is not yet confirmed
 
-The game does not expose a complete public combat formula. English Command and Vanguard descriptions and all community Habit tables are present, but exact execution order, level/Star progression, troop-capacity conversion, defense curves, targeting priorities, resistance, status timing, and enhanced-by-stat scaling still need independent validation. Battle Lab output is a formation hypothesis, not a calibrated predicted win rate, and the competitive leaderboard stays gated until those mechanics pass held-out battle validation. See [`docs/mechanics-data-needed.md`](./docs/mechanics-data-needed.md) for the smallest useful validation pack.
+The game does not expose a complete public combat formula. English Command and Vanguard descriptions and all community Habit tables are present. Player evidence now confirms the four offensive/defensive attribute roles, positive Affinity at +20% Dragon Stats, and troop advantage at ±7% damage; those mechanics are modeled separately. Exact execution order, level/Star progression, troop-capacity conversion, damage curves, targeting priorities, resistance, status timing, and enhanced-by-stat scaling still need independent validation. Battle Lab output is a formation hypothesis, not a calibrated predicted win rate, and the competitive leaderboard stays gated until those mechanics pass held-out battle validation. See [`docs/mechanics-data-needed.md`](./docs/mechanics-data-needed.md) for the smallest useful validation pack.
 
 ## Calibration plan
 

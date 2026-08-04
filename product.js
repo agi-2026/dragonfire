@@ -822,7 +822,7 @@
         <div class="result-side ${stronger === "B" ? "winner" : ""}"><small>FORMATION B · ${TROOPS[result.troopB]}</small><h3>${stronger === "B" ? "Favored" : stronger === "draw" ? "Even" : "Underdog"}</h3><div class="formation-names">${esc(teamLabel(result.teamB.map((dragon, lane) => ({ dragon, lane }))))}</div></div>
       </div>
       <div class="result-stats"><div class="stat"><b>${rateA.toFixed(1)} / ${rateB.toFixed(1)}</b><span>A / B win percentage</span></div><div class="stat"><b>${(result.totalRounds / result.count).toFixed(1)}</b><span>Average rounds</span></div><div class="stat"><b>${(result.healthA / result.count * 100).toFixed(0)}% / ${(result.healthB / result.count * 100).toFixed(0)}%</b><span>Average health A / B</span></div><div class="stat"><b>${result.draws}</b><span>Draws in ${result.count}</span></div></div>
-      <div class="assumption-bar"><b>Engine v${window.DragonfireSimulation.VERSION}:</b> base attributes, Power progression, troop affinity, lane targeting, structured Commands and Vanguard effects, and community-sourced Habit mechanics are modeled. Habit data is not official verification; damage and progression curves still require battle-report calibration. Formation A executable coverage: ${window.DragonfireSimulation.coverage(result.teamA).known}/${window.DragonfireSimulation.coverage(result.teamA).total}. Seed: <code>${esc(result.seedText)}</code>.</div>
+      <div class="assumption-bar"><b>Engine v${window.DragonfireSimulation.VERSION}:</b> base attributes, Power progression, +20% positive Affinity stats, ±7% troop-matchup damage, lane targeting, structured Commands and Vanguard effects, and community-sourced Habit mechanics are modeled. Habit data is not official verification; damage and progression curves still require battle-report calibration. Formation A executable coverage: ${window.DragonfireSimulation.coverage(result.teamA).known}/${window.DragonfireSimulation.coverage(result.teamA).total}. Seed: <code>${esc(result.seedText)}</code>.</div>
     </section><section class="panel combat-log"><div class="combat-log-head"><h3>Representative battle log</h3><span class="count">Run 1 of ${result.count}</span></div>${log}</section>`;
     document.querySelector("#battleResults").scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -939,7 +939,7 @@
     button.disabled = true;
     status.textContent = "Sending…";
     try {
-      const response = await fetch("/api/contribute-roster", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modelVersion: "0.15.0", consentVersion: "2026-07-29", roster: active }) });
+      const response = await fetch("/api/contribute-roster", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modelVersion: "0.16.0", consentVersion: "2026-07-29", roster: active }) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Contribution service is not connected yet");
       status.textContent = "Thank you — snapshot received.";

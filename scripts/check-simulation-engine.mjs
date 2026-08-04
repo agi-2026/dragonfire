@@ -19,6 +19,28 @@ const base = (name, damageType, habitRanks = []) => ({
 const dummy = (name) => base(name, "physical", []);
 const opponents = [dummy("Thunderstrike"), dummy("Daemoros"), dummy("Shadowrend")];
 
+assert.equal(engine.affinityStatMultiplier({ affinity: { shieldbearers: "+" } }, "shieldbearers"), 1.20, "Positive Affinity must add 20% to Dragon Stats");
+assert.equal(engine.affinityStatMultiplier({ affinity: { shieldbearers: 0 } }, "shieldbearers"), 1, "Neutral Affinity must not change Dragon Stats");
+assert.equal(engine.troopAdvantageMultiplier("cavalry", "shieldbearers"), 1.07, "Cavalry must deal +7% damage into Shieldbearers");
+assert.equal(engine.troopAdvantageMultiplier("shieldbearers", "cavalry"), 0.93, "Shieldbearers must deal -7% damage into Cavalry");
+assert.equal(engine.troopAdvantageMultiplier("shieldbearers", "archers"), 1.07, "Shieldbearers must beat Archers");
+assert.equal(engine.troopAdvantageMultiplier("archers", "spearmen"), 1.07, "Archers must beat Spearmen");
+assert.equal(engine.troopAdvantageMultiplier("spearmen", "cavalry"), 1.07, "Spearmen must beat Cavalry");
+assert.equal(engine.troopAdvantageMultiplier("shieldbearers", "spearmen"), 1, "Non-adjacent troop types must be neutral");
+
+const neutralAffinityDragon = { ...dummy("Fixture Alpha"), affinity: { shieldbearers: 0 } };
+const positiveAffinityDragon = { ...dummy("Fixture Alpha"), affinity: { shieldbearers: "+" } };
+const neutralAffinityBattle = engine.runBattle([neutralAffinityDragon], [dummy("Fixture Beta")], { troopA: "shieldbearers", troopB: "spearmen", seed: "neutral-affinity", maxRounds: 1 });
+const positiveAffinityBattle = engine.runBattle([positiveAffinityDragon], [dummy("Fixture Beta")], { troopA: "shieldbearers", troopB: "spearmen", seed: "positive-affinity", maxRounds: 1 });
+assert.equal(positiveAffinityBattle.a[0].stats.strength / neutralAffinityBattle.a[0].stats.strength, 1.20, "Affinity must modify attributes rather than masquerade as a damage-only multiplier");
+const neutralProfile = engine.formationProfile([dummy("Fixture One"), dummy("Fixture Two"), dummy("Fixture Three")], "shieldbearers");
+const positiveProfile = engine.formationProfile([
+  { ...dummy("Fixture One"), affinity: { shieldbearers: "+" } },
+  { ...dummy("Fixture Two"), affinity: { shieldbearers: "+" } },
+  { ...dummy("Fixture Three"), affinity: { shieldbearers: "+" } },
+], "shieldbearers");
+assert.equal(positiveProfile.score / neutralProfile.score, 1.20, "Formation prefiltering must preserve the full positive Affinity stat value");
+
 const kalspire = { ...base("Kalspire", "tactical", [1, 1]), power: 43540, starRank: 4 };
 const vhagar = { ...base("Vhagar", "physical", [2, 2]), power: 47840, starRank: 5 };
 const venator = { ...base("Venator", "physical", [2]), power: 39520, starRank: 3 };
@@ -66,4 +88,4 @@ for (let index = 0; index < maxHabitRoster.length; index += 3) {
   assert.doesNotThrow(() => engine.runBattle(teamA, teamB, { seed: `all-habits:${index}`, maxRounds: 3 }), `${teamA.map((dragon) => dragon.name).join(" / ")} max-Habit battle must execute`);
 }
 
-console.log(`Simulation engine valid: deterministic results, lane-specific Battle Leader, ${coverage.known}/${coverage.total} effects encoded, all 33 max-Habit dragons smoke-tested.`);
+console.log(`Simulation engine valid: affinity and troop advantage separated, deterministic results, lane-specific Battle Leader, ${coverage.known}/${coverage.total} effects encoded, all 33 max-Habit dragons smoke-tested.`);
