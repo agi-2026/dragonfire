@@ -21,6 +21,7 @@
       const catalog = await response.json();
       if (!Array.isArray(catalog.dragons) || catalog.dragons.length !== 33) throw new Error("Catalog failed its 33-dragon integrity check");
       canonicalCatalog = catalog;
+      window.DragonfireSimulation.configureCatalog(catalog);
       canonicalByName = new Map(catalog.dragons.map((dragon) => [dragon.name, dragon]));
       window.DRAGON_CANONICAL = Object.fromEntries(catalog.dragons.map((dragon) => [dragon.name, dragon]));
       catalog.dragons.forEach((dragon) => {
@@ -267,6 +268,11 @@
     const others = pool.filter((dragon) => dragon.id !== core.id);
     const troopTypes = Object.keys(TROOPS).filter((troop) => troop !== "siege");
     const formations = [];
+    const ranked = [...pool].sort((a, b) => b.power - a.power);
+    const benchmarkTeams = [
+      { team: ranked.slice(0, 3), troop: "shieldbearers" },
+      { team: ranked.slice(3, 6), troop: "archers" },
+    ].filter((entry) => entry.team.length === 3);
     for (let first = 0; first < others.length - 1; first += 1) {
       for (let second = first + 1; second < others.length; second += 1) {
         const trio = [core, others[first], others[second]];
@@ -274,18 +280,22 @@
         for (const permutation of PERMS) {
           const order = permutation.map((index) => trio[index]);
           for (const troop of troopTypes) {
-            const model = scoreOrder(order, troop, "pvp", false);
-            if (!best || model.score > best.score) best = { order, troop, score: model.score, raw: model.raw };
+            const profile = window.DragonfireSimulation.formationProfile(order, troop);
+            if (!best || profile.score > best.prefilter) best = { order, troop, prefilter: profile.score, raw: profile.raw };
           }
         }
-        const explained = scoreOrder(best.order, best.troop, "pvp", true);
+        const simulation = window.DragonfireSimulation.evaluateFormation(best.order, best.troop, benchmarkTeams, { runs: 1, seed: `core-${core.name}` });
+        best.score = simulation.score;
+        best.simulation = simulation;
+        const explained = window.DragonfireSimulation.formationProfile(best.order, best.troop);
         formations.push({
           key: trio.map((dragon) => dragon.name).sort().join("|"),
           order: best.order,
           troop: best.troop,
           score: best.score,
           raw: best.raw,
-          uplift: best.raw ? (best.score / best.raw - 1) * 100 : 0,
+          uplift: best.simulation.winRate * 100,
+          simulation: best.simulation,
           reasons: explained.reasons.slice(0, 4),
         });
       }
@@ -316,7 +326,7 @@
     const shift = comparisonRank ? comparisonRank - (index + 1) : 0;
     const shiftLabel = shift > 0 ? `↑ ${shift} vs ${mode === "current" ? "potential" : "current"}` : shift < 0 ? `↓ ${Math.abs(shift)} vs ${mode === "current" ? "potential" : "current"}` : "same rank";
     const names = formation.order.map((dragon) => dragon.name);
-    return `<article class="core-formation-card ${mode}" data-team="${esc(names.join("|"))}" data-troop="${formation.troop}"><header><span class="core-rank">#${index + 1}</span><div><b>${names.map(esc).join(" · ")}</b><small>${esc(TROOPS[formation.troop])} · ${shiftLabel}</small></div><strong>${formation.uplift.toFixed(1)}%<small>synergy uplift</small></strong></header><div class="core-formation-lanes">${formation.order.map((dragon, lane) => `<div class="core-lane ${lane === 1 ? "center" : ""}">${dragonAvatar(dragon,"core-lane-avatar")}<span><small>${POSITIONS[lane]}</small><b>${esc(dragon.name)}</b><em>${dragon.starRank}★ · Lv ${dragon.reignLevel}</em></span></div>`).join("")}</div><div class="core-reasons">${formation.reasons.slice(0, 3).map((reason) => `<span><i>+</i>${esc(reason.text)}</span>`).join("")}</div><footer><button class="btn compact-btn core-test-team">⚔ Test current roster</button><button class="btn compact-btn core-save-team">Save lineup</button></footer></article>`;
+    return `<article class="core-formation-card ${mode}" data-team="${esc(names.join("|"))}" data-troop="${formation.troop}"><header><span class="core-rank">#${index + 1}</span><div><b>${names.map(esc).join(" · ")}</b><small>${esc(TROOPS[formation.troop])} · ${shiftLabel}</small></div><strong>${formation.uplift.toFixed(1)}%<small>simulated win rate</small></strong></header><div class="core-formation-lanes">${formation.order.map((dragon, lane) => `<div class="core-lane ${lane === 1 ? "center" : ""}">${dragonAvatar(dragon,"core-lane-avatar")}<span><small>${POSITIONS[lane]}</small><b>${esc(dragon.name)}</b><em>${dragon.starRank}★ · Lv ${dragon.reignLevel}</em></span></div>`).join("")}</div><div class="core-reasons">${formation.reasons.slice(0, 3).map((reason) => `<span><i>${reason.warn ? "!" : "✓"}</i>${esc(reason.text)}</span>`).join("")}</div><footer><button class="btn compact-btn core-test-team">⚔ Test current roster</button><button class="btn compact-btn core-save-team">Save lineup</button></footer></article>`;
   }
 
   function partnerRankingMarkup(formations, coreName, comparisonFormations = []) {
@@ -332,7 +342,7 @@
       const oldRank = comparison.get(item.dragon.name);
       const shift = oldRank ? oldRank - item.rank : 0;
       const shiftCopy = comparisonFormations.length ? (shift > 0 ? ` · ↑${shift} formation ranks` : shift < 0 ? ` · ↓${Math.abs(shift)} formation ranks` : " · same best rank") : "";
-      return `<div class="partner-row"><span>${index + 1}</span>${dragonAvatar(item.dragon,"partner-avatar")}<div><b>${esc(item.dragon.name)}</b><small>Best formation #${item.rank} · ${esc(item.dragon.role)}${shiftCopy}</small></div><strong>+${item.formation.uplift.toFixed(1)}%</strong></div>`;
+      return `<div class="partner-row"><span>${index + 1}</span>${dragonAvatar(item.dragon,"partner-avatar")}<div><b>${esc(item.dragon.name)}</b><small>Best formation #${item.rank} · ${esc(item.dragon.role)}${shiftCopy}</small></div><strong>${item.formation.uplift.toFixed(1)}%</strong></div>`;
     }).join("");
   }
 
@@ -380,25 +390,18 @@
   }
 
   function breakerTeams(formation, pool) {
-    const attackTypes = [...new Set(formation.order.map((dragon) => dragon.damageType))];
     const seen = new Set();
     const threats = [];
-    for (const candidate of buildCandidates(pool, "pvp")) {
+    for (const candidate of buildCandidates(pool, "pvp").slice(0, 160)) {
       const team = resolveTeam(candidate);
       if (team.length !== 3) continue;
       const key = team.map((dragon) => dragon.name).sort().join("|");
       if (key === formation.key || seen.has(key)) continue;
       seen.add(key);
-      const defense = team.reduce((sum, dragon) => {
-        const evidence = canonicalByName.get(dragon.name);
-        if (!evidence) return sum;
-        return sum + attackTypes.reduce((subtotal, type) => subtotal + (evidence.baseStats[counterStatFor(type)] || 0), 0) / attackTypes.length;
-      }, 0) / team.length;
-      const control = team.filter((dragon) => dragon.role === "control" || dragon.tags?.some((tag) => ["stun", "stagger", "panic", "taunt", "overwhelm"].includes(tag))).length;
-      const sustain = team.filter((dragon) => dragon.role === "healer" || dragon.tags?.some((tag) => ["heal", "recovery", "cleanse", "resistance"].includes(tag))).length;
-      const threatScore = candidate.score + defense * 95 + control * 2600 + sustain * 1300;
-      threats.push({ team, key, troop: candidate.troop, score: threatScore, defense, control, sustain });
-      if (seen.size >= 1200) break;
+      const result = window.DragonfireSimulation.simulateMatchup(team, formation.order, { count: 6, seed: `breaker-${key}`, troopA: candidate.troop, troopB: formation.troop, maxRounds: 12 });
+      const winRate = (result.winsA + result.draws * 0.5) / result.count;
+      threats.push({ team, key, troop: candidate.troop, score: winRate, winRate, coverage: window.DragonfireSimulation.coverage(team) });
+      if (seen.size >= 80) break;
     }
     return threats.sort((a, b) => b.score - a.score).slice(0, 3);
   }
@@ -450,12 +453,12 @@
     const changedDragons = projectedPool.filter((dragon, index) => dragon.starRank !== active[index].starRank || dragon.reignLevel !== active[index].reignLevel || unlockedCount(dragon) !== unlockedCount(active[index])).length;
     const sourcedCore = canonicalByName.get(core.name);
 
-    results.innerHTML = `<section class="panel core-builder-summary"><div class="core-summary-hero">${dragonAvatar(core,"core-summary-avatar")}<div><div class="eyebrow">BUILD AROUND ${esc(core.name)}</div><h3>${esc(core.name)} has ${currentFormations.length} legal partner pairs</h3><p>Current ranking uses your roster exactly as entered. Potential ranking raises every candidate dragon to at least ${target.stars}★, level ${target.level}, and Habit level ${target.habit}; dragons already above that floor keep their stronger stats.</p></div><div class="core-ceiling"><small>LINEUP SCENARIO</small><b>${changedDragons}</b><span>candidate dragon${changedDragons === 1 ? "" : "s"} advance at this floor</span></div></div>${sourcedCore ? `<div class="core-source-strip"><span><b>Command:</b> ${esc(sourcedCore.command.text)}</span><span><b>Vanguard:</b> ${esc(sourcedCore.vanguard.text)}</span><em>Source text shown for context; effects remain partially encoded.</em></div>` : ""}</section>
+    results.innerHTML = `<section class="panel core-builder-summary"><div class="core-summary-hero">${dragonAvatar(core,"core-summary-avatar")}<div><div class="eyebrow">BUILD AROUND ${esc(core.name)}</div><h3>${esc(core.name)} has ${currentFormations.length} legal partner pairs</h3><p>Current ranking uses your roster exactly as entered. Potential ranking raises every candidate dragon to at least ${target.stars}★, level ${target.level}, and Habit level ${target.habit}; dragons already above that floor keep their stronger stats.</p></div><div class="core-ceiling"><small>LINEUP SCENARIO</small><b>${changedDragons}</b><span>candidate dragon${changedDragons === 1 ? "" : "s"} advance at this floor</span></div></div>${sourcedCore ? `<div class="core-source-strip"><span><b>Command:</b> ${esc(sourcedCore.command.text)}</span><span><b>Vanguard:</b> ${esc(sourcedCore.vanguard.text)}</span><em>Both abilities are structured combat events; unlocked Habit coverage is reported per formation.</em></div>` : ""}</section>
       <section class="core-ranking-grid"><div><div class="core-section-title"><span>01</span><div><h3>Current ranking</h3><p>Best formations using your roster exactly as entered.</p></div></div><div class="core-formation-list">${currentFormations.slice(0, 5).map((formation, index) => formationCardMarkup(formation, index, potentialRanks, "current")).join("")}</div></div><div><div class="core-section-title"><span>02</span><div><h3>Potential ranking</h3><p>Every dragon in each candidate trio advances to the selected scenario floor.</p></div></div><div class="core-formation-list">${potentialFormations.slice(0, 5).map((formation, index) => formationCardMarkup(formation, index, currentRanks, "potential")).join("")}</div></div></section>
       <section class="core-partner-grid"><article class="panel"><div class="core-section-title compact"><span>A</span><div><h3>Best partners now</h3><p>Partner’s highest-ranked formation with ${esc(core.name)}.</p></div></div><div class="partner-list">${partnerRankingMarkup(currentFormations, core.name)}</div></article><article class="panel"><div class="core-section-title compact"><span>B</span><div><h3>Best partners at potential</h3><p>Who rises when every candidate can reach the scenario floor.</p></div></div><div class="partner-list">${partnerRankingMarkup(potentialFormations, core.name, currentFormations)}</div></article></section>
       <section class="panel core-scenario-movers"><div class="core-section-title compact"><span>↗</span><div><h3>Potential movers</h3><p>Largest changes in each partner’s best formation rank, including new Star-gated Habit interactions.</p></div></div><div class="scenario-mover-list">${scenarioMoversMarkup(core, currentFormations, potentialFormations, active, projectedPool)}</div></section>
       <section class="core-analysis-grid"><article class="panel core-breakpoints"><div class="core-section-title compact"><span>★</span><div><h3>Investment breakpoints</h3><p>What the selected target unlocks for the core dragon.</p></div></div><div class="breakpoint-list">${investmentMilestonesMarkup(core, projectedCore)}</div></article><article class="panel core-threats"><div class="core-section-title compact"><span>!</span><div><h3>Threat profile</h3><p>Conditions that can break the core plan.</p></div></div><div class="threat-note-list">${coreRiskNotes(core).map((note) => `<span>${esc(note)}</span>`).join("")}</div></article></section>
-      <section class="panel breaker-section"><div class="core-section-title compact"><span>×</span><div><h3>Modeled breaker teams</h3><p>High-pressure combinations from your active roster whose defensive stats and control line up well into the current #1 core formation.</p></div></div><div class="breaker-grid">${threats.map((threat, index) => `<article><header><span>#${index + 1}</span><b>${threat.team.map((dragon) => esc(dragon.name)).join(" · ")}</b><small>${esc(TROOPS[threat.troop])}</small></header><div>${threat.team.map((dragon) => dragonAvatar(dragon,"breaker-avatar")).join("")}</div><p>Avg. relevant defense ${threat.defense.toFixed(0)} · ${threat.control} control source${threat.control === 1 ? "" : "s"} · ${threat.sustain} sustain source${threat.sustain === 1 ? "" : "s"}</p></article>`).join("")}</div><div class="core-disclaimer">These are matchup hypotheses from the explainable synergy model, not proven counters. Battle-report calibration remains the publication gate.</div></section>`;
+      <section class="panel breaker-section"><div class="core-section-title compact"><span>×</span><div><h3>Simulated breaker teams</h3><p>Formations from your active roster tested directly against the current #1 core formation.</p></div></div><div class="breaker-grid">${threats.map((threat, index) => `<article><header><span>#${index + 1}</span><b>${threat.team.map((dragon) => esc(dragon.name)).join(" · ")}</b><small>${esc(TROOPS[threat.troop])}</small></header><div>${threat.team.map((dragon) => dragonAvatar(dragon,"breaker-avatar")).join("")}</div><p>${(threat.winRate * 100).toFixed(1)}% simulated win rate · ${threat.coverage.known}/${threat.coverage.total} structured effects</p></article>`).join("")}</div><div class="core-disclaimer">These are seeded engine results, not generic counter tags. Damage-curve calibration and unknown Habits remain the confidence boundary.</div></section>`;
   }
 
   ["coreDragonSelect", "coreTargetStars", "coreTargetLevel", "coreTargetHabit"].forEach((id) => document.querySelector(`#${id}`).addEventListener("change", renderCoreBuilder));
@@ -802,18 +805,8 @@
     const maxRounds = Number(document.querySelector("#simRounds").value);
     const troopA = document.querySelector("#battleTroopA").value;
     const troopB = document.querySelector("#battleTroopB").value;
-    let winsA = 0, winsB = 0, draws = 0, totalRounds = 0, healthA = 0, healthB = 0, representative;
-    for (let index = 0; index < count; index++) {
-      const result = runOneBattle(teamA, teamB, troopA, troopB, maxRounds, seededRandom(hashSeed(`${seedText}:${index}`)), index === 0);
-      if (index === 0) representative = result;
-      if (result.winner === "A") winsA += 1;
-      else if (result.winner === "B") winsB += 1;
-      else draws += 1;
-      totalRounds += result.rounds;
-      healthA += result.healthA;
-      healthB += result.healthB;
-    }
-    renderBattleResult({ teamA, teamB, troopA, troopB, seedText, count, maxRounds, winsA, winsB, draws, totalRounds, healthA, healthB, representative });
+    const result = window.DragonfireSimulation.simulateMatchup(teamA, teamB, { count, seed: seedText, maxRounds, troopA, troopB });
+    renderBattleResult({ teamA, teamB, troopA, troopB, seedText, maxRounds, ...result });
   }
 
   function renderBattleResult(result) {
@@ -829,7 +822,7 @@
         <div class="result-side ${stronger === "B" ? "winner" : ""}"><small>FORMATION B · ${TROOPS[result.troopB]}</small><h3>${stronger === "B" ? "Favored" : stronger === "draw" ? "Even" : "Underdog"}</h3><div class="formation-names">${esc(teamLabel(result.teamB.map((dragon, lane) => ({ dragon, lane }))))}</div></div>
       </div>
       <div class="result-stats"><div class="stat"><b>${rateA.toFixed(1)} / ${rateB.toFixed(1)}</b><span>A / B win percentage</span></div><div class="stat"><b>${(result.totalRounds / result.count).toFixed(1)}</b><span>Average rounds</span></div><div class="stat"><b>${(result.healthA / result.count * 100).toFixed(0)}% / ${(result.healthB / result.count * 100).toFixed(0)}%</b><span>Average health A / B</span></div><div class="stat"><b>${result.draws}</b><span>Draws in ${result.count}</span></div></div>
-      <div class="assumption-bar"><b>Simulation alpha:</b> power, troop affinity, lane targeting, known Habit values, Burn, Panic, Stagger, sustain, and seeded variance are modeled. Hidden Command coefficients, troop counts, exact defense curves, and targeting rules still require battle-log calibration. Seed: <code>${esc(result.seedText)}</code>.</div>
+      <div class="assumption-bar"><b>Engine v${window.DragonfireSimulation.VERSION}:</b> real base attributes, Power progression, troop affinity, lane targeting, structured Commands and Vanguard effects, known Habits, statuses, durations, and seeded variance are modeled. Unknown Habits are neutral; damage curves still require battle-log calibration. Formation A coverage: ${window.DragonfireSimulation.coverage(result.teamA).known}/${window.DragonfireSimulation.coverage(result.teamA).total}. Seed: <code>${esc(result.seedText)}</code>.</div>
     </section><section class="panel combat-log"><div class="combat-log-head"><h3>Representative battle log</h3><span class="count">Run 1 of ${result.count}</span></div>${log}</section>`;
     document.querySelector("#battleResults").scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -851,15 +844,16 @@
     const sourcedCommands = dragons.filter((dragon) => dragon.command.text).length;
     const sourcedVanguards = dragons.filter((dragon) => dragon.vanguard.text).length;
     const namedHabits = dragons.reduce((sum, dragon) => sum + dragon.habits.filter((habit) => habit.name).length, 0);
-    const verifiedEffects = dragons.filter((dragon) => dragon.command.structuredEffectsStatus === "verified").length + dragons.filter((dragon) => dragon.vanguard.structuredEffectsStatus === "verified").length + dragons.flatMap((dragon) => dragon.habits).filter((habit) => habit.levelEffectsStatus === "verified").length;
+    const structured = window.DragonfireSimulation.registryCoverage();
+    const verifiedEffects = structured.total;
     document.querySelector("#catalogProfileCount").textContent = dragons.length;
     document.querySelector("#catalogStatCount").textContent = dragons.length * 4;
     document.querySelector("#catalogMechanicCount").textContent = verifiedEffects;
     document.querySelector("#metaFormations").innerHTML = [
       ["Cross-checked attributes", `${dragons.length * 4}/132`, "Every level-one stat agrees across two community datasets", dragons.length / 33],
-      ["Command descriptions", `${sourcedCommands}/33`, "English source text collected; structured effects still require review", sourcedCommands / 33],
-      ["Vanguard descriptions", `${sourcedVanguards}/33`, "Source text collected; structured effects still require review", sourcedVanguards / 33],
-      ["Habit identities", `${namedHabits}/165`, "Names and Star unlocks sourced; level scaling remains unverified", namedHabits / 165],
+      ["Structured Commands", `${structured.commands}/33`, "All sourced Commands execute through explicit round triggers, targets, damage types, and statuses", structured.commands / 33],
+      ["Structured Vanguards", `${structured.vanguards}/33`, "Vanguard effects apply only from the center lane to their stated flank targets", structured.vanguards / 33],
+      ["Structured Habits", `${structured.habits}/165`, "Known level scaling is modeled; every other Habit stays neutral and visible as missing coverage", structured.habits / 165],
     ].map(([label, value, copy, progress]) => `<article class="panel evidence-milestone"><span>${esc(label)}</span><b>${esc(value)}</b><p>${esc(copy)}</p><div><i style="width:${Math.round(progress * 100)}%"></i></div></article>`).join("");
   }
 
@@ -877,7 +871,7 @@
     const rows = evidenceRows();
     document.querySelector("#rankingsBody").innerHTML = rows.map((dragon, index) => {
       const rosterDragon = DEFAULT_ROSTER.find((item) => item.name === dragon.name);
-      const mechanicCount = Number(dragon.command.structuredEffectsStatus === "verified") + Number(dragon.vanguard.structuredEffectsStatus === "verified") + dragon.habits.filter((habit) => habit.levelEffectsStatus === "verified").length;
+      const mechanicCount = 2 + dragon.habits.filter((habit, habitIndex) => window.DragonfireSimulation.isHabitEncoded(dragon.name, habitIndex)).length;
       return `<tr><td class="rank-num">${index + 1}</td><td><span class="rank-dragon">${rosterDragon ? dragonAvatar(rosterDragon,"rank-avatar") : ""}<span><b>${esc(dragon.name)}</b><small>${esc(dragon.rarity)} · ${esc(dragon.breed)} · Lv1 base</small></span></span></td><td><b class="base-stat str">${dragon.baseStats.strength}</b></td><td><b class="base-stat inst">${dragon.baseStats.instinct}</b></td><td><b class="base-stat int">${dragon.baseStats.intelligence}</b></td><td><b class="base-stat init">${dragon.baseStats.initiative}</b></td><td><span class="mechanic-coverage sourced">2/2 ability texts</span><small class="coverage-detail">${mechanicCount}/7 effects encoded</small></td><td><span class="source-stack"><a class="source-link" href="https://wyrmtable.com/dragons" target="_blank" rel="noreferrer">Stats ↗</a><a class="source-link" href="https://dragonfire-hub.com/" target="_blank" rel="noreferrer">Abilities ↗</a></span></td></tr>`;
     }).join("") || `<tr><td colspan="8">No dragons match these filters.</td></tr>`;
   }
@@ -989,7 +983,7 @@
         ["INIT", stats?.initiative, "init"],
       ].map(([label, value, type]) => `<span><small>${label}</small><b class="base-stat ${type}">${value ?? "—"}</b></span>`).join("");
       const sourceStatus = evidence ? "Community-sourced" : canonicalCatalog ? "Catalog match missing" : "Catalog loading";
-      return `<article class="panel library-card"><div class="library-top"><div class="library-name">${dragonAvatar(dragon,"library-avatar")}<span><h3>${esc(dragon.name)}</h3><small>${esc(evidence?.rarity || dragon.rarity)} · ${esc(evidence?.breed || dragon.breed)} · ${esc(dragon.role)}</small></span></div><div class="library-power">${dragon.power ? fmt(dragon.power) : "Not set"}<small>Your roster · ${dragon.starRank}★ · Lv ${dragon.reignLevel}</small></div></div><div class="library-base-stats">${baseStats}</div><div class="library-evidence"><span><b>Level-one base · ${evidence?.baseTroops ?? "—"} troops</b><small>${esc(evidence?.marchSpeed || "Unknown")} march · player modifiers excluded</small></span><span class="evidence-badge ${evidence ? "sourced" : "pending"}">${sourceStatus}</span></div><div class="library-abilities">${evidence?.command.text ? `<div class="library-ability command"><b>Command source text</b><span>${esc(evidence.command.text)}</span><small>Collected, not yet encoded in the competitive engine</small></div>` : ""}${evidence?.vanguard.text ? `<div class="library-ability vanguard"><b>Vanguard source text</b><span>${esc(evidence.vanguard.text)}</span><small>Collected, not yet encoded in the competitive engine</small></div>` : ""}</div><div class="kit-tags">${(dragon.tags || []).slice(0, 7).map((tag) => `<span class="kit-tag">${esc(tag)}</span>`).join("") || `<span class="kit-tag">kit data pending</span>`}</div><div class="habit-list">${habitRows}</div><div class="affinity-strip">${affinity}</div>${missing ? `<div class="data-gap">${missing} unlocked Habit description${missing > 1 ? "s" : ""} still use conservative model values.</div>` : ""}${evidence ? `<div class="library-sources"><a class="source-link" href="https://wyrmtable.com/dragons" target="_blank" rel="noreferrer">Inspect stat source ↗</a><a class="source-link" href="https://dragonfire-hub.com/" target="_blank" rel="noreferrer">Inspect ability source ↗</a></div>` : ""}</article>`;
+      return `<article class="panel library-card"><div class="library-top"><div class="library-name">${dragonAvatar(dragon,"library-avatar")}<span><h3>${esc(dragon.name)}</h3><small>${esc(evidence?.rarity || dragon.rarity)} · ${esc(evidence?.breed || dragon.breed)} · ${esc(dragon.role)}</small></span></div><div class="library-power">${dragon.power ? fmt(dragon.power) : "Not set"}<small>Your roster · ${dragon.starRank}★ · Lv ${dragon.reignLevel}</small></div></div><div class="library-base-stats">${baseStats}</div><div class="library-evidence"><span><b>Level-one base · ${evidence?.baseTroops ?? "—"} troops</b><small>${esc(evidence?.marchSpeed || "Unknown")} march · player modifiers excluded</small></span><span class="evidence-badge ${evidence ? "sourced" : "pending"}">${sourceStatus}</span></div><div class="library-abilities">${evidence?.command.text ? `<div class="library-ability command"><b>Command source text</b><span>${esc(evidence.command.text)}</span><small>Structured as round-based combat events in engine v${window.DragonfireSimulation.VERSION}</small></div>` : ""}${evidence?.vanguard.text ? `<div class="library-ability vanguard"><b>Vanguard source text</b><span>${esc(evidence.vanguard.text)}</span><small>Structured with lane-specific targets in engine v${window.DragonfireSimulation.VERSION}</small></div>` : ""}</div><div class="kit-tags">${(dragon.tags || []).slice(0, 7).map((tag) => `<span class="kit-tag">${esc(tag)}</span>`).join("") || `<span class="kit-tag">kit data pending</span>`}</div><div class="habit-list">${habitRows}</div><div class="affinity-strip">${affinity}</div>${missing ? `<div class="data-gap">${missing} unlocked Habit description${missing > 1 ? "s" : ""} remain neutral until their exact formulas are encoded.</div>` : ""}${evidence ? `<div class="library-sources"><a class="source-link" href="https://wyrmtable.com/dragons" target="_blank" rel="noreferrer">Inspect stat source ↗</a><a class="source-link" href="https://dragonfire-hub.com/" target="_blank" rel="noreferrer">Inspect ability source ↗</a></div>` : ""}</article>`;
     }).join("") || `<div class="panel battle-empty"><h3>No matching dragons</h3><p>Try a broader filter.</p></div>`;
   }
 

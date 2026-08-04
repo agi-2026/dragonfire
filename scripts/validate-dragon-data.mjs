@@ -5,6 +5,7 @@ import vm from "node:vm";
 const path = resolve("data/dragon-catalog.v1.json");
 const catalog = JSON.parse(await readFile(path, "utf8"));
 const html = await readFile(resolve("index.html"), "utf8");
+const simulationSource = await readFile(resolve("simulation-engine.js"), "utf8");
 const errors = [];
 const expectedUnlocks = [2, 4, 6, 8, 10];
 const habitSourceMatch = html.match(/const HN=(\{[\s\S]*?\});\nconst HD=/);
@@ -41,8 +42,12 @@ if (errors.length) {
   process.exit(1);
 }
 
-const commandCoverage = catalog.dragons.filter((dragon) => dragon.command.structuredEffectsStatus === "verified").length;
-const vanguardCoverage = catalog.dragons.filter((dragon) => dragon.vanguard.structuredEffectsStatus === "verified").length;
-const habitCoverage = catalog.dragons.flatMap((dragon) => dragon.habits).filter((habit) => habit.levelEffectsStatus === "verified").length;
+const simulationContext = vm.createContext({ console });
+simulationContext.window = simulationContext;
+vm.runInContext(simulationSource, simulationContext);
+const coverage = simulationContext.DragonfireSimulation.registryCoverage();
+const commandCoverage = coverage.commands;
+const vanguardCoverage = coverage.vanguards;
+const habitCoverage = coverage.habits;
 console.log(`Catalog valid: ${catalog.dragons.length} dragons, ${catalog.dragons.length * 4} base stats`);
 console.log(`Competitive mechanic coverage: ${commandCoverage}/33 Commands, ${vanguardCoverage}/33 Vanguards, ${habitCoverage}/165 Habit effects`);

@@ -6,6 +6,7 @@ import * as cheerio from "cheerio";
 const root = new URL("../", import.meta.url);
 const html = fs.readFileSync(new URL("index.html", root), "utf8");
 const product = fs.readFileSync(new URL("product.js", root), "utf8");
+const simulation = fs.readFileSync(new URL("simulation-engine.js", root), "utf8");
 const catalog = JSON.parse(fs.readFileSync(new URL("data/dragon-catalog.v1.json", root), "utf8"));
 const rosterPath = process.env.DRAGONFIRE_TEST_ROSTER;
 const roster = rosterPath ? JSON.parse(fs.readFileSync(rosterPath, "utf8")) : null;
@@ -93,8 +94,9 @@ context.window.scrollTo = () => {};
 context.innerWidth = 1400;
 context.innerHeight = 900;
 
-const exposedInline = `${inline}\n;globalThis.__engine={get roster(){return roster},scoreOrder,unlockedCount,habitRank,habitName};`;
+const exposedInline = `${inline}\n;globalThis.__engine={get roster(){return roster},scoreOrder,buildCandidates,unlockedCount,habitRank,habitName};`;
 const exposedProduct = product.replace(/\}\)\(\);\s*$/, "globalThis.__teamBuilder={projectedDragon,bestCoreFormations};})();");
+vm.runInContext(simulation, context, { filename: "simulation-engine.js" });
 vm.runInContext(exposedInline, context, { filename: "index.inline.js" });
 vm.runInContext(exposedProduct, context, { filename: "product.js" });
 
@@ -105,11 +107,17 @@ const result = vm.runInContext(`(() => {
   const projectedCore = projectedPool.find((dragon) => dragon.name === "Vhagar");
   const current = __teamBuilder.bestCoreFormations(core, active);
   const potential = __teamBuilder.bestCoreFormations(projectedCore, projectedPool);
+  const optimizer = __engine.buildCandidates(active, "pvp").slice(0, 5).map((candidate) => ({ names: candidate.ids.map((id) => active.find((dragon) => dragon.id === id).name), troop: candidate.troop, winRate: candidate.simulation.winRate }));
   const partnerRank = (formations, name) => formations.findIndex((formation) => formation.order.some((dragon) => dragon.name === name)) + 1;
   const venator = projectedPool.find((dragon) => dragon.name === "Venator");
   const malachite = projectedPool.find((dragon) => dragon.name === "Malachite");
   const venatorFormation = potential.find((formation) => formation.order.some((dragon) => dragon.name === "Venator"));
   const venatorReasons = __engine.scoreOrder(venatorFormation.order, venatorFormation.troop, "pvp", true).reasons.map((reason) => reason.text);
+  const explicitVenatorReasons = __engine.scoreOrder([
+    projectedPool.find((dragon) => dragon.name === "Kalspire"),
+    projectedPool.find((dragon) => dragon.name === "Vhagar"),
+    projectedPool.find((dragon) => dragon.name === "Venator"),
+  ], "shieldbearers", "pvp", true).reasons.map((reason) => reason.text);
   return {
     projectedCore,
     venator,
@@ -119,8 +127,10 @@ const result = vm.runInContext(`(() => {
     venatorPotentialRank: partnerRank(potential, "Venator"),
     malachitePotentialRank: partnerRank(potential, "Malachite"),
     venatorReasons,
+    explicitVenatorReasons,
     topCurrent: current.slice(0,5).map((formation) => formation.order.map((dragon) => dragon.name).join(" / ")),
     topPotential: potential.slice(0,5).map((formation) => formation.order.map((dragon) => dragon.name).join(" / ")),
+    optimizer,
   };
 })()`, context);
 
@@ -133,7 +143,8 @@ assert.equal(result.venator.habitRanks[1], 2, "Venator H2 must unlock at the req
 assert.equal(result.malachite.starRank >= 4, true, "Malachite must be evaluated at 4★ or above");
 assert.equal(result.malachite.habitRanks[1], 2, "Malachite H2 must unlock at the requested Habit rank");
 assert(result.venatorPotentialRank <= 5, "Venator should remain a top-five option when its 4★ physical-damage Habit unlocks");
-assert(result.venatorReasons.some((reason) => reason.includes("Battle Leader") && reason.includes("Dragon's Might")), "Vhagar and Venator must expose their compounded right-flank interaction");
-assert(!result.venatorReasons.some((reason) => reason === "Vhagar empowers right-flank physical damage"), "Battle Leader must not be double-counted as a Vanguard effect");
+assert(result.explicitVenatorReasons.some((reason) => reason.includes("Battle Leader") && reason.includes("Venator")), "Vhagar and Venator must expose their right-flank physical interaction");
+assert(!result.explicitVenatorReasons.some((reason) => reason.includes("Vanguard") && reason.includes("right-flank physical")), "Battle Leader must not be mislabeled or double-counted as a Vanguard effect");
 
 console.log(`Team Builder scenario valid: Venator #${result.venatorPotentialRank}, Malachite #${result.malachitePotentialRank}; top five ${result.topPotential.join(" | ")}`);
+console.log(`Optimizer top five: ${result.optimizer.map((item) => `${item.names.join(" / ")} ${(item.winRate * 100).toFixed(1)}%`).join(" | ")}`);
