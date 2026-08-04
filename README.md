@@ -16,7 +16,7 @@ Open `http://127.0.0.1:4173`. The site has no frontend build step or account sys
 2. **Battle Lab** compares two three-dragon formations over a seeded Monte Carlo run.
 3. **Data Lab** exposes sourced level-one attributes and mechanic coverage. Competitive rankings are intentionally unpublished until power curves, Commands, Vanguards, Habit scaling, and battle outcomes are validated.
 4. **Team Builder** starts from one dragon the player wants to use. It tests every partner pair, lane order, and PvP troop type, then compares the current roster with a lineup-wide future progression floor. It also surfaces partner movement, Habit unlock breakpoints, risk conditions, and modeled breaker teams.
-5. **Team Optimizer** turns the complete roster into disjoint PvP, siege, and development squads. Its compact dragon grid supports desktop hover previews and a focused editor drawer for Power, Stars, level, ownership, and Habit ranks.
+5. **Team Optimizer** turns the complete roster into disjoint PvP, siege, and development squads. PvP ranking is synergy-first: it applies documented percentages to their eligible lane, damage type, target count, chance, duration, and unlock level, while displaying raw Power separately.
 6. **Dragon Library** exposes the data and confidence behind each recommendation.
 
 ## Canonical game-data pipeline
@@ -89,10 +89,11 @@ This follows the useful product loop popularized by matchup simulators such as P
 - A representative battle log plus aggregate win rate, duration, and remaining health
 - Core-dragon team search across every legal partner pair, all six lane orders, and every non-siege troop type
 - A lineup-wide future projection for Stars, level, and unlocked Habit ranks, with current-versus-potential partner movement and no downgrades for dragons already above the selected floor
+- A literal multiplier ledger that separates cross-dragon interaction, self-kit value, offense, mitigation, sustain, control, troop affinity, and raw Power
 
 ## What is not yet confirmed
 
-The game does not expose a complete public combat formula. English Command and Vanguard descriptions and all community Habit tables are present. Player evidence now confirms the four offensive/defensive attribute roles, positive Affinity at +20% Dragon Stats, and troop advantage at ±7% damage; those mechanics are modeled separately. Exact execution order, level/Star progression, troop-capacity conversion, damage curves, targeting priorities, resistance, status timing, and enhanced-by-stat scaling still need independent validation. Battle Lab output is a formation hypothesis, not a calibrated predicted win rate, and the competitive leaderboard stays gated until those mechanics pass held-out battle validation. See [`docs/mechanics-data-needed.md`](./docs/mechanics-data-needed.md) for the smallest useful validation pack.
+The game does not expose a complete public combat formula. English Command and Vanguard descriptions and all community Habit tables are present. Player evidence now confirms the four offensive/defensive attribute roles, positive Affinity at +20% Dragon Stats, and troop advantage at ±7% damage; those mechanics are modeled separately. Exact execution order, level/Star progression, troop-capacity conversion, damage curves, targeting priorities, resistance, status timing, and enhanced-by-stat scaling still need independent validation. The Team Optimizer therefore ranks documented multiplier utilization rather than pretending to know final HP damage. Battle Lab output is supporting matchup evidence, not a calibrated predicted win rate, and the competitive leaderboard stays gated until those mechanics pass held-out battle validation. See [`docs/literal-synergy-model.md`](./docs/literal-synergy-model.md) for the optimizer contract and [`docs/mechanics-data-needed.md`](./docs/mechanics-data-needed.md) for the smallest useful validation pack.
 
 ## Calibration plan
 

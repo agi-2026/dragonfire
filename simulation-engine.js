@@ -1,7 +1,7 @@
 (function (global) {
   "use strict";
 
-  const VERSION = "0.16.0";
+  const VERSION = "0.17.0";
   const POSITIONS = ["Left flank", "Vanguard", "Right flank"];
   const COMMAND_NAMES = new Set([
     "Caraxes", "Crimson", "Kalspire", "Malachite", "Seasmoke", "Sheepstealer", "Sunfyre", "Syrax", "Venator", "Vhagar",
@@ -597,6 +597,259 @@
     return team.flatMap((dragon) => Array.from({ length: unlockedCount(dragon) }, (_, index) => ({ dragon: dragon.name, index, rank: habitRank(dragon, index) }))).filter((habit) => !isHabitEncoded(habit.dragon, habit.index));
   }
 
+  const LITERAL_ROUNDS = 10;
+  const LITERAL_CATEGORIES = ["offense", "mitigation", "sustain", "control"];
+
+  function commandText(dragon) { return evidence(dragon).command?.text || ""; }
+  function recoveryCommand(dragon) { return /Recovery\s*\+\s*\d+(?:\.\d+)?%\s+to\s+\d+\s+Allies/i.test(commandText(dragon)); }
+  function literalDuration(value, rank) {
+    if (value === "combat") return "combat";
+    const selected = Number(ranked(value ?? 1, rank));
+    return Number.isFinite(selected) ? Math.max(1, selected) : 1;
+  }
+
+  function literalUptime(part, action, rank) {
+    const partChance = probability(part.chance, rank);
+    const actionChance = probability(action.chance, rank);
+    const chance = Math.max(0, Math.min(1, partChance * actionChance));
+    const duration = literalDuration(action.dur ?? part.dur, rank);
+    const conditionWeight = part.selfCond || action.onlyIf ? 0.5 : 1;
+    if (part.when === "combat_start") return conditionWeight * chance * (duration === "combat" ? 1 : Math.min(1, duration / LITERAL_ROUNDS));
+    if (part.when === "rounds") {
+      const rounds = part.rounds || [];
+      if (duration === "combat") {
+        const first = rounds.length ? Math.min(...rounds) : 1;
+        return conditionWeight * chance * Math.max(0, (LITERAL_ROUNDS - first + 1) / LITERAL_ROUNDS);
+      }
+      return conditionWeight * chance * Math.min(1, rounds.length * duration / LITERAL_ROUNDS);
+    }
+    if (part.when === "odd") return conditionWeight * chance * Math.min(1, 5 * (duration === "combat" ? LITERAL_ROUNDS : duration) / LITERAL_ROUNDS);
+    if (part.when === "each") return conditionWeight * Math.min(1, chance * (duration === "combat" ? 1 : duration));
+    // Reactive effects need an incoming event. Half-uptime is an explicit
+    // extrapolation, not a hidden claim about the game's proc frequency.
+    return conditionWeight * Math.min(1, chance * 0.5 * (duration === "combat" ? 1 : duration));
+  }
+
+  function literalTargetCoverage(target = {}) {
+    if (target.count === "all" || target.select === "all") return 1;
+    return Math.min(3, Math.max(1, Number(target.count) || 1)) / 3;
+  }
+
+  function literalEventRate(part, action, rank) {
+    const chance = Math.max(0, Math.min(1, probability(part.chance, rank) * probability(action.chance, rank)));
+    if (part.when === "combat_start") return chance / LITERAL_ROUNDS;
+    if (part.when === "rounds") return chance * (part.rounds?.length || 1) / LITERAL_ROUNDS;
+    if (part.when === "odd") return chance * 0.5;
+    if (part.when === "each") return chance;
+    return chance * 0.5;
+  }
+
+  function literalAllyTargets(team, sourceIndex, target = {}) {
+    if (target.side === "self") return [{ dragon: team[sourceIndex], index: sourceIndex }];
+    let pool = team.map((dragon, index) => ({ dragon, index })).filter((item) => item.index !== sourceIndex);
+    const select = target.select || "any";
+    const selector = select.split(":")[1];
+    const lane = { L: 0, C: 1, R: 2 }[selector];
+    if (select === "adjacency") pool = pool.filter((item) => Math.abs(item.index - sourceIndex) <= 1);
+    else if (select === "same_lane") pool = pool.filter((item) => item.index === sourceIndex);
+    else if (select.startsWith("dealer:")) pool = pool.filter((item) => item.dragon.damageType === selector);
+    else if (select.startsWith("prefer_dealer:")) pool.sort((a, b) => Number(b.dragon.damageType === selector) - Number(a.dragon.damageType === selector));
+    else if (select.startsWith("prefer_lane:")) pool.sort((a, b) => Number(b.index === lane) - Number(a.index === lane));
+    else if (select === "highest_str" || select.startsWith("highest:")) pool.sort((a, b) => Number(b.dragon.power || 0) - Number(a.dragon.power || 0));
+    const count = target.count === "all" || select === "all" ? pool.length : Math.max(1, Number(target.count) || 1);
+    return pool.slice(0, count);
+  }
+
+  function literalStatusProducers(team, statusName) {
+    const commandProducers = {
+      burn: new Set(["Tairax", "Sunfyre", "Daemoros"]),
+      first_strike: new Set(["Syrax"]),
+      panic: new Set(["Shadowrend"]),
+    };
+    return team.filter((dragon) => {
+      if (commandProducers[statusName]?.has(dragon.name)) return true;
+      return (evidence(dragon).habits || []).slice(0, unlockedCount(dragon)).some((habit) =>
+        (habit.effects || []).some((part) => (part.actions || []).some((action) => action.t === "status" && action.st === statusName))
+      );
+    });
+  }
+
+  function literalStatusUptime(dragon, statusName) {
+    const commandUptime = {
+      "Tairax:burn": 0.30,
+      "Sunfyre:burn": 0.20,
+      "Daemoros:burn": 0.20,
+      "Syrax:first_strike": 0.40,
+      "Shadowrend:panic": 0.50,
+    }[`${dragon.name}:${statusName}`] || 0;
+    const habitUptimes = (evidence(dragon).habits || []).slice(0, unlockedCount(dragon)).flatMap((habit, habitIndex) =>
+      (habit.effects || []).flatMap((part) => (part.actions || []).filter((action) => action.t === "status" && action.st === statusName).map((action) => literalUptime(part, action, habitRank(dragon, habitIndex))))
+    );
+    return Math.max(commandUptime, ...habitUptimes, 0);
+  }
+
+  function literalSynergyProfile(team, troop) {
+    const raw = team.reduce((sum, dragon) => sum + (Number(dragon.power) || 0), 0);
+    const factors = { interaction: 1, kit: 1 };
+    const categories = Object.fromEntries(LITERAL_CATEGORIES.map((category) => [category, 1]));
+    const reasons = [];
+    const assumptions = new Set();
+    const healers = team.filter(recoveryCommand);
+
+    const add = (bucket, category, uplift, text, source, target, literalPct) => {
+      if (!Number.isFinite(uplift) || uplift <= -0.99 || Math.abs(uplift) < 0.00005) return;
+      const factor = 1 + uplift;
+      factors[bucket] *= factor;
+      categories[category] *= factor;
+      reasons.push({
+        points: Math.abs(Math.log(factor)), category, bucket, valuePct: uplift * 100, literalPct,
+        source: source?.name, target: target?.name,
+        text,
+      });
+    };
+
+    const addDamage = (bucket, source, target, type, pct, uptime, label) => {
+      if (!target || (type !== "all" && target.damageType !== type)) return false;
+      const expected = pct * uptime / team.length;
+      add(bucket, "offense", expected, `${label}: ${source.name} gives ${target.name} ${Math.round(pct * 1000) / 10}% ${type === "all" ? "damage" : type + " damage"}; ${Math.round(uptime * 100)}% expected uptime.`, source, target, pct * 100);
+      return true;
+    };
+
+    const addMitigation = (bucket, source, target, pct, uptime, label, type = "all") => {
+      if (!target) return;
+      const effectiveReduction = Math.max(-0.95, pct * uptime);
+      const durabilityUplift = (1 / Math.max(0.05, 1 + effectiveReduction) - 1) / team.length;
+      add(bucket, "mitigation", durabilityUplift, `${label}: ${target.name} takes ${Math.round(Math.abs(pct) * 1000) / 10}% less ${type === "all" ? "damage" : type + " damage"}; ${Math.round(uptime * 100)}% expected uptime.`, source, target, Math.abs(pct) * 100);
+    };
+
+    const center = team[1], left = team[0], right = team[2];
+    if (center) {
+      const name = center.name;
+      const selfDamageGroups = {
+        tactical: new Set(["Sunfyre", "Syrax", "Tairax", "Velar", "Zivern", "Vesper"]),
+        physical: new Set(["Venator", "Vermax", "Daemoros", "Shadowrend", "Thunderstrike"]),
+        fire: new Set(["Caraxes", "Shadowsong", "Antares", "Jagadrix"]),
+      };
+      for (const [type, names] of Object.entries(selfDamageGroups)) if (names.has(name)) addDamage("kit", center, center, type, 0.16, 1, `${name} Vanguard`);
+      if (new Set(["Vhagar", "Vaeldra", "Arrax", "Bevlorin"]).has(name)) {
+        addMitigation("kit", center, center, -0.08, 1, `${name} Vanguard`);
+        if (!addDamage("interaction", center, left, "tactical", 0.16, 1, `${name} Vanguard`)) reasons.push({ points: 0, category: "offense", warn: true, text: `${name} Vanguard's +16% tactical bonus misses ${left?.name || "the empty left flank"}.` });
+      }
+      if (new Set(["Kalspire", "Seasmoke", "Feskar", "Tessarion", "Arulix", "Nyrena", "Solstryker"]).has(name)) addMitigation("interaction", center, right, -0.08, 1, `${name} Vanguard`);
+      if (new Set(["Malachite", "Dawnseeker", "Shimmer"]).has(name)) {
+        if (recoveryCommand(center)) add("kit", "sustain", 0.15 / team.length, `${name} Vanguard increases its Recovery by 15%.`, center, center, 15);
+        addDamage("interaction", center, left, "fire", 0.16, 1, `${name} Vanguard`);
+      }
+      if (name === "Crimson") {
+        if (recoveryCommand(center)) add("kit", "sustain", 0.20 / team.length, "Crimson Vanguard increases its Recovery by 20%.", center, center, 20);
+        addDamage("interaction", center, right, "physical", 0.10, 1, "Crimson Vanguard");
+      }
+      if (name === "Rhysarion") add("interaction", "offense", 0.08 / team.length, `Rhysarion Vanguard gives ${right?.name} +8% damage.`, center, right, 8);
+      if (new Set(["Tashix", "Sheepstealer"]).has(name)) {
+        if (healers.length) add("interaction", "sustain", 0.20 / team.length, `${name} Vanguard receives 20% more Recovery from ${healers.map((dragon) => dragon.name).join(" / ")}.`, center, center, 20);
+        addDamage("interaction", center, right, "physical", 0.10, 1, `${name} Vanguard`);
+      }
+    }
+
+    team.forEach((source, sourceIndex) => {
+      const recoveryMatch = commandText(source).match(/Recovery\s*\+\s*(\d+(?:\.\d+)?)%\s+to\s+(\d+)\s+Allies/i);
+      if (recoveryMatch) {
+        const pct = Number(recoveryMatch[1]) / 100;
+        const targetCoverage = Math.min(team.length, Number(recoveryMatch[2])) / team.length;
+        add("kit", "sustain", pct * targetCoverage, `${source.name}'s Command supplies +${recoveryMatch[1]}% Recovery to ${recoveryMatch[2]} allies.`, source, null, Number(recoveryMatch[1]));
+      }
+
+      const habits = evidence(source).habits || [];
+      for (let habitIndex = 0; habitIndex < unlockedCount(source); habitIndex += 1) {
+        const habit = habits[habitIndex];
+        const rank = habitRank(source, habitIndex);
+        for (const part of habit?.effects || []) {
+          const actions = part.actions || Object.values(part.branches || {}).flat();
+          if (part.selfCond || part.when === "on_damaged" || part.when === "on_ally_damaged") assumptions.add("Conditional and reactive effects use expected uptime rather than an invented trigger sequence.");
+          for (const action of actions) {
+            const uptime = literalUptime(part, action, rank);
+            const targets = action.tgt?.side === "enemy" ? [] : literalAllyTargets(team, sourceIndex, action.tgt);
+            const bucketFor = (targetIndex) => targetIndex !== sourceIndex ? "interaction" : "kit";
+            if (action.t === "mod") {
+              for (const modifier of action.mods || []) {
+                const pct = Number(ranked(modifier.pct, rank)) / 100;
+                if (!Number.isFinite(pct)) continue;
+                if (action.tgt?.side === "enemy") {
+                  const coverageShare = literalTargetCoverage(action.tgt);
+                  const expected = Math.abs(pct) * uptime * coverageShare;
+                  const category = /received$/.test(modifier.stat) ? "offense" : "mitigation";
+                  add("kit", category, expected, `${source.name} H${habitIndex + 1} ${habit.name} ${pct < 0 ? "reduces" : "increases"} enemy ${modifier.stat.replaceAll("_", " ")} by ${Math.round(Math.abs(pct) * 1000) / 10}% across ${action.tgt?.count || 1} target(s); ${Math.round(uptime * 100)}% expected uptime.`, source, null, Math.abs(pct) * 100);
+                  continue;
+                }
+                for (const target of targets) {
+                  const bucket = bucketFor(target.index);
+                  const stat = modifier.stat;
+                  const label = `${source.name} H${habitIndex + 1} ${habit.name}`;
+                  if (stat === "dmg_dealt") addDamage(bucket, source, target.dragon, "all", pct, uptime, label);
+                  else if (/^(physical|tactical|fire)_dealt$/.test(stat)) addDamage(bucket, source, target.dragon, stat.split("_")[0], pct, uptime, label);
+                  else if (stat === "dmg_received" && pct < 0) addMitigation(bucket, source, target.dragon, pct, uptime, label);
+                  else if (/^(physical|tactical|fire)_received$/.test(stat) && pct < 0) addMitigation(bucket, source, target.dragon, pct, uptime, label, stat.split("_")[0]);
+                  else if (stat === "recovery" && recoveryCommand(target.dragon)) add(bucket === "kit" && team.length > 1 ? "interaction" : bucket, "sustain", pct * uptime / team.length, `${label} multiplies ${target.dragon.name}'s team Recovery by ${Math.round(pct * 1000) / 10}%; ${Math.round(uptime * 100)}% expected uptime.`, source, target.dragon, pct * 100);
+                  else if (stat === "recovery_received" && healers.some((dragon) => dragon !== target.dragon)) add("interaction", "sustain", pct * uptime / team.length, `${label} lets ${target.dragon.name} receive ${Math.round(pct * 1000) / 10}% more Recovery from ${healers.filter((dragon) => dragon !== target.dragon).map((dragon) => dragon.name).join(" / ")}; ${Math.round(uptime * 100)}% expected uptime.`, source, target.dragon, pct * 100);
+                  else if (STAT_KEYS[stat]) {
+                    const damageStat = { str: "physical", inst: "tactical", int: "fire" }[stat];
+                    if (pct > 0 && damageStat === target.dragon.damageType) add(bucket, "offense", pct * uptime / team.length, `${label} increases ${target.dragon.name}'s relevant ${STAT_KEYS[stat]} by ${Math.round(pct * 1000) / 10}%; ${Math.round(uptime * 100)}% expected uptime.`, source, target.dragon, pct * 100);
+                    if (pct > 0 && ["inst", "int", "init"].includes(stat)) add(bucket, stat === "init" ? "control" : "mitigation", pct * uptime / team.length, `${label} adds ${Math.round(pct * 1000) / 10}% ${STAT_KEYS[stat]} defense${stat === "init" ? " and turn-order pressure" : ""} to ${target.dragon.name}; ${Math.round(uptime * 100)}% expected uptime.`, source, target.dragon, pct * 100);
+                  }
+                }
+              }
+            } else if (action.t === "dmg") {
+              const pct = Number(ranked(action.pct, rank)) / 100;
+              const rate = literalEventRate(part, action, rank);
+              const targetCoverage = literalTargetCoverage(action.tgt);
+              add("kit", "offense", pct * rate * targetCoverage / team.length, `${source.name} H${habitIndex + 1} ${habit.name} adds ${Math.round(pct * 1000) / 10}% ${action.dt || source.damageType} damage at ${Math.round(rate * 100)}% expected round frequency.`, source, null, pct * 100);
+            } else if (action.t === "status") {
+              const chance = probability(action.chance, rank) * probability(part.chance, rank);
+              const duration = literalDuration(action.dur, rank);
+              const coverageShare = literalTargetCoverage(action.tgt);
+              const magnitude = Number(ranked(action.val, rank));
+              const statusUptime = literalUptime(part, action, rank);
+              const expected = (Number.isFinite(magnitude) ? magnitude / 100 * statusUptime : statusUptime) * coverageShare / team.length;
+              const statusCategory = ["advantage", "first_strike", "double_strike"].includes(action.st) ? "offense" : ["resistance", "evade"].includes(action.st) ? "mitigation" : "control";
+              add(action.tgt?.side === "ally" && targets.some((target) => target.index !== sourceIndex) ? "interaction" : "kit", statusCategory, expected, `${source.name} H${habitIndex + 1} ${habit.name} creates ${action.st.replaceAll("_", " ")} pressure at ${Math.round(chance * 100)}% stated chance.`, source, null, Number.isFinite(magnitude) ? magnitude : chance * 100);
+            }
+          }
+        }
+      }
+    });
+
+    const burnSources = literalStatusProducers(team, "burn").filter((dragon) => dragon.name !== "Vhagar");
+    if (team.some((dragon) => dragon.name === "Vhagar") && burnSources.length) {
+      const burnUptime = 1 - burnSources.reduce((remaining, dragon) => remaining * (1 - literalStatusUptime(dragon, "burn")), 1);
+      add("interaction", "control", 0.25 * burnUptime, `${burnSources.map((dragon) => dragon.name).join(" / ")} enables Vhagar's Burn condition, raising Taunt chance from 25% to 50% during ${Math.round(burnUptime * 100)}% expected Burn uptime.`, burnSources[0], team.find((dragon) => dragon.name === "Vhagar"), 25);
+    }
+    const firstStrikeSources = literalStatusProducers(team, "first_strike").filter((dragon) => dragon.name !== "Caraxes");
+    if (team.some((dragon) => dragon.name === "Caraxes") && firstStrikeSources.length) {
+      const firstStrikeUptime = 1 - firstStrikeSources.reduce((remaining, dragon) => remaining * (1 - literalStatusUptime(dragon, "first_strike")), 1);
+      add("interaction", "offense", 0.50 * firstStrikeUptime * 0.30 / team.length, `${firstStrikeSources.map((dragon) => dragon.name).join(" / ")} can raise Caraxes's three-target Command from 100% to 150% during ${Math.round(firstStrikeUptime * 100)}% expected First-Strike uptime.`, firstStrikeSources[0], team.find((dragon) => dragon.name === "Caraxes"), 50);
+    }
+    const panicSources = literalStatusProducers(team, "panic").filter((dragon) => dragon.name !== "Shadowsong");
+    if (team.some((dragon) => dragon.name === "Shadowsong") && panicSources.length) {
+      const panicUptime = 1 - panicSources.reduce((remaining, dragon) => remaining * (1 - literalStatusUptime(dragon, "panic")), 1);
+      add("interaction", "offense", 0.50 * panicUptime * 0.30 / team.length, `${panicSources.map((dragon) => dragon.name).join(" / ")} activates Shadowsong's +50% Panic payoff during ${Math.round(panicUptime * 100)}% expected Panic uptime.`, panicSources[0], team.find((dragon) => dragon.name === "Shadowsong"), 50);
+    }
+
+    const affinityValues = team.map((dragon) => affinityStatMultiplier(dragon, troop));
+    const affinityMultiplier = Math.pow(affinityValues.reduce((product, value) => product * value, 1), 1 / Math.max(1, team.length));
+    team.forEach((dragon, index) => {
+      if (affinityValues[index] === 1.20) reasons.push({ points: Math.log(1.20) / team.length, category: "affinity", bucket: "affinity", valuePct: 20, literalPct: 20, text: `${dragon.name} receives the verified +20% Dragon Stats ${troop} affinity.` });
+      if (affinityValues[index] === 0.80) reasons.push({ points: Math.abs(Math.log(0.80)) / team.length, category: "affinity", bucket: "affinity", valuePct: -20, literalPct: -20, warn: true, text: `${dragon.name} takes the provisional -20% Dragon Stats ${troop} affinity penalty.` });
+    });
+    const literalMultiplier = factors.interaction * Math.sqrt(factors.kit) * affinityMultiplier;
+    const rankingScore = Math.log(Math.max(0.01, literalMultiplier)) * 100000;
+    reasons.sort((a, b) => b.points - a.points);
+    return {
+      raw, literalMultiplier, literalSynergy: literalMultiplier - 1, rankingScore,
+      interactionMultiplier: factors.interaction, kitMultiplier: factors.kit, affinityMultiplier,
+      categories, reasons, assumptions: [...assumptions],
+    };
+  }
+
   function formationProfile(team, troop) {
     const raw = team.reduce((sum, dragon) => sum + (Number(dragon.power) || 0), 0);
     const preview = team.map((dragon, lane) => makeFighter(dragon, lane, "A", troop));
@@ -612,7 +865,8 @@
       return sum + fighter.dragon.power * fighter.affinity * (attack * 0.55 + durability * 0.30 + kitStatRatio * 0.15);
     }, 0);
     const c = coverage(team);
-    const reasons = [];
+    const literal = literalSynergyProfile(team, troop);
+    const reasons = [...literal.reasons];
     team.forEach((dragon) => {
       const affinity = dragon.affinity?.[troop];
       if (affinity === "+") reasons.push({ points: 0, text: `${dragon.name} receives its verified ${troop} affinity in combat.` });
@@ -625,7 +879,13 @@
     }
     reasons.push({ points: 0, text: `${c.known}/${c.total} formation effects are structured; unknown effects are neutral.`, warn: c.ratio < 1 });
     const synergy = raw ? score / raw - 1 : 0;
-    return { raw, score, bonus: score - raw, synergy, reasons, coverage: c, unknownHabits: unknownHabits(team) };
+    return {
+      raw, score, bonus: score - raw, synergy, reasons, coverage: c, unknownHabits: unknownHabits(team),
+      literalMultiplier: literal.literalMultiplier, literalSynergy: literal.literalSynergy, literalScore: literal.rankingScore,
+      interactionMultiplier: literal.interactionMultiplier, kitMultiplier: literal.kitMultiplier,
+      affinityMultiplier: literal.affinityMultiplier, categoryMultipliers: literal.categories,
+      literalAssumptions: literal.assumptions,
+    };
   }
 
   function evaluateFormation(team, troop, benchmarks, options = {}) {
@@ -645,12 +905,17 @@
     const profile = formationProfile(team, troop);
     const synergyIndex = Math.max(0, Math.min(1, 0.5 + profile.synergy * 2));
     const score = (winRate * 0.82 + synergyIndex * 0.18) * 100000 + healthEdge * 500;
-    return { score, winRate, games, synergy: profile.synergy, synergyIndex, coverage: profile.coverage, unknownHabits: profile.unknownHabits };
+    return {
+      score, winRate, games, synergy: profile.synergy, synergyIndex, coverage: profile.coverage, unknownHabits: profile.unknownHabits,
+      literalMultiplier: profile.literalMultiplier, literalSynergy: profile.literalSynergy,
+      interactionMultiplier: profile.interactionMultiplier, kitMultiplier: profile.kitMultiplier,
+      affinityMultiplier: profile.affinityMultiplier, categoryMultipliers: profile.categoryMultipliers,
+    };
   }
 
   global.DragonfireSimulation = {
     VERSION, POSITIONS, configureCatalog, hashSeed, seededRandom, runBattle, simulateMatchup,
-    evaluateFormation, formationProfile, coverage, registryCoverage, isHabitEncoded, unknownHabits, habitRank, unlockedCount,
+    evaluateFormation, formationProfile, literalSynergyProfile, coverage, registryCoverage, isHabitEncoded, unknownHabits, habitRank, unlockedCount,
     affinityStatMultiplier, troopAdvantageMultiplier,
   };
 })(typeof window !== "undefined" ? window : globalThis);

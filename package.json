@@ -1,7 +1,7 @@
 {
   "name": "dragonfire-war-council",
   "private": true,
-  "version": "0.16.1",
+  "version": "0.17.0",
   "type": "module",
   "scripts": {
     "sync:data": "node scripts/sync-dragon-data.mjs && node scripts/sync-mechanics-data.mjs && node scripts/sync-community-habits.mjs",

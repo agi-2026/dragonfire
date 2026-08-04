@@ -11,6 +11,11 @@ assert.match(html, /async function buildCandidatesWithProgress\(/);
 assert.match(html, /await optimizerYield\(\)/);
 assert.match(html, /async function optimize\(\)/);
 assert.match(html, /button\.disabled=true/);
+assert.match(html, /Literal multiplier model:/);
+assert.match(html, /profile\.literalScore/);
+assert.match(html, /renderLiteralOptimizerResults/);
+assert.match(html, /pvp\.sort\(\(a,b\)=>b\.score-a\.score/);
+assert.match(css, /\.multiplier-grid/);
 assert.match(css, /\.optimizer-progress-track/);
 
-console.log("Optimizer progress valid: accessible progressbar, staged async yielding, and duplicate-run protection encoded.");
+console.log("Optimizer UI valid: accessible progress, literal-multiplier ranking, sorted PvP cards, and multiplier breakdown encoded.");

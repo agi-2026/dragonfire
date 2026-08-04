@@ -76,6 +76,16 @@ const kalspireCenter = engine.formationProfile([caraxes, kalspire, vhagar], "shi
 const caraxesCenter = engine.formationProfile([kalspire, caraxes, vhagar], "shieldbearers");
 assert(caraxesCenter.synergy > kalspireCenter.synergy, "Actual damage-type and lane utilization must prefer Caraxes Vanguard over the weaker fixed-trio lane order");
 
+const malachite = { ...base("Malachite", "tactical", []), power: 24620, starRank: 2, reignLevel: 35, role: "healer" };
+const sustainFormation = engine.literalSynergyProfile([malachite, vhagar, venator], "shieldbearers");
+const rawPowerFormation = engine.literalSynergyProfile([kalspire, vhagar, venator], "shieldbearers");
+assert(sustainFormation.interactionMultiplier > rawPowerFormation.interactionMultiplier, "Malachite / Vhagar / Venator must expose more cross-dragon interaction than the higher-Power Kalspire variant");
+assert(sustainFormation.reasons.some((reason) => reason.text.includes("Vhagar") && reason.text.includes("more Recovery") && reason.text.includes("Malachite")), "Vhagar's Recovery-received Habit must activate when Malachite supplies healing");
+assert(sustainFormation.reasons.some((reason) => reason.text.includes("+70% Recovery")), "Malachite's literal +70% Command Recovery must be visible in the ledger");
+const inflatedPowerFormation = engine.literalSynergyProfile([malachite, vhagar, venator].map((dragon) => ({ ...dragon, power: dragon.power * 10 })), "shieldbearers");
+assert.equal(inflatedPowerFormation.literalMultiplier, sustainFormation.literalMultiplier, "Literal synergy must not change when only raw Power changes");
+assert(sustainFormation.literalMultiplier > rawPowerFormation.literalMultiplier, "The literal multiplier should rank the sustain formation above the raw-Power variant while still reporting raw Power separately");
+
 const damageTypes = ["physical", "tactical", "fire"];
 const maxHabitRoster = catalog.dragons.map((dragon, index) => ({
   ...base(dragon.name, damageTypes[index % damageTypes.length], [5, 5, 5, 5, 5]),
@@ -88,4 +98,4 @@ for (let index = 0; index < maxHabitRoster.length; index += 3) {
   assert.doesNotThrow(() => engine.runBattle(teamA, teamB, { seed: `all-habits:${index}`, maxRounds: 3 }), `${teamA.map((dragon) => dragon.name).join(" / ")} max-Habit battle must execute`);
 }
 
-console.log(`Simulation engine valid: affinity and troop advantage separated, deterministic results, lane-specific Battle Leader, ${coverage.known}/${coverage.total} effects encoded, all 33 max-Habit dragons smoke-tested.`);
+console.log(`Simulation engine valid: literal multipliers separate from raw Power, Vhagar recovery synergy encoded, deterministic battles preserved, ${coverage.known}/${coverage.total} effects encoded, all 33 max-Habit dragons smoke-tested.`);
