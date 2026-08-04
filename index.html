@@ -14,7 +14,7 @@
     .dragon-name,.dragon-meta{display:block}.habit-row{grid-template-columns:1fr 72px 72px}.impact-input{padding:7px 5px;text-align:center}
     @media(min-width:981px){.optimizer-controls{grid-template-columns:1.35fr .7fr .75fr 1.25fr 1.1fr}.optimizer-controls .select{font-size:13px}}
   </style>
-  <link rel="stylesheet" href="product.css?v=0.14.0">
+  <link rel="stylesheet" href="product.css?v=0.15.0">
 </head>
 <body>
 <div class="shell">
@@ -81,7 +81,7 @@
 
   <section class="product-view" data-view="battle">
     <div class="page-heading"><div><div class="eyebrow">ROUND-BASED COMBAT ENGINE</div><h2>Battle Lab</h2><p>Run the same seeded combat model used by Team Builder and Team Optimizer.</p></div><span class="confidence low">STRUCTURED · CALIBRATION PENDING</span></div>
-    <div class="ranking-note battle-warning"><b>Evidence boundary:</b> base attributes, lane Vanguard effects, all 33 Commands, targeting, durations, and known Habits are modeled as combat events. Unknown Habit formulas are neutral and reported in coverage; the underlying damage curve still needs battle-log calibration.</div>
+    <div class="ranking-note battle-warning"><b>Evidence boundary:</b> all 165 Habit datasets are imported and executable with rank values, triggers, targets, durations, and source confidence. Community mechanics are not official verification, and damage/progression curves plus reactive timing still need battle-report calibration.</div>
     <div class="saved-formation-bar panel"><div><b>Saved formations</b><span>Save a team once, then load it into either side of the arena.</span></div><select id="savedFormationSelect" class="select"><option value="">No saved formations yet</option></select><button class="btn" id="loadFormationA">Load into A</button><button class="btn" id="loadFormationB">Load into B</button><button class="btn ghost" id="deleteFormation">Delete</button></div>
     <div class="battle-shell">
       <section class="panel setup-panel">
@@ -196,7 +196,7 @@
     <footer class="onboarding-footer"><button class="btn" id="importOnboarding">Import a roster</button><div><span id="onboardingCount">31 selected</span><button class="btn primary" id="saveOnboarding">Continue with 31 dragons</button></div></footer>
   </section>
 </div>
-<script src="simulation-engine.js?v=0.14.0"></script>
+<script src="simulation-engine.js?v=0.15.0"></script>
 <script>
 const TROOPS={cavalry:"🐎 Cavalry",shieldbearers:"🛡️ Shieldbearers",archers:"🏹 Archers",spearmen:"🔱 Spearmen",siege:"🔥 Siege"};
 const POSITIONS=["Left flank","Vanguard","Right flank"];
@@ -335,7 +335,7 @@ function habitName(d,i){return (HN[d.name]||[])[i]||`Habit ${i+1}`}
 function habitRank(d,i){return i<unlockedCount(d)?Math.max(1,Math.min(5,Number(d.habitRanks?.[i])||1)):0}
 function habitDesc(d,i){return HD[`${d.name}:${i}`]||"Conservative passive value until its exact effect is entered or verified."}
 function canonicalDragon(d){return window.DRAGON_CANONICAL?.[d.name]}
-function drawerEvidenceMarkup(d){let e=canonicalDragon(d);if(!e)return `<div class="drawer-evidence-loading">Loading sourced combat profile…</div>`;let stats=[["STR",e.baseStats.strength,"str"],["INST",e.baseStats.instinct,"inst"],["INT",e.baseStats.intelligence,"int"],["INIT",e.baseStats.initiative,"init"]].map(([label,value,type])=>`<span><small>${label}</small><b class="base-stat ${type}">${value}</b></span>`).join("");return `<div class="drawer-base-profile"><div class="drawer-base-stats">${stats}</div><div class="drawer-profile-meta"><span><b>${e.baseTroops}</b> base troops</span><span><b>${esc(e.marchSpeed)}</b> march speed</span></div></div><div class="drawer-abilities"><article><div><b>Command</b><em>Sourced · structured v1</em></div><p>${esc(e.command.text)}</p></article><article><div><b>Vanguard</b><em>Sourced · structured v1</em></div><p>${esc(e.vanguard.text)}</p></article></div><div class="drawer-source-note">English ability text from Dragonfire Hub; level-one stats cross-checked against Wyrmtable. Commands and Vanguard effects run as explicit combat events; unknown Habits remain neutral.</div>`}
+function drawerEvidenceMarkup(d){let e=canonicalDragon(d);if(!e)return `<div class="drawer-evidence-loading">Loading sourced combat profile…</div>`;let stats=[["STR",e.baseStats.strength,"str"],["INST",e.baseStats.instinct,"inst"],["INT",e.baseStats.intelligence,"int"],["INIT",e.baseStats.initiative,"init"]].map(([label,value,type])=>`<span><small>${label}</small><b class="base-stat ${type}">${value}</b></span>`).join("");return `<div class="drawer-base-profile"><div class="drawer-base-stats">${stats}</div><div class="drawer-profile-meta"><span><b>${e.baseTroops}</b> base troops</span><span><b>${esc(e.marchSpeed)}</b> march speed</span></div></div><div class="drawer-abilities"><article><div><b>Command</b><em>Sourced · structured v1</em></div><p>${esc(e.command.text)}</p></article><article><div><b>Vanguard</b><em>Sourced · structured v1</em></div><p>${esc(e.vanguard.text)}</p></article></div><div class="drawer-source-note">English names come from the canonical catalog. All five Habit rank tables are community-sourced and preserve their original localized identity; community data is not labeled as official verification.</div>`}
 function fmt(n){return Math.round(n).toLocaleString()}
 function initials(name){return name.split(/\s+/).map(x=>x[0]).join("").slice(0,2).toUpperCase()}
 function dragonAvatar(d,size=""){let hue=[...d.name].reduce((n,c)=>(n*31+c.charCodeAt(0))%360,27),portrait=DRAGON_PORTRAITS[d.name];return `<span class="dragon-avatar ${d.rarity} ${size} ${portrait?"has-portrait":"portrait-pending"}" style="--avatar-h:${hue}" aria-hidden="true">${portrait?`<img src="${portrait}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">`:""}<svg viewBox="0 0 64 64"><path class="avatar-wings" d="M25 25 9 14l5 17-8 10 19-5m14-11 16-11-5 17 8 10-19-5"/><path class="avatar-horns" d="m26 21-9-14 13 9m8 5 9-14-13 9"/><path class="avatar-head" d="M32 14c-8 5-12 13-10 24l5 13 5 6 5-6 5-13c2-11-2-19-10-24Z"/><path class="avatar-snout" d="m24 38 8 5 8-5-3 13H27Z"/><path class="avatar-eye" d="m25 30 5 2-5 2m14-4-5 2 5 2"/></svg><i></i></span>`}
@@ -454,6 +454,6 @@ document.querySelector("#search").addEventListener("input",()=>{hideDragonHover(
   });
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
-<script src="product.js?v=0.14.0"></script>
+<script src="product.js?v=0.15.0"></script>
 </body>
 </html>

@@ -21,16 +21,18 @@ Open `http://127.0.0.1:4173`. The site has no frontend build step or account sys
 
 ## Canonical game-data pipeline
 
-The public catalog lives in [`data/dragon-catalog.v1.json`](./data/dragon-catalog.v1.json). It currently contains all 33 known dragons, 132 level-one Strength, Instinct, Intelligence, and Initiative values, 33 English Command descriptions, 33 English Vanguard descriptions, base troop counts, and march speeds. All 132 stat values agree across two public community datasets. Each record retains source and verification metadata; community-sourced values are never relabeled as independently verified.
+The public catalog lives in [`data/dragon-catalog.v1.json`](./data/dragon-catalog.v1.json). It currently contains all 33 known dragons, 132 level-one Strength, Instinct, Intelligence, and Initiative values, 33 English Command descriptions, 33 English Vanguard descriptions, base troop counts, march speeds, and all 165 community-sourced Habit mechanic tables. All 132 stat values agree across two public community datasets. Each record retains source and verification metadata; community-sourced values are never relabeled as independently verified.
 
 ```bash
 npm run sync:data      # refresh Wyrmtable identities, then cross-check and enrich from Dragonfire Hub
 npm run sync:mechanics # refresh Command, Vanguard, base troop, and march-speed evidence only
+npm run sync:habits    # refresh the versioned public community Habit snapshot and source hash
+npm run report:mechanics # regenerate the executable-coverage and validation-needs report
 npm run check:data     # enforce 33 unique dragons plus complete stats, Commands, Vanguards, and Habit slots
 npm run check       # validate the catalog and JavaScript syntax
 ```
 
-The factual snapshot uses the public [Wyrmtable dragon API](https://wyrmtable.com/api/dragons), the public [Dragonfire Hub catalog](https://dragonfire-hub.com/) for English Command and Vanguard evidence plus an independent stat cross-check, and the [official Dragon guide](https://news.gotdragonfire.com/a-guide-to-dragons/) for system semantics. No competing site's interface, code, ranking algorithm, or branding is copied. Collected ability descriptions are shown to users, but their structured effects remain `unverified`; unknown mechanic formulas use the publication policy `exclude-from-competitive-ranking`.
+The factual snapshot uses the public [Wyrmtable dragon API](https://wyrmtable.com/api/dragons), the public [Dragonfire Hub catalog](https://dragonfire-hub.com/) for English Command and Vanguard evidence plus an independent stat cross-check, the public [DragonfireSim](https://dragonfiresim.com/) bundle for community-authored Habit tables, and the [official Dragon guide](https://news.gotdragonfire.com/a-guide-to-dragons/) for system semantics. No competing site's interface, implementation, ranking algorithm, or branding is copied. English Habit names come from the independent canonical catalog rather than literal translation. Community mechanics remain labeled `community-sourced` and are not promoted to verified game formulas.
 
 The feature-parity boundary and implementation sequence are documented in [`docs/competitive-parity.md`](./docs/competitive-parity.md).
 
@@ -81,8 +83,8 @@ This follows the useful product loop popularized by matchup simulators such as P
 - One shared troop type per formation and positive/negative affinities
 - Three fixed lanes with mirrored targeting and fallback targeting
 - Current power, star-gated Habit unlocks, Habit levels, role, and damage type
-- Known pre-combat effects for Vhagar, Kalspire, Syrax, Zivern, Vaeldra, Caraxes, Shadowsong, and Tessarion
-- Tessarion's per-round scaling and Blazing Leader targeting
+- Community-sourced triggers, rank values, targets, durations, conditions, and actions for all 165 Habits
+- Executable interpretation for all 165 Habits, including once-per-round reactive Sunfyre branches
 - Seeded damage variance, Burn, Panic, Stagger, healing/recovery, and a round cap
 - A representative battle log plus aggregate win rate, duration, and remaining health
 - Core-dragon team search across every legal partner pair, all six lane orders, and every non-siege troop type
@@ -90,7 +92,7 @@ This follows the useful product loop popularized by matchup simulators such as P
 
 ## What is not yet confirmed
 
-The game does not expose a complete public combat formula. English Command and Vanguard descriptions are now complete in the evidence catalog, but their exact execution order, troop-capacity conversion, defense curves, targeting priorities, resistance, status chances, and Habit level scaling are still modeled conservatively. Battle Lab output is a formation hypothesis, not a predicted win rate, and the competitive leaderboard stays gated until those mechanics are encoded and validated against battle outcomes.
+The game does not expose a complete public combat formula. English Command and Vanguard descriptions and all community Habit tables are present, but exact execution order, level/Star progression, troop-capacity conversion, defense curves, targeting priorities, resistance, status timing, and enhanced-by-stat scaling still need independent validation. Battle Lab output is a formation hypothesis, not a calibrated predicted win rate, and the competitive leaderboard stays gated until those mechanics pass held-out battle validation. See [`docs/mechanics-data-needed.md`](./docs/mechanics-data-needed.md) for the smallest useful validation pack.
 
 ## Calibration plan
 

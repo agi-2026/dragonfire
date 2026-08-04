@@ -1,0 +1,7919 @@
+{
+  "schema": "dragonfire-war-council/community-habit-effects-v1",
+  "fetchedAt": "2026-08-04T16:02:08.518Z",
+  "source": {
+    "id": "dragonfiresim-public-habit-model",
+    "type": "community-simulator-public-bundle",
+    "siteUrl": "https://dragonfiresim.com/",
+    "assetUrl": "https://dragonfiresim.com/assets/index-CDTQc3_V.js",
+    "assetSha256": "b196ee836abb4408abe9f64238f0eb254042ba2bc244b752c79817c42fc88e19",
+    "locale": "es",
+    "verification": "Mechanics and level values are community-authored. English names come from the independent canonical catalog and are matched by dragon and unlock slot, not literal translation."
+  },
+  "dragons": {
+    "Venator": [
+      {
+        "slot": 1,
+        "englishName": "Hunter's Bane",
+        "sourceName": "Azote de cazador",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "int",
+                    "pct": [
+                      -30,
+                      -36,
+                      -42,
+                      -51,
+                      -60
+                    ]
+                  }
+                ],
+                "scaleStat": "str",
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "prefer_dealer:fire"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Dragon's Might",
+        "sourceName": "Poder de dragón",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_dealt",
+                    "pct": [
+                      12.5,
+                      15,
+                      17.5,
+                      21.25,
+                      25
+                    ],
+                    "exceptBasic": true
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Feral Precision",
+        "sourceName": "Precisión feral",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "dmg",
+                "dt": "physical",
+                "pct": [
+                  20,
+                  24,
+                  28,
+                  34,
+                  40
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "least_troops"
+                }
+              }
+            ]
+          },
+          {
+            "when": "rounds",
+            "rounds": [
+              4,
+              6,
+              8
+            ],
+            "actions": [
+              {
+                "t": "status",
+                "st": "double_strike",
+                "dur": 2,
+                "chance": [
+                  40,
+                  42,
+                  44,
+                  47,
+                  50
+                ],
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Armor Break",
+        "sourceName": "Romper armadura",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_received",
+                    "pct": [
+                      8,
+                      9.6,
+                      11.2,
+                      13.6,
+                      16
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Desperate Ambush",
+        "sourceName": "Emboscada desesperada",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "each",
+            "selfCond": "troops_below_50",
+            "actions": [
+              {
+                "t": "dmg",
+                "dt": "physical",
+                "pct": [
+                  60,
+                  78,
+                  96,
+                  120,
+                  150
+                ],
+                "linkNext": true,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "prefer_dealer:fire"
+                }
+              },
+              {
+                "t": "status",
+                "st": "overwhelm",
+                "dur": 2,
+                "chance": [
+                  12,
+                  15.6,
+                  19.2,
+                  24,
+                  30
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "linked"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Kalspire": [
+      {
+        "slot": 1,
+        "englishName": "Robust Insight",
+        "sourceName": "Perspicacia robusta",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": [
+                      20,
+                      24,
+                      28,
+                      34,
+                      40
+                    ]
+                  },
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      20,
+                      24,
+                      28,
+                      34,
+                      40
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Battle Cunning",
+        "sourceName": "Astucia de batalla",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": [
+                      -6.5,
+                      -7.8,
+                      -9.1,
+                      -11.05,
+                      -13
+                    ]
+                  },
+                  {
+                    "stat": "int",
+                    "pct": [
+                      -6.5,
+                      -7.8,
+                      -9.1,
+                      -11.05,
+                      -13
+                    ]
+                  }
+                ],
+                "scaleStat": "inst",
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Tactical Assault",
+        "sourceName": "Asalto táctico",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "dmg",
+                "dt": "physical",
+                "pct": [
+                  25,
+                  30,
+                  35,
+                  42.5,
+                  50
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "adjacency"
+                }
+              },
+              {
+                "t": "status",
+                "st": "panic",
+                "dur": 2,
+                "chance": [
+                  15,
+                  18,
+                  21,
+                  25.5,
+                  30
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 2,
+                  "select": "adjacency"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Dragon's Insight",
+        "sourceName": "Perspicacia de dragón",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_received",
+                    "pct": [
+                      -6,
+                      -7.2,
+                      -8.4,
+                      -10.2,
+                      -12
+                    ]
+                  },
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      12,
+                      14.4,
+                      16.8,
+                      20.4,
+                      24
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Radiant Conqueror",
+        "sourceName": "Conquistador Radiante",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_received",
+                    "pct": -50
+                  }
+                ],
+                "dur": 1,
+                "tgt": {
+                  "side": "self"
+                }
+              },
+              {
+                "t": "status",
+                "st": "stun",
+                "dur": 1,
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          },
+          {
+            "when": "rounds",
+            "rounds": [
+              2
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_dealt",
+                    "pct": [
+                      -10,
+                      -13,
+                      -16,
+                      -20,
+                      -25
+                    ],
+                    "exceptBasic": true
+                  }
+                ],
+                "dur": 5,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "highest_str"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_dealt",
+                    "pct": [
+                      -10,
+                      -13,
+                      -16,
+                      -20,
+                      -25
+                    ]
+                  }
+                ],
+                "dur": 5,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "highest:int"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Jagadrix": [
+      {
+        "slot": 1,
+        "englishName": "Enervate",
+        "sourceName": "Enervar",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "tactical_dealt",
+                    "pct": [
+                      -8,
+                      -9.6,
+                      -11.2,
+                      -13.6,
+                      -16
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "dealer:tactical"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Second Wind",
+        "sourceName": "Segundo aliento",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              6
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_dealt",
+                    "pct": [
+                      10,
+                      12,
+                      14,
+                      17,
+                      20
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              },
+              {
+                "t": "heal",
+                "pct": [
+                  150,
+                  180,
+                  210,
+                  255,
+                  300
+                ],
+                "tgt": {
+                  "side": "self"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "recovery_received",
+                    "pct": -100
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Whispering Sabotage",
+        "sourceName": "Sabotaje susurrante",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "status",
+                "st": "weakened",
+                "dur": 2,
+                "chance": [
+                  25,
+                  30,
+                  35,
+                  42.5,
+                  50
+                ],
+                "val": 10,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "same_lane"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Quick-Witted",
+        "sourceName": "Ingenioso",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "int",
+                    "pct": [
+                      12.5,
+                      15,
+                      17.5,
+                      21.25,
+                      25
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      12.5,
+                      15,
+                      17.5,
+                      21.25,
+                      25
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Echoes of Deceit",
+        "sourceName": "Ecos de engaño",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      -6,
+                      -7.8,
+                      -9.6,
+                      -12,
+                      -15
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      -6,
+                      -7.8,
+                      -9.6,
+                      -12,
+                      -15
+                    ]
+                  }
+                ],
+                "scaleStat": "init",
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "highest:inst"
+                }
+              }
+            ]
+          },
+          {
+            "when": "rounds",
+            "rounds": [
+              3,
+              6,
+              9
+            ],
+            "actions": [
+              {
+                "t": "dmg",
+                "dt": "fire",
+                "pct": [
+                  30,
+                  39,
+                  48,
+                  60,
+                  75
+                ],
+                "bonus": {
+                  "cond": "target:panic",
+                  "pct": [
+                    60,
+                    78,
+                    96,
+                    120,
+                    150
+                  ]
+                },
+                "tgt": {
+                  "side": "enemy",
+                  "count": "all",
+                  "select": "dealer:tactical"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Shadowrend": [
+      {
+        "slot": 1,
+        "englishName": "Midnight Aura",
+        "sourceName": "Aura de medianoche",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              7,
+              8,
+              9,
+              10
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": [
+                      40,
+                      48,
+                      56,
+                      68,
+                      80
+                    ]
+                  },
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      40,
+                      48,
+                      56,
+                      68,
+                      80
+                    ]
+                  }
+                ],
+                "scaleStat": "init",
+                "dur": 1,
+                "tgt": {
+                  "side": "ally",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Nimble Resilience",
+        "sourceName": "Resiliencia ágil",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_received",
+                    "pct": [
+                      -4,
+                      -4.8,
+                      -5.6,
+                      -6.8,
+                      -8
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      5,
+                      6,
+                      7,
+                      8.5,
+                      10
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Fueled by Darkness",
+        "sourceName": "Alimentado por la oscuridad",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "status",
+                "st": "advantage",
+                "dur": 2,
+                "chance": [
+                  10,
+                  12,
+                  14,
+                  17,
+                  20
+                ],
+                "val": 10,
+                "tgt": {
+                  "side": "ally",
+                  "count": 2,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Midnight Mastery",
+        "sourceName": "Maestría de medianoche",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              7,
+              8,
+              9,
+              10
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_dealt",
+                    "pct": [
+                      7,
+                      8.4,
+                      9.8,
+                      11.9,
+                      14
+                    ]
+                  },
+                  {
+                    "stat": "tactical_dealt",
+                    "pct": [
+                      7,
+                      8.4,
+                      9.8,
+                      11.9,
+                      14
+                    ]
+                  }
+                ],
+                "dur": 1,
+                "tgt": {
+                  "side": "ally",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Event Horizon",
+        "sourceName": "Horizonte de sucesos",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              9
+            ],
+            "actions": [
+              {
+                "t": "dmg",
+                "dt": "physical",
+                "pct": [
+                  100,
+                  130,
+                  160,
+                  200,
+                  250
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 3,
+                  "select": "any"
+                }
+              },
+              {
+                "t": "dmg",
+                "dt": "tactical",
+                "pct": [
+                  100,
+                  130,
+                  160,
+                  200,
+                  250
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Vesper": [
+      {
+        "slot": 1,
+        "englishName": "Strategic Leader",
+        "sourceName": "Líder estratégico",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "tactical_dealt",
+                    "pct": [
+                      8,
+                      9.6,
+                      11.2,
+                      13.6,
+                      16
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "prefer_lane:C"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Dragon Insight",
+        "sourceName": "Perspicacia de dragón",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_received",
+                    "pct": [
+                      -4,
+                      -4.8,
+                      -5.6,
+                      -6.8,
+                      -8
+                    ]
+                  },
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      5,
+                      6,
+                      7,
+                      8.5,
+                      10
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Savior's Waltz",
+        "sourceName": "Vals del salvador",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_received",
+                    "pct": -10
+                  }
+                ],
+                "dur": 2,
+                "chance": [
+                  12.5,
+                  15,
+                  17.5,
+                  21.25,
+                  25
+                ],
+                "tgt": {
+                  "side": "self"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_received",
+                    "pct": -10
+                  }
+                ],
+                "dur": 2,
+                "chance": [
+                  12.5,
+                  15,
+                  17.5,
+                  21.25,
+                  25
+                ],
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "adjacency"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Insightful Allies",
+        "sourceName": "Aliados perspicaces",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      8,
+                      9.6,
+                      11.2,
+                      13.6,
+                      16
+                    ]
+                  }
+                ],
+                "scaleStat": "inst",
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Midnight Onslaught",
+        "sourceName": "Arremetida de medianoche",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              6,
+              7,
+              8,
+              9,
+              10
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_dealt",
+                    "pct": -50
+                  }
+                ],
+                "dur": 2,
+                "chance": [
+                  24,
+                  31.2,
+                  38.4,
+                  48,
+                  60
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "adjacency"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Zivern": [
+      {
+        "slot": 1,
+        "englishName": "Battle Mastery",
+        "sourceName": "Maestría de batalla",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": [
+                      -5,
+                      -6,
+                      -7,
+                      -8.85,
+                      -10.5
+                    ]
+                  },
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      -5,
+                      -6,
+                      -7,
+                      -8.85,
+                      -10.5
+                    ]
+                  }
+                ],
+                "scaleStat": "int",
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Keen Instinct",
+        "sourceName": "Instinto agudo",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "int",
+                    "pct": [
+                      16,
+                      19.2,
+                      22.4,
+                      27.2,
+                      32
+                    ]
+                  },
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      16,
+                      19.2,
+                      22.4,
+                      27.2,
+                      32
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Fearsome Reach",
+        "sourceName": "Alcance temible",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "odd",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "inst",
+                    "pct": -15
+                  }
+                ],
+                "scaleStat": "int",
+                "dur": 2,
+                "chance": [
+                  30,
+                  36,
+                  42,
+                  51,
+                  60
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 3,
+                  "select": "any"
+                }
+              },
+              {
+                "t": "status",
+                "st": "panic",
+                "dur": 2,
+                "chance": [
+                  30,
+                  36,
+                  42,
+                  51,
+                  60
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Steel Shroud",
+        "sourceName": "Velo de acero",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_received",
+                    "pct": [
+                      -3.5,
+                      -4.2,
+                      -4.9,
+                      -5.95,
+                      -7
+                    ],
+                    "exceptBasic": true
+                  },
+                  {
+                    "stat": "tactical_received",
+                    "pct": [
+                      -3.5,
+                      -4.2,
+                      -4.9,
+                      -5.95,
+                      -7
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 2,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Cloak of Terror",
+        "sourceName": "Manto de terror",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "odd",
+            "actions": [
+              {
+                "t": "status",
+                "st": "overwhelm",
+                "dur": 2,
+                "chance": [
+                  10,
+                  13,
+                  16,
+                  20,
+                  25
+                ],
+                "bonusChance": {
+                  "cond": "target:vulnerable",
+                  "chance": [
+                    20,
+                    26,
+                    32,
+                    40,
+                    50
+                  ]
+                },
+                "tgt": {
+                  "side": "enemy",
+                  "count": 2,
+                  "select": "adjacency"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Daemoros": [
+      {
+        "slot": 1,
+        "englishName": "Instill Fear",
+        "sourceName": "Infundir miedo",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "int",
+                    "pct": -25
+                  },
+                  {
+                    "stat": "inst",
+                    "pct": -25
+                  }
+                ],
+                "scaleStat": "str",
+                "dur": 2,
+                "chance": [
+                  25,
+                  30,
+                  35,
+                  42.5,
+                  50
+                ],
+                "linkNext": true,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "prefer_lane:R"
+                }
+              },
+              {
+                "t": "status",
+                "st": "panic",
+                "dur": 2,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "linked"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Powerful Reflexes",
+        "sourceName": "Reflejos poderosos",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": [
+                      16,
+                      19.2,
+                      22.4,
+                      27.2,
+                      32
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      16,
+                      19.2,
+                      22.4,
+                      27.2,
+                      32
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Shroud of Shadows",
+        "sourceName": "Velo de sombras",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "odd",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_dealt",
+                    "pct": -50
+                  }
+                ],
+                "dur": 2,
+                "chance": [
+                  15,
+                  18,
+                  21,
+                  25.5,
+                  30
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "adjacency"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Darkening Fear",
+        "sourceName": "Miedo ensombrecedor",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "int",
+                    "pct": -25
+                  },
+                  {
+                    "stat": "inst",
+                    "pct": -25
+                  }
+                ],
+                "scaleStat": "str",
+                "dur": 2,
+                "chance": [
+                  25,
+                  30,
+                  35,
+                  42.5,
+                  50
+                ],
+                "linkNext": true,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "prefer_lane:L"
+                }
+              },
+              {
+                "t": "status",
+                "st": "panic",
+                "dur": 2,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "linked"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Phantom's Veil",
+        "sourceName": "Velo de fantasma",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_received",
+                    "pct": [
+                      -15,
+                      -19.5,
+                      -24,
+                      -30,
+                      -37.5
+                    ]
+                  }
+                ],
+                "dur": 1,
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Vhagar": [
+      {
+        "slot": 1,
+        "englishName": "Ancestral Shield",
+        "sourceName": "Escudo ancestral",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_received",
+                    "pct": [
+                      -12,
+                      -14.4,
+                      -16.8,
+                      -20.4,
+                      -24
+                    ]
+                  },
+                  {
+                    "stat": "tactical_received",
+                    "pct": [
+                      -12,
+                      -14.4,
+                      -16.8,
+                      -20.4,
+                      -24
+                    ]
+                  }
+                ],
+                "dur": 3,
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          },
+          {
+            "when": "rounds",
+            "rounds": [
+              4
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "recovery_received",
+                    "pct": [
+                      15,
+                      18,
+                      21,
+                      25.5,
+                      30
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Battle Leader",
+        "sourceName": "Líder de batalla",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_dealt",
+                    "pct": [
+                      12.5,
+                      15,
+                      17.5,
+                      21.25,
+                      25
+                    ],
+                    "exceptBasic": true
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "prefer_lane:R"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Eclipse Cover",
+        "sourceName": "Cubierta de eclipse",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "actions": [
+              {
+                "t": "status",
+                "st": "advantage",
+                "dur": 2,
+                "val": 20,
+                "chance": [
+                  17.5,
+                  21,
+                  24.5,
+                  29.8,
+                  35
+                ],
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "most_troops"
+                }
+              },
+              {
+                "t": "status",
+                "st": "weakened",
+                "dur": 2,
+                "val": 20,
+                "chance": [
+                  17.5,
+                  21,
+                  24.5,
+                  29.8,
+                  35
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "most_troops"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Blazing Onslaught",
+        "sourceName": "Arremetida llameante",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_received",
+                    "pct": [
+                      18,
+                      21.6,
+                      25.2,
+                      30.6,
+                      36
+                    ]
+                  }
+                ],
+                "dur": 3,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "prefer_lane:L"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_received",
+                    "pct": [
+                      18,
+                      21.6,
+                      25.2,
+                      30.6,
+                      36
+                    ],
+                    "exceptBasic": true
+                  }
+                ],
+                "dur": 3,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "prefer_lane:R"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Skyward Titan",
+        "sourceName": "Titán del cielo",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "each",
+            "chance": 30,
+            "actions": [
+              {
+                "t": "stack",
+                "id": "bulwark",
+                "max": 5,
+                "tgt": {
+                  "side": "self"
+                },
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": [
+                      5,
+                      6.5,
+                      8,
+                      10,
+                      12.5
+                    ]
+                  },
+                  {
+                    "stat": "physical_received",
+                    "pct": [
+                      -2.5,
+                      -3.25,
+                      -4,
+                      -5,
+                      -6.25
+                    ]
+                  },
+                  {
+                    "stat": "tactical_received",
+                    "pct": [
+                      -2.5,
+                      -3.25,
+                      -4,
+                      -5,
+                      -6.25
+                    ]
+                  }
+                ],
+                "onReach": {
+                  "n": 3,
+                  "actions": [
+                    {
+                      "t": "dmg",
+                      "dt": "physical",
+                      "pct": 100,
+                      "tgt": {
+                        "side": "enemy",
+                        "count": 1,
+                        "select": "same_lane"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Dawnseeker": [
+      {
+        "slot": 1,
+        "englishName": "Tactical Inferno",
+        "sourceName": "Infierno táctico",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "tactical_dealt",
+                    "pct": [
+                      9,
+                      10.8,
+                      12.6,
+                      15.3,
+                      18
+                    ]
+                  }
+                ],
+                "dur": 3,
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "prefer_lane:L"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_dealt",
+                    "pct": [
+                      9,
+                      10.8,
+                      12.6,
+                      15.3,
+                      18
+                    ]
+                  }
+                ],
+                "dur": 3,
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "prefer_lane:R"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Unbroken Devotion",
+        "sourceName": "Devoción inquebrantable",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "recovery_received",
+                    "pct": [
+                      15,
+                      18,
+                      21,
+                      25.5,
+                      30
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 2,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Sunbreak",
+        "sourceName": "Rayo de sol",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1,
+              2
+            ],
+            "actions": [
+              {
+                "t": "dmg",
+                "dt": "tactical",
+                "pct": [
+                  50,
+                  60,
+                  70,
+                  85,
+                  100
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "same_lane"
+                }
+              }
+            ]
+          },
+          {
+            "when": "rounds",
+            "rounds": [
+              2
+            ],
+            "actions": [
+              {
+                "t": "heal",
+                "pct": [
+                  30,
+                  36,
+                  42,
+                  51,
+                  60
+                ],
+                "tgt": {
+                  "side": "ally",
+                  "count": 2,
+                  "select": "adjacency"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Wind's Favor",
+        "sourceName": "Favor del viento",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "init",
+                    "pct": [
+                      8,
+                      9.6,
+                      11.2,
+                      13.6,
+                      16
+                    ]
+                  }
+                ],
+                "scaleStat": "init",
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "First Light",
+        "sourceName": "Primera luz",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "int",
+                    "pct": [
+                      5,
+                      6.5,
+                      8,
+                      10,
+                      12.5
+                    ]
+                  },
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      5,
+                      6.5,
+                      8,
+                      10,
+                      12.5
+                    ]
+                  }
+                ],
+                "scaleStat": "init",
+                "dur": 3,
+                "tgt": {
+                  "side": "ally",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          },
+          {
+            "when": "rounds",
+            "rounds": [
+              1,
+              2,
+              3
+            ],
+            "actions": [
+              {
+                "t": "status",
+                "st": "first_strike",
+                "dur": 1,
+                "chance": [
+                  20,
+                  26,
+                  32,
+                  40,
+                  50
+                ],
+                "tgt": {
+                  "side": "ally",
+                  "count": 2,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Antares": [
+      {
+        "slot": 1,
+        "englishName": "Blazing Onslaught",
+        "sourceName": "Arremetida llameante",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_received",
+                    "pct": [
+                      11,
+                      13.2,
+                      15.4,
+                      18.7,
+                      22
+                    ]
+                  }
+                ],
+                "dur": 3,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "prefer_lane:L"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_received",
+                    "pct": [
+                      11,
+                      13.2,
+                      15.4,
+                      18.7,
+                      22
+                    ],
+                    "exceptBasic": true
+                  }
+                ],
+                "dur": 3,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "prefer_lane:R"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Dragon's Flair",
+        "sourceName": "Estilo de dragón",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_dealt",
+                    "pct": [
+                      8,
+                      9.6,
+                      11.2,
+                      13.6,
+                      16
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Fiery Precision",
+        "sourceName": "Precisión ardiente",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "dmg",
+                "dt": "fire",
+                "pct": [
+                  20,
+                  24,
+                  28,
+                  34,
+                  40
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Dragon's Intellect",
+        "sourceName": "Intelecto de dragón",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_received",
+                    "pct": [
+                      -4,
+                      -4.8,
+                      -5.6,
+                      -6.8,
+                      -8
+                    ]
+                  },
+                  {
+                    "stat": "int",
+                    "pct": [
+                      5,
+                      6,
+                      7,
+                      8.5,
+                      10
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Redemption",
+        "sourceName": "Redención",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "int",
+                    "pct": [
+                      6,
+                      7.8,
+                      9.6,
+                      12,
+                      15
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      6,
+                      7.8,
+                      9.6,
+                      12,
+                      15
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Shimmer": [
+      {
+        "slot": 1,
+        "englishName": "Crushing Force",
+        "sourceName": "Fuerza aplastante",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_dealt",
+                    "pct": [
+                      9,
+                      10.8,
+                      12.6,
+                      15.3,
+                      18
+                    ]
+                  }
+                ],
+                "dur": 3,
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "prefer_lane:L"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "tactical_dealt",
+                    "pct": [
+                      9,
+                      10.8,
+                      12.6,
+                      15.3,
+                      18
+                    ]
+                  }
+                ],
+                "dur": 3,
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "prefer_lane:R"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Dragon's Insight",
+        "sourceName": "Perspicacia de dragón",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_received",
+                    "pct": [
+                      -4,
+                      -4.8,
+                      -5.6,
+                      -6.8,
+                      -8
+                    ]
+                  },
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      5,
+                      6,
+                      7,
+                      8.5,
+                      10
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Loyal Shield",
+        "sourceName": "Escudo leal",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              2,
+              4,
+              7,
+              9
+            ],
+            "actions": [
+              {
+                "t": "heal",
+                "pct": [
+                  30,
+                  36,
+                  42,
+                  51,
+                  60
+                ],
+                "scaleStat": "inst",
+                "bonus": {
+                  "cond": "target:resistance",
+                  "pct": [
+                    60,
+                    72,
+                    84,
+                    102,
+                    120
+                  ]
+                },
+                "tgt": {
+                  "side": "ally",
+                  "count": 2,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Unbroken Devotion",
+        "sourceName": "Devoción inquebrantable",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "recovery_received",
+                    "pct": [
+                      15,
+                      18,
+                      21,
+                      25.5,
+                      30
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 2,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Sneak Attack",
+        "sourceName": "Ataque furtivo",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "each",
+            "chance": [
+              14,
+              18.2,
+              22.4,
+              28,
+              35
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_dealt",
+                    "pct": 10
+                  }
+                ],
+                "dur": 2,
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "highest_str"
+                }
+              },
+              {
+                "t": "status",
+                "st": "first_strike",
+                "dur": 2,
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "highest_str"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Thunderstrike": [
+      {
+        "slot": 1,
+        "englishName": "Battle Rush",
+        "sourceName": "Estampida de batalla",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "init",
+                    "pct": [
+                      25,
+                      30,
+                      35,
+                      42.5,
+                      50
+                    ]
+                  }
+                ],
+                "dur": 3,
+                "tgt": {
+                  "side": "self"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      -15,
+                      -18,
+                      -21,
+                      -25.5,
+                      -30
+                    ]
+                  }
+                ],
+                "scaleStat": "str",
+                "dur": 3,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 2,
+                  "select": "adjacency"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Dragon's Might",
+        "sourceName": "Poder de dragón",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_dealt",
+                    "pct": [
+                      8,
+                      9.6,
+                      11.2,
+                      13.6,
+                      16
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Barbed Lash",
+        "sourceName": "Látigo con púas",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              2,
+              4,
+              6,
+              8,
+              10
+            ],
+            "actions": [
+              {
+                "t": "dmg",
+                "dt": "physical",
+                "pct": [
+                  50,
+                  60,
+                  70,
+                  85,
+                  100
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "same_lane"
+                },
+                "linkNext": true
+              },
+              {
+                "t": "status",
+                "st": "bleed",
+                "dur": 2,
+                "chance": [
+                  25,
+                  30,
+                  35,
+                  42.5,
+                  50
+                ],
+                "val": 20,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "linked"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Armor Break",
+        "sourceName": "Romper armadura",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_received",
+                    "pct": [
+                      4.8,
+                      5.67,
+                      6.72,
+                      8.16,
+                      9.6
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Staggering Assault",
+        "sourceName": "Asalto abrumador",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "status",
+                "st": "overwhelm",
+                "dur": 1,
+                "chance": [
+                  10,
+                  13,
+                  16,
+                  20,
+                  25
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "same_lane"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Nyrena": [
+      {
+        "slot": 1,
+        "englishName": "Battle Dread",
+        "sourceName": "Terror en batalla",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": [
+                      -4,
+                      -4.8,
+                      -5.6,
+                      -6.8,
+                      -8
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      -4,
+                      -4.8,
+                      -5.6,
+                      -6.8,
+                      -8
+                    ]
+                  }
+                ],
+                "scaleStat": "int",
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Mindful Synergy",
+        "sourceName": "Sinergia consciente",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "int",
+                    "pct": [
+                      4,
+                      4.8,
+                      5.6,
+                      6.8,
+                      8
+                    ]
+                  },
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      4,
+                      4.8,
+                      5.6,
+                      6.8,
+                      8
+                    ]
+                  }
+                ],
+                "scaleStat": "init",
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Deepen the Breach",
+        "sourceName": "Ahondar la brecha",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_dealt",
+                    "pct": [
+                      8,
+                      9.6,
+                      11.2,
+                      13.6,
+                      16
+                    ]
+                  }
+                ],
+                "dur": 5,
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          },
+          {
+            "when": "rounds",
+            "rounds": [
+              6
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_dealt",
+                    "pct": 12
+                  }
+                ],
+                "dur": 5,
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "adjacency"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Dragon's Ire",
+        "sourceName": "Ira del dragón",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "tactical_dealt",
+                    "pct": [
+                      4,
+                      4.8,
+                      5.6,
+                      6.8,
+                      8
+                    ]
+                  },
+                  {
+                    "stat": "fire_dealt",
+                    "pct": [
+                      4,
+                      4.8,
+                      5.6,
+                      6.8,
+                      8
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "The Long Siege",
+        "sourceName": "El largo asedio",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              6,
+              7,
+              8,
+              9,
+              10
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_received",
+                    "pct": [
+                      -5,
+                      -6.5,
+                      -8,
+                      -10,
+                      -12.5
+                    ]
+                  }
+                ],
+                "dur": 1,
+                "tgt": {
+                  "side": "ally",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Arrax": [
+      {
+        "slot": 1,
+        "englishName": "Headlong Into Danger",
+        "sourceName": "Precipitación hacia el peligro",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              4
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": 25
+                  },
+                  {
+                    "stat": "init",
+                    "pct": 10
+                  },
+                  {
+                    "stat": "physical_dealt",
+                    "pct": 25
+                  },
+                  {
+                    "stat": "physical_received",
+                    "pct": [
+                      10,
+                      8,
+                      6,
+                      3,
+                      0
+                    ]
+                  },
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      -40,
+                      -32,
+                      -24,
+                      -12,
+                      0
+                    ]
+                  }
+                ],
+                "dur": 4,
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Stone Bulwark",
+        "sourceName": "Baluarte de piedra",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "tactical_received",
+                    "pct": [
+                      -2.5,
+                      -3,
+                      -3.5,
+                      -4.25,
+                      -5
+                    ]
+                  },
+                  {
+                    "stat": "fire_received",
+                    "pct": [
+                      -2.5,
+                      -3,
+                      -3.5,
+                      -4.25,
+                      -5
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 2,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Adaptive Guard",
+        "sourceName": "Guardia adaptativa",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              4
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_received",
+                    "pct": [
+                      -9,
+                      -10.8,
+                      -12.6,
+                      -15.3,
+                      -18
+                    ]
+                  }
+                ],
+                "dur": 4,
+                "tgt": {
+                  "side": "ally",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Fire Ward",
+        "sourceName": "Protección de fuego",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_received",
+                    "pct": [
+                      -5,
+                      -6,
+                      -7,
+                      -8.5,
+                      -10
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "adjacency"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_received",
+                    "pct": [
+                      -5,
+                      -6,
+                      -7,
+                      -8.5,
+                      -10
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Turn the Line",
+        "sourceName": "Cambio de línea",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              4
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_received",
+                    "pct": [
+                      9,
+                      11.7,
+                      14.4,
+                      18,
+                      22.5
+                    ]
+                  }
+                ],
+                "dur": 4,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 2,
+                  "select": "adjacency"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Shadowsong": [
+      {
+        "slot": 1,
+        "englishName": "Ensnare",
+        "sourceName": "Entrampar",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      -18,
+                      -21.6,
+                      -25.2,
+                      -30.6,
+                      -36
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      -18,
+                      -21.6,
+                      -25.2,
+                      -30.6,
+                      -36
+                    ]
+                  }
+                ],
+                "scaleStat": "int",
+                "dur": 3,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 2,
+                  "select": "adjacency"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Blazing Onslaught",
+        "sourceName": "Arremetida llameante",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_received",
+                    "pct": [
+                      15,
+                      18,
+                      21,
+                      25.5,
+                      30
+                    ]
+                  }
+                ],
+                "dur": 3,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "prefer_lane:L"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_received",
+                    "pct": [
+                      15,
+                      18,
+                      21,
+                      25.5,
+                      30
+                    ]
+                  }
+                ],
+                "dur": 3,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "prefer_lane:R"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Scorched Earth",
+        "sourceName": "Tierra quemada",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "status",
+                "st": "vulnerable",
+                "dur": 2,
+                "val": 15,
+                "chance": [
+                  10,
+                  12,
+                  14,
+                  17,
+                  20
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 2,
+                  "select": "adjacency"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Dragon's Intellect",
+        "sourceName": "Intelecto de dragón",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_received",
+                    "pct": [
+                      -5,
+                      -6,
+                      -7,
+                      -8.5,
+                      -10
+                    ]
+                  },
+                  {
+                    "stat": "int",
+                    "pct": [
+                      8.5,
+                      10.2,
+                      11.9,
+                      14.45,
+                      17
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Blazing Conductor",
+        "sourceName": "Conductora llameante",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              2,
+              5,
+              8
+            ],
+            "actions": [
+              {
+                "t": "dmg",
+                "dt": "fire",
+                "pct": [
+                  60,
+                  78,
+                  96,
+                  120,
+                  150
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "any"
+                }
+              },
+              {
+                "t": "dmg",
+                "dt": "fire",
+                "pct": [
+                  30,
+                  39,
+                  48,
+                  60,
+                  75
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Crimson": [
+      {
+        "slot": 1,
+        "englishName": "Enervate",
+        "sourceName": "Enervar",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "tactical_dealt",
+                    "pct": [
+                      -13.5,
+                      -16.2,
+                      -18.9,
+                      -22.95,
+                      -27
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "dealer:tactical"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Dragon's Intellect",
+        "sourceName": "Intelecto de dragón",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_received",
+                    "pct": [
+                      -6,
+                      -7.2,
+                      -8.4,
+                      -10.2,
+                      -12
+                    ]
+                  },
+                  {
+                    "stat": "int",
+                    "pct": [
+                      12,
+                      14.4,
+                      16.8,
+                      20.4,
+                      24
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Bloodscale Fury",
+        "sourceName": "Furia de escamas de sangre",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "status",
+                "st": "weakened",
+                "dur": 2,
+                "val": 20,
+                "chance": [
+                  17.5,
+                  21,
+                  24.5,
+                  29.75,
+                  35
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Unlikely Hero",
+        "sourceName": "Héroe improbable",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_received",
+                    "pct": [
+                      10,
+                      12,
+                      14,
+                      17,
+                      20
+                    ]
+                  },
+                  {
+                    "stat": "fire_received",
+                    "pct": [
+                      10,
+                      12,
+                      14,
+                      17,
+                      20
+                    ]
+                  }
+                ],
+                "dur": 1,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "most_troops"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "recovery_received",
+                    "pct": [
+                      -20,
+                      -24,
+                      -28,
+                      -34,
+                      -40
+                    ]
+                  }
+                ],
+                "dur": 1,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "least_troops"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Vermin's Bane",
+        "sourceName": "Azote de las alimañas",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              2,
+              4,
+              6,
+              8,
+              10
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      -12,
+                      -15.6,
+                      -19.2,
+                      -24,
+                      -30
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      -12,
+                      -15.6,
+                      -19.2,
+                      -24,
+                      -30
+                    ]
+                  }
+                ],
+                "scaleStat": "int",
+                "dur": 2,
+                "chance": [
+                  50,
+                  50,
+                  50,
+                  50,
+                  50
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Tashix": [
+      {
+        "slot": 1,
+        "englishName": "Enervate",
+        "sourceName": "Enervar",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "tactical_dealt",
+                    "pct": [
+                      -10.5,
+                      -12.6,
+                      -14.7,
+                      -17.85,
+                      -21
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "dealer:tactical"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Dragon's Cunning",
+        "sourceName": "Astucia de dragón",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "int",
+                    "pct": [
+                      12,
+                      14.4,
+                      16.8,
+                      20.4,
+                      24
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      -10,
+                      -12,
+                      -14,
+                      -17,
+                      -20
+                    ]
+                  }
+                ],
+                "scaleStat": "init",
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 2,
+                  "select": "adjacency"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Cunning Ruse",
+        "sourceName": "Treta astuta",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "status",
+                "st": "weakened",
+                "dur": 2,
+                "val": 15,
+                "chance": [
+                  10,
+                  12,
+                  14,
+                  17,
+                  20
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Battle Guile",
+        "sourceName": "Ardid de guerra",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      -5,
+                      -6,
+                      -7,
+                      -8.85,
+                      -10.5
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      -5,
+                      -6,
+                      -7,
+                      -8.85,
+                      -10.5
+                    ]
+                  }
+                ],
+                "scaleStat": "init",
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Veiled Ambush",
+        "sourceName": "Emboscada velada",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              7
+            ],
+            "actions": [
+              {
+                "t": "dmg",
+                "dt": "fire",
+                "pct": [
+                  150,
+                  220,
+                  290,
+                  380,
+                  500
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "most_troops"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Vaeldra": [
+      {
+        "slot": 1,
+        "englishName": "Dragon's Valor",
+        "sourceName": "Valor de dragón",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_received",
+                    "pct": [
+                      -5,
+                      -6,
+                      -7,
+                      -8.5,
+                      -10
+                    ]
+                  },
+                  {
+                    "stat": "str",
+                    "pct": [
+                      8.5,
+                      10.2,
+                      11.9,
+                      14.45,
+                      17
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Ensnare",
+        "sourceName": "Entrampar",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      -18,
+                      -21.6,
+                      -25.2,
+                      -30.6,
+                      -36
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      -18,
+                      -21.6,
+                      -25.2,
+                      -30.6,
+                      -36
+                    ]
+                  }
+                ],
+                "scaleStat": "int",
+                "dur": 3,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 2,
+                  "select": "adjacency"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Tempting Distraction",
+        "sourceName": "Distracción tentadora",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_received",
+                    "pct": [
+                      6,
+                      7.2,
+                      8.4,
+                      10.2,
+                      12
+                    ]
+                  },
+                  {
+                    "stat": "fire_received",
+                    "pct": [
+                      6,
+                      7.2,
+                      8.4,
+                      10.2,
+                      12
+                    ]
+                  }
+                ],
+                "dur": 2,
+                "chance": [
+                  25,
+                  25,
+                  25,
+                  25,
+                  25
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Infernal Force",
+        "sourceName": "Fuerza interior",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_dealt",
+                    "pct": [
+                      12,
+                      14.4,
+                      16.8,
+                      20.4,
+                      24
+                    ]
+                  }
+                ],
+                "dur": 3,
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "prefer_lane:L"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_dealt",
+                    "pct": [
+                      12,
+                      14.4,
+                      16.8,
+                      20.4,
+                      24
+                    ]
+                  }
+                ],
+                "dur": 3,
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "prefer_lane:R"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Siren's Call",
+        "sourceName": "Llamada de sirena",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_received",
+                    "pct": [
+                      -10,
+                      -13,
+                      -16,
+                      -20,
+                      -25
+                    ]
+                  }
+                ],
+                "dur": 3,
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          },
+          {
+            "when": "rounds",
+            "rounds": [
+              1,
+              2,
+              3
+            ],
+            "actions": [
+              {
+                "t": "status",
+                "st": "taunt",
+                "dur": 1,
+                "chance": [
+                  40,
+                  52,
+                  64,
+                  80,
+                  100
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": "all"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Arulix": [
+      {
+        "slot": 1,
+        "englishName": "Hypnotic Helix",
+        "sourceName": "Hélice hipnótica",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1,
+              3,
+              6,
+              8
+            ],
+            "actions": [
+              {
+                "t": "status",
+                "st": "overwhelm",
+                "dur": 2,
+                "chance": [
+                  12.5,
+                  15,
+                  17.5,
+                  21.3,
+                  25
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "prefer_dealer:fire"
+                }
+              }
+            ]
+          },
+          {
+            "when": "rounds",
+            "rounds": [
+              2,
+              4,
+              7,
+              9
+            ],
+            "actions": [
+              {
+                "t": "status",
+                "st": "overwhelm",
+                "dur": 2,
+                "chance": [
+                  12.5,
+                  15,
+                  17.5,
+                  21.3,
+                  25
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "prefer_dealer:physical"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Battle Cunning",
+        "sourceName": "Astucia de batalla",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": [
+                      -4,
+                      -4.8,
+                      -5.6,
+                      -6.8,
+                      -8
+                    ]
+                  },
+                  {
+                    "stat": "int",
+                    "pct": [
+                      -4,
+                      -4.8,
+                      -5.6,
+                      -6.8,
+                      -8
+                    ]
+                  }
+                ],
+                "scaleStat": "inst",
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Spiral Surge",
+        "sourceName": "Oleada espiral",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1,
+              2,
+              3,
+              5,
+              8
+            ],
+            "actions": [
+              {
+                "t": "dmg",
+                "dt": "physical",
+                "pct": [
+                  20,
+                  24,
+                  28,
+                  34,
+                  40
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 2,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Iron Shell",
+        "sourceName": "Coraza de hierro",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_received",
+                    "pct": [
+                      -2.5,
+                      -3,
+                      -3.5,
+                      -4.25,
+                      -5
+                    ]
+                  },
+                  {
+                    "stat": "fire_received",
+                    "pct": [
+                      -2.5,
+                      -3,
+                      -3.5,
+                      -4.25,
+                      -5
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 2,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Mimicry",
+        "sourceName": "Mimetismo",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "copy",
+                "from": "ally",
+                "of": [
+                  "weakened",
+                  "vulnerable"
+                ],
+                "dur": 2,
+                "chance": [
+                  25,
+                  32.5,
+                  40,
+                  50,
+                  62.5
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "any"
+                }
+              },
+              {
+                "t": "copy",
+                "from": "enemy",
+                "of": [
+                  "advantage",
+                  "resistance"
+                ],
+                "dur": 2,
+                "chance": [
+                  25,
+                  32.5,
+                  40,
+                  50,
+                  62.5
+                ],
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Bevlorin": [
+      {
+        "slot": 1,
+        "englishName": "Fire Ward",
+        "sourceName": "Protección de fuego",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_received",
+                    "pct": [
+                      -5,
+                      -6,
+                      -7,
+                      -8.5,
+                      -10
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "adjacency"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_received",
+                    "pct": [
+                      -5,
+                      -6,
+                      -7,
+                      -8.5,
+                      -10
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Dragon's Fury",
+        "sourceName": "Furia de dragón",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_dealt",
+                    "pct": [
+                      4,
+                      4.8,
+                      5.6,
+                      6.8,
+                      8
+                    ]
+                  },
+                  {
+                    "stat": "fire_dealt",
+                    "pct": [
+                      4,
+                      4.8,
+                      5.6,
+                      6.8,
+                      8
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Renewal",
+        "sourceName": "Renovación",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1,
+              3,
+              5,
+              7,
+              9
+            ],
+            "actions": [
+              {
+                "t": "heal",
+                "pct": [
+                  17.5,
+                  21,
+                  24.5,
+                  29.75,
+                  35
+                ],
+                "tgt": {
+                  "side": "ally",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Vital Essence",
+        "sourceName": "Esencia vital",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": [
+                      10,
+                      12,
+                      14,
+                      17,
+                      20
+                    ]
+                  },
+                  {
+                    "stat": "recovery",
+                    "pct": [
+                      15,
+                      18,
+                      21,
+                      25.5,
+                      30
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Bountiful Gifts",
+        "sourceName": "Regalos abundantes",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "each",
+            "chance": 20,
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": [
+                      16,
+                      20.8,
+                      25.6,
+                      32,
+                      40
+                    ]
+                  }
+                ],
+                "scaleStat": "int",
+                "dur": 2,
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "highest_str"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Velar": [
+      {
+        "slot": 1,
+        "englishName": "Strategic Leader",
+        "sourceName": "Líder estratégico",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "tactical_dealt",
+                    "pct": [
+                      10,
+                      12,
+                      14,
+                      17,
+                      20
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "prefer_lane:C"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Quick Reflexes",
+        "sourceName": "Reflejos rápidos",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      16,
+                      19.2,
+                      22.4,
+                      27.2,
+                      32
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      16,
+                      19.2,
+                      22.4,
+                      27.2,
+                      32
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Gales of Power",
+        "sourceName": "Vendaval de poder",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              2,
+              4,
+              6,
+              8
+            ],
+            "actions": [
+              {
+                "t": "status",
+                "st": "first_strike",
+                "dur": 2,
+                "chance": [
+                  12,
+                  14.4,
+                  16.8,
+                  20.4,
+                  24
+                ],
+                "tgt": {
+                  "side": "ally",
+                  "count": 3,
+                  "select": "any"
+                }
+              },
+              {
+                "t": "status",
+                "st": "slow",
+                "dur": 2,
+                "chance": [
+                  12,
+                  14.4,
+                  16.8,
+                  20.4,
+                  24
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Fierce Unity",
+        "sourceName": "Unidad feroz",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": [
+                      5,
+                      6,
+                      7,
+                      8.5,
+                      10
+                    ]
+                  },
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      5,
+                      6,
+                      7,
+                      8.5,
+                      10
+                    ]
+                  }
+                ],
+                "scaleStat": "init",
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Breath of Renewal",
+        "sourceName": "Aliento de renovación",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              2,
+              4,
+              6,
+              8
+            ],
+            "actions": [
+              {
+                "t": "heal",
+                "pct": [
+                  18,
+                  23.4,
+                  28.8,
+                  36,
+                  45
+                ],
+                "tgt": {
+                  "side": "ally",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Feskar": [
+      {
+        "slot": 1,
+        "englishName": "Resilient Bond",
+        "sourceName": "Vínculo resiliente",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_received",
+                    "pct": [
+                      -6.5,
+                      -7.8,
+                      -9.1,
+                      -11.05,
+                      -13
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "adjacency"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_received",
+                    "pct": [
+                      -6.5,
+                      -7.8,
+                      -9.1,
+                      -11.05,
+                      -13
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Insightful Allies",
+        "sourceName": "Aliados perspicaces",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      10,
+                      12,
+                      14,
+                      17,
+                      20
+                    ]
+                  }
+                ],
+                "scaleStat": "inst",
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Emerald Inferno",
+        "sourceName": "Infierno esmeralda",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              3,
+              5,
+              8,
+              10
+            ],
+            "actions": [
+              {
+                "t": "dmg",
+                "dt": "fire",
+                "pct": [
+                  40,
+                  48,
+                  56,
+                  68,
+                  80
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": "all",
+                  "select": "dealer:physical"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Quick-Witted",
+        "sourceName": "Ingenioso",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "int",
+                    "pct": [
+                      16,
+                      19.2,
+                      22.4,
+                      27.2,
+                      32
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      16,
+                      19.2,
+                      22.4,
+                      27.2,
+                      32
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Unyielding Grasp",
+        "sourceName": "Agarre inquebrantable",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "status",
+                "st": "overwhelm",
+                "dur": 3,
+                "chance": [
+                  10,
+                  13,
+                  16,
+                  20,
+                  25
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "prefer_dealer:physical"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Rhysarion": [
+      {
+        "slot": 1,
+        "englishName": "Ebbing Fury",
+        "sourceName": "Furia menguante",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_dealt",
+                    "pct": [
+                      -27.5,
+                      -33,
+                      -38.5,
+                      -46.75,
+                      -55
+                    ]
+                  }
+                ],
+                "dur": 3,
+                "tgt": {
+                  "side": "enemy",
+                  "count": "all"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_dealt",
+                    "pct": [
+                      -27.5,
+                      -33,
+                      -38.5,
+                      -46.75,
+                      -55
+                    ]
+                  }
+                ],
+                "dur": 3,
+                "tgt": {
+                  "side": "ally",
+                  "count": "all"
+                }
+              }
+            ]
+          },
+          {
+            "when": "rounds",
+            "rounds": [
+              4
+            ],
+            "actions": [
+              {
+                "t": "heal",
+                "pct": [
+                  25,
+                  30,
+                  35,
+                  42.5,
+                  50
+                ],
+                "tgt": {
+                  "side": "ally",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Sharp Resolve",
+        "sourceName": "Determinación aguda",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": [
+                      16,
+                      19.2,
+                      22.4,
+                      27.2,
+                      32
+                    ]
+                  },
+                  {
+                    "stat": "int",
+                    "pct": [
+                      16,
+                      19.2,
+                      22.4,
+                      27.2,
+                      32
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Echoing Melody",
+        "sourceName": "Melodía resonante",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              2,
+              5,
+              8
+            ],
+            "actions": [
+              {
+                "t": "heal",
+                "pct": [
+                  60,
+                  72,
+                  84,
+                  102,
+                  120
+                ],
+                "tgt": {
+                  "side": "ally",
+                  "count": 2,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Unbroken Devotion",
+        "sourceName": "Devoción inquebrantable",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "recovery_received",
+                    "pct": [
+                      20,
+                      24,
+                      28,
+                      34,
+                      40
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 2,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Inspiring Melody",
+        "sourceName": "Melodía inspiradora",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "each",
+            "chance": 20,
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "init",
+                    "pct": [
+                      20,
+                      20,
+                      20,
+                      20,
+                      20
+                    ]
+                  }
+                ],
+                "scaleStat": "int",
+                "dur": 3,
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "adjacency"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Solstryker": [
+      {
+        "slot": 1,
+        "englishName": "Steady Erosion",
+        "sourceName": "Erosión constante",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": [
+                      -2,
+                      -2.4,
+                      -2.8,
+                      -3.4,
+                      -4
+                    ]
+                  }
+                ],
+                "scaleStat": "str",
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": "all"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Energy Drain",
+        "sourceName": "Drenado de energía",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": [
+                      -15,
+                      -18,
+                      -21,
+                      -25.5,
+                      -30
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      -15,
+                      -18,
+                      -21,
+                      -25.5,
+                      -30
+                    ]
+                  }
+                ],
+                "scaleStat": "inst",
+                "dur": 3,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 2,
+                  "select": "adjacency"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Oppressive Onslaught",
+        "sourceName": "Arremetida opresiva",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "status",
+                "st": "overwhelm",
+                "dur": 2,
+                "chance": [
+                  10,
+                  12,
+                  14,
+                  17,
+                  20
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Robust Insight",
+        "sourceName": "Perspicacia robusta",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": [
+                      12.5,
+                      15,
+                      17.5,
+                      21.25,
+                      25
+                    ]
+                  },
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      12.5,
+                      15,
+                      17.5,
+                      21.25,
+                      25
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Amplified Drain",
+        "sourceName": "Drenado amplificado",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              4
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": [
+                      -15,
+                      -19.5,
+                      -24,
+                      -30,
+                      -37.5
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      -15,
+                      -19.5,
+                      -24,
+                      -30,
+                      -37.5
+                    ]
+                  }
+                ],
+                "scaleStat": "inst",
+                "dur": 5,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 2,
+                  "select": "adjacency"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Seasmoke": [
+      {
+        "slot": 1,
+        "englishName": "Clever Maneuver",
+        "sourceName": "Maniobra inteligente",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "int",
+                    "pct": [
+                      22,
+                      26.4,
+                      30.8,
+                      37.4,
+                      44
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      12.5,
+                      15,
+                      17.5,
+                      21.25,
+                      25
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "highest:int"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Wind's Favor",
+        "sourceName": "Favor del viento",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "init",
+                    "pct": [
+                      12.5,
+                      15,
+                      17.5,
+                      21.25,
+                      25
+                    ]
+                  }
+                ],
+                "scaleStat": "init",
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 3,
+                  "select": "all"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Infectious Wrath",
+        "sourceName": "Ira infecciosa",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              3,
+              6,
+              9
+            ],
+            "actions": [
+              {
+                "t": "dmg",
+                "dt": "physical",
+                "pct": [
+                  30,
+                  36,
+                  42,
+                  51,
+                  60
+                ],
+                "bonus": {
+                  "cond": "target:panic",
+                  "pct": [
+                    60,
+                    72,
+                    84,
+                    102,
+                    120
+                  ]
+                },
+                "tgt": {
+                  "side": "enemy",
+                  "count": 2,
+                  "select": "adjacency"
+                }
+              },
+              {
+                "t": "stack",
+                "id": "infectious_rage",
+                "max": 3,
+                "mods": [
+                  {
+                    "stat": "recovery_received",
+                    "pct": [
+                      -15,
+                      -18,
+                      -21,
+                      -25.5,
+                      -30
+                    ]
+                  }
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 2,
+                  "select": "adjacency"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Cunning Ferocity",
+        "sourceName": "Ferocidad astuta",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "int",
+                    "pct": [
+                      7.5,
+                      9,
+                      10.5,
+                      12.75,
+                      15
+                    ]
+                  },
+                  {
+                    "stat": "fire_dealt",
+                    "pct": [
+                      5,
+                      6,
+                      7,
+                      8.5,
+                      10
+                    ]
+                  }
+                ],
+                "scaleStat": "inst",
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 2,
+                  "select": "adjacency"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Loyal Bond",
+        "sourceName": "Vínculo leal",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "status",
+                "st": "advantage",
+                "dur": 2,
+                "val": 20,
+                "chance": [
+                  10,
+                  13,
+                  16,
+                  20,
+                  25
+                ],
+                "tgt": {
+                  "side": "ally",
+                  "count": 2,
+                  "select": "most_troops"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_received",
+                    "pct": -20
+                  }
+                ],
+                "dur": 2,
+                "chance": [
+                  10,
+                  13,
+                  16,
+                  20,
+                  25
+                ],
+                "tgt": {
+                  "side": "ally",
+                  "count": 2,
+                  "select": "least_troops"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Sheepstealer": [
+      {
+        "slot": 1,
+        "englishName": "Stolen Flock",
+        "sourceName": "Rebaño robado",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "stack",
+                "id": "stolen_flock",
+                "chance": 0.5,
+                "max": 10,
+                "mods": [
+                  {
+                    "stat": "fire_dealt",
+                    "pct": [
+                      3,
+                      3.6,
+                      4.2,
+                      5.1,
+                      6
+                    ]
+                  }
+                ],
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Dragon's Cunning",
+        "sourceName": "Astucia de dragón",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "int",
+                    "pct": [
+                      16,
+                      19.2,
+                      22.4,
+                      27.2,
+                      32
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      -12,
+                      -14.4,
+                      -16.8,
+                      -20.4,
+                      -24
+                    ]
+                  }
+                ],
+                "scaleStat": "init",
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 2,
+                  "select": "adjacency"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Baited Kill",
+        "sourceName": "Matanza con carnada",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "status",
+                "st": "vulnerable",
+                "val": 20,
+                "dur": 2,
+                "chance": [
+                  25,
+                  30,
+                  35,
+                  42.5,
+                  50
+                ],
+                "bonusChance": {
+                  "cond": "target:healed",
+                  "chance": [
+                    50,
+                    60,
+                    70,
+                    85,
+                    100
+                  ]
+                },
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "prefer_status:prey"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Wary Beast",
+        "sourceName": "Bestia cautelosa",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "recovery_received",
+                    "pct": [
+                      -10,
+                      -12,
+                      -14,
+                      -17,
+                      -20
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 3,
+                  "select": "all"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Savage Claim",
+        "sourceName": "Pretensión salvaje",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "dmg",
+                "dt": "fire",
+                "pct": [
+                  24,
+                  31.2,
+                  38.4,
+                  48,
+                  60
+                ],
+                "bonus": {
+                  "cond": "target:healed",
+                  "pct": [
+                    72,
+                    93.6,
+                    115.2,
+                    144,
+                    180
+                  ]
+                },
+                "onlyIf": "target:prey",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "prefer_status:prey"
+                }
+              },
+              {
+                "t": "heal",
+                "pct": [
+                  10,
+                  13,
+                  16,
+                  20,
+                  25
+                ],
+                "scaleStat": "int",
+                "bonus": {
+                  "cond": "enemy:healed",
+                  "pct": [
+                    30,
+                    39,
+                    48,
+                    60,
+                    75
+                  ]
+                },
+                "onlyIf": "enemy:prey",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Tessarion": [
+      {
+        "slot": 1,
+        "englishName": "Sharpened Beauty",
+        "sourceName": "Belleza agudizada",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "mod",
+                "dur": 1,
+                "tgt": {
+                  "side": "self"
+                },
+                "mods": [
+                  {
+                    "stat": "physical_dealt",
+                    "pct": [
+                      7,
+                      8.4,
+                      9.8,
+                      11.9,
+                      14
+                    ]
+                  },
+                  {
+                    "stat": "fire_dealt",
+                    "pct": [
+                      7,
+                      8.4,
+                      9.8,
+                      11.9,
+                      14
+                    ]
+                  }
+                ],
+                "bonus": {
+                  "cond": [
+                    "self:troops_above_75",
+                    "self:advantage"
+                  ],
+                  "mods": [
+                    {
+                      "stat": "physical_dealt",
+                      "pct": [
+                        14,
+                        16.8,
+                        19.6,
+                        23.8,
+                        28
+                      ]
+                    },
+                    {
+                      "stat": "fire_dealt",
+                      "pct": [
+                        14,
+                        16.8,
+                        19.6,
+                        23.8,
+                        28
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Blazing Leader",
+        "sourceName": "Líder llameante",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_dealt",
+                    "pct": [
+                      10,
+                      12,
+                      14,
+                      17,
+                      20
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "prefer_lane:L"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Molten Armor",
+        "sourceName": "Armadura derretida",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "odd",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_dealt",
+                    "pct": 12
+                  }
+                ],
+                "dur": 2,
+                "chance": [
+                  25,
+                  30,
+                  35,
+                  42.5,
+                  50
+                ],
+                "tgt": {
+                  "side": "self"
+                },
+                "linkNext": true
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_received",
+                    "pct": -12
+                  }
+                ],
+                "dur": 2,
+                "tgt": {
+                  "side": "ally",
+                  "count": 2,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Clever Maneuver",
+        "sourceName": "Maniobra inteligente",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "highest:int"
+                },
+                "mods": [
+                  {
+                    "stat": "int",
+                    "pct": [
+                      18,
+                      21.6,
+                      25.2,
+                      30.6,
+                      36
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      9,
+                      10.8,
+                      12.6,
+                      15.3,
+                      18
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "The Blue Queen",
+        "sourceName": "Reina Azul",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "odd",
+            "actions": [
+              {
+                "t": "mod",
+                "scaleStat": "int",
+                "dur": 2,
+                "chance": [
+                  40,
+                  52,
+                  64,
+                  80,
+                  100
+                ],
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "dealer:fire"
+                },
+                "mods": [
+                  {
+                    "stat": "dmg_received",
+                    "pct": -10
+                  },
+                  {
+                    "stat": "int",
+                    "pct": 15
+                  }
+                ],
+                "bonus": {
+                  "cond": "self:troops_above_75",
+                  "mods": [
+                    {
+                      "stat": "dmg_received",
+                      "pct": -20
+                    },
+                    {
+                      "stat": "int",
+                      "pct": 30
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Caraxes": [
+      {
+        "slot": 1,
+        "englishName": "Battle Dread",
+        "sourceName": "Terror en batalla",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": [
+                      -6.5,
+                      -7.8,
+                      -9.1,
+                      -11.05,
+                      -13
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      -6.5,
+                      -7.8,
+                      -9.1,
+                      -11.05,
+                      -13
+                    ]
+                  }
+                ],
+                "scaleStat": "int",
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Dragon's Flair",
+        "sourceName": "Estilo de dragón",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_dealt",
+                    "pct": [
+                      12.5,
+                      15,
+                      17.5,
+                      21.25,
+                      25
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Crippling Inferno",
+        "sourceName": "Infierno paralizante",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "status",
+                "st": "slow",
+                "dur": 2,
+                "chance": [
+                  10,
+                  12,
+                  14,
+                  17,
+                  20
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 3,
+                  "select": "any"
+                }
+              },
+              {
+                "t": "status",
+                "st": "burn",
+                "dur": 2,
+                "val": 20,
+                "chance": [
+                  10,
+                  12,
+                  14,
+                  17,
+                  20
+                ],
+                "tgt": {
+                  "side": "enemy",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Mass Enfeeble",
+        "sourceName": "Enflaquecimiento masivo",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "physical_dealt",
+                    "pct": [
+                      -5.5,
+                      -6.6,
+                      -7.7,
+                      -9.35,
+                      -11
+                    ],
+                    "exceptBasic": true
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 3,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Blood Wyrm",
+        "sourceName": "Anfíptero de sangre",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_dealt",
+                    "pct": [
+                      8,
+                      10.4,
+                      12.8,
+                      16,
+                      20
+                    ]
+                  }
+                ],
+                "dur": 1,
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Malachite": [
+      {
+        "slot": 1,
+        "englishName": "Forest's Instinct",
+        "sourceName": "Instinto del bosque",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "mod",
+                "chance": 0.35,
+                "dur": 2,
+                "tgt": {
+                  "side": "ally",
+                  "count": 2,
+                  "select": "any"
+                },
+                "mods": [
+                  {
+                    "stat": "physical_dealt",
+                    "pct": [
+                      8,
+                      9.6,
+                      11.2,
+                      13.6,
+                      16
+                    ],
+                    "exceptBasic": true
+                  },
+                  {
+                    "stat": "tactical_received",
+                    "pct": [
+                      -8,
+                      -9.6,
+                      -11.2,
+                      -13.6,
+                      -16
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Wise Vigor",
+        "sourceName": "Vigor sabio",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                },
+                "mods": [
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      20,
+                      24,
+                      28,
+                      34,
+                      40
+                    ]
+                  },
+                  {
+                    "stat": "recovery",
+                    "pct": [
+                      20,
+                      24,
+                      28,
+                      34,
+                      40
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Thunderous Roar",
+        "sourceName": "Rugido atronador",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "status",
+                "st": "advantage",
+                "val": 20,
+                "dur": 2,
+                "chance": [
+                  10,
+                  12,
+                  14,
+                  17,
+                  20
+                ],
+                "tgt": {
+                  "side": "ally",
+                  "count": 2,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Collective Might",
+        "sourceName": "Poder colectivo",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": [
+                      12.5,
+                      15,
+                      17.5,
+                      21.25,
+                      25
+                    ]
+                  }
+                ],
+                "scaleStat": "str",
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 3,
+                  "select": "all"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Lightning Strike",
+        "sourceName": "Relámpago",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "status",
+                "st": "first_strike",
+                "dur": 3,
+                "chance": [
+                  40,
+                  52,
+                  64,
+                  80,
+                  100
+                ],
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "adjacency"
+                },
+                "linkNext": true
+              },
+              {
+                "t": "status",
+                "st": "double_strike",
+                "dur": 3,
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "linked"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": 25
+                  }
+                ],
+                "scaleStat": "inst",
+                "dur": 3,
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "linked"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Syrax": [
+      {
+        "slot": 1,
+        "englishName": "Mindful Synergy",
+        "sourceName": "Sinergia consciente",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "scaleStat": "init",
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 3,
+                  "select": "all"
+                },
+                "mods": [
+                  {
+                    "stat": "int",
+                    "pct": [
+                      6.5,
+                      7.8,
+                      9.1,
+                      11.05,
+                      13
+                    ]
+                  },
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      6.5,
+                      7.8,
+                      9.1,
+                      11.05,
+                      13
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Flight Mastery",
+        "sourceName": "Maestría de vuelo",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "init",
+                    "pct": [
+                      6,
+                      7.2,
+                      8.4,
+                      10.2,
+                      12
+                    ]
+                  }
+                ],
+                "scaleStat": "inst",
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 3,
+                  "select": "all"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "init",
+                    "pct": [
+                      -6,
+                      -7.2,
+                      -8.4,
+                      -10.2,
+                      -12
+                    ]
+                  }
+                ],
+                "scaleStat": "inst",
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 3,
+                  "select": "all"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Strategic Revival",
+        "sourceName": "Reanimación estratégica",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              2,
+              5,
+              8
+            ],
+            "actions": [
+              {
+                "t": "heal",
+                "pct": [
+                  50,
+                  60,
+                  70,
+                  85,
+                  100
+                ],
+                "scaleStat": "init",
+                "bonus": {
+                  "cond": "enemy:slow",
+                  "pct": [
+                    75,
+                    90,
+                    105,
+                    127.5,
+                    150
+                  ]
+                },
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "least_troops"
+                },
+                "linkNext": true
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_received",
+                    "pct": -20
+                  }
+                ],
+                "dur": 2,
+                "chance": [
+                  40,
+                  52,
+                  64,
+                  80,
+                  100
+                ],
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "linked"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Tactical Inferno",
+        "sourceName": "Infierno táctico",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "tactical_dealt",
+                    "pct": [
+                      18,
+                      21.6,
+                      25.2,
+                      30.6,
+                      36
+                    ]
+                  }
+                ],
+                "dur": 3,
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "prefer_lane:L"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_dealt",
+                    "pct": [
+                      18,
+                      21.6,
+                      25.2,
+                      30.6,
+                      36
+                    ]
+                  }
+                ],
+                "dur": 3,
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "prefer_lane:R"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Mother's Mercy",
+        "sourceName": "Misericordia de la madre",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "cleanse",
+                "n": 3,
+                "chance": [
+                  14,
+                  18.2,
+                  22.4,
+                  28,
+                  35
+                ],
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "any"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Vermax": [
+      {
+        "slot": 1,
+        "englishName": "Trial by Flame",
+        "sourceName": "Juicio por fuego",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_received",
+                    "pct": [
+                      -5,
+                      -6,
+                      -7,
+                      -8.5,
+                      -10
+                    ]
+                  }
+                ],
+                "dur": 1,
+                "onlyIf": "target:troops_below_75",
+                "tgt": {
+                  "side": "ally",
+                  "count": "all"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_received",
+                    "pct": [
+                      -5,
+                      -6,
+                      -7,
+                      -8.5,
+                      -10
+                    ]
+                  }
+                ],
+                "dur": 1,
+                "onlyIf": "target:troops_below_50",
+                "tgt": {
+                  "side": "ally",
+                  "count": "all"
+                }
+              },
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_received",
+                    "pct": [
+                      -5,
+                      -6,
+                      -7,
+                      -8.5,
+                      -10
+                    ]
+                  }
+                ],
+                "dur": 1,
+                "onlyIf": "target:troops_below_25",
+                "tgt": {
+                  "side": "ally",
+                  "count": "all"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Reactive Instincts",
+        "sourceName": "Instinto reactivo",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "scaleStat": "str",
+                "dur": "combat",
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "highest:inst"
+                },
+                "mods": [
+                  {
+                    "stat": "inst",
+                    "pct": [
+                      18,
+                      21.6,
+                      25.2,
+                      30.6,
+                      36
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      9,
+                      10.8,
+                      12.6,
+                      15.3,
+                      18
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Rallying Flame",
+        "sourceName": "Llama unificadora",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "stack",
+                "id": "unifying_flame",
+                "chance": [
+                  50,
+                  60,
+                  70,
+                  85,
+                  100
+                ],
+                "max": 4,
+                "mods": [
+                  {
+                    "stat": "physical_dealt",
+                    "pct": 5
+                  }
+                ],
+                "tgt": {
+                  "side": "self"
+                }
+              },
+              {
+                "t": "stack",
+                "id": "rallying",
+                "chance": [
+                  50,
+                  60,
+                  70,
+                  85,
+                  100
+                ],
+                "max": 10,
+                "mods": [
+                  {
+                    "stat": "tactical_dealt",
+                    "pct": 2.5
+                  }
+                ],
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "dealer:tactical"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Dragon's Valor",
+        "sourceName": "Valor de dragón",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                },
+                "mods": [
+                  {
+                    "stat": "dmg_received",
+                    "pct": [
+                      -5,
+                      -6,
+                      -7,
+                      -8.5,
+                      -10
+                    ]
+                  },
+                  {
+                    "stat": "str",
+                    "pct": [
+                      8.5,
+                      10.2,
+                      11.9,
+                      14.45,
+                      17
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Unyielding Resolve",
+        "sourceName": "Determinación firme",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "status",
+                "st": "advantage",
+                "val": 15,
+                "dur": 2,
+                "chance": [
+                  20,
+                  26,
+                  32,
+                  40,
+                  50
+                ],
+                "bonusChance": {
+                  "cond": "self:weakened",
+                  "chance": [
+                    30,
+                    39,
+                    48,
+                    60,
+                    75
+                  ]
+                },
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Tairax": [
+      {
+        "slot": 1,
+        "englishName": "Whisper of Ash",
+        "sourceName": "Susurro de ceniza",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "str",
+                    "pct": [
+                      -16,
+                      -19.2,
+                      -22.4,
+                      -27.2,
+                      -32
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      -16,
+                      -19.2,
+                      -22.4,
+                      -27.2,
+                      -32
+                    ]
+                  }
+                ],
+                "scaleStat": "int",
+                "dur": 5,
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "same_lane"
+                }
+              }
+            ]
+          },
+          {
+            "when": "rounds",
+            "rounds": [
+              6
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "int",
+                    "pct": [
+                      16,
+                      19.2,
+                      22.4,
+                      27.2,
+                      32
+                    ]
+                  },
+                  {
+                    "stat": "init",
+                    "pct": [
+                      16,
+                      19.2,
+                      22.4,
+                      27.2,
+                      32
+                    ]
+                  }
+                ],
+                "dur": 5,
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Sunder",
+        "sourceName": "Fractura",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "status",
+                "st": "vulnerable",
+                "val": [
+                  7.5,
+                  9,
+                  10.5,
+                  12.75,
+                  15
+                ],
+                "dur": 1,
+                "onlyIf": "target:control",
+                "tgt": {
+                  "side": "enemy",
+                  "count": "all",
+                  "select": "all"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "Gleamstrike",
+        "sourceName": "Ataque destellante",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "cmd_chance",
+                "st": "stagger",
+                "val": [
+                  37.5,
+                  40,
+                  42.5,
+                  46.25,
+                  50
+                ],
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          },
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "dmg",
+                "dt": "fire",
+                "pct": [
+                  20,
+                  24,
+                  28,
+                  34,
+                  40
+                ],
+                "onlyIf": "target:control",
+                "tgt": {
+                  "side": "enemy",
+                  "count": "all",
+                  "select": "all"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Gift of Fire",
+        "sourceName": "Don de fuego",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "odd",
+            "actions": [
+              {
+                "t": "status",
+                "st": "resistance",
+                "val": 15,
+                "dur": 2,
+                "chance": [
+                  17.5,
+                  21,
+                  24.5,
+                  29.75,
+                  35
+                ],
+                "onlyIf": "enemy:burn",
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "prefer_not_status:resistance"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Moonlit Hunt",
+        "sourceName": "Caza a luz de luna",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "rounds",
+            "rounds": [
+              1
+            ],
+            "actions": [
+              {
+                "t": "status",
+                "st": "evade",
+                "val": [
+                  0.05,
+                  0.065,
+                  0.08,
+                  0.1,
+                  0.125
+                ],
+                "dur": 5,
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          },
+          {
+            "when": "rounds",
+            "rounds": [
+              6
+            ],
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_dealt",
+                    "pct": [
+                      12,
+                      15.6,
+                      19.2,
+                      24,
+                      30
+                    ]
+                  }
+                ],
+                "dur": 5,
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Sunfyre": [
+      {
+        "slot": 1,
+        "englishName": "Radiant Majesty",
+        "sourceName": "Majestad radiante",
+        "sourceLocale": "es",
+        "unlockStar": 2,
+        "parts": [
+          {
+            "when": "each",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_dealt",
+                    "pct": [
+                      5,
+                      6,
+                      7,
+                      8.5,
+                      10
+                    ]
+                  }
+                ],
+                "dur": 1,
+                "tgt": {
+                  "side": "ally",
+                  "count": 1,
+                  "select": "most_troops"
+                }
+              }
+            ]
+          },
+          {
+            "when": "each",
+            "selfCond": "troops_below_75",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_dealt",
+                    "pct": [
+                      5,
+                      6,
+                      7,
+                      8.5,
+                      10
+                    ]
+                  }
+                ],
+                "dur": 1,
+                "tgt": {
+                  "side": "ally",
+                  "count": 2,
+                  "select": "most_troops"
+                }
+              }
+            ]
+          },
+          {
+            "when": "each",
+            "selfCond": "troops_below_50",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_dealt",
+                    "pct": [
+                      5,
+                      6,
+                      7,
+                      8.5,
+                      10
+                    ]
+                  }
+                ],
+                "dur": 1,
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 2,
+        "englishName": "Extinguish",
+        "sourceName": "Extinguir",
+        "sourceLocale": "es",
+        "unlockStar": 4,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_dealt",
+                    "pct": [
+                      -13.5,
+                      -16.2,
+                      -18.9,
+                      -22.95,
+                      -27
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "enemy",
+                  "count": 1,
+                  "select": "dealer:fire"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 3,
+        "englishName": "The King's Ire",
+        "sourceName": "Ira del rey",
+        "sourceLocale": "es",
+        "unlockStar": 6,
+        "parts": [
+          {
+            "when": "on_ally_damaged",
+            "branches": {
+              "fire": [
+                {
+                  "t": "dmg",
+                  "dt": "tactical",
+                  "pct": [
+                    50,
+                    60,
+                    70,
+                    85,
+                    100
+                  ],
+                  "linkNext": true,
+                  "tgt": {
+                    "side": "enemy",
+                    "count": 1,
+                    "select": "dealer:fire"
+                  }
+                },
+                {
+                  "t": "mod",
+                  "mods": [
+                    {
+                      "stat": "int",
+                      "pct": [
+                        -15,
+                        -18,
+                        -21,
+                        -25.5,
+                        -30
+                      ]
+                    }
+                  ],
+                  "scaleStat": "inst",
+                  "dur": 2,
+                  "tgt": {
+                    "side": "enemy",
+                    "count": 1,
+                    "select": "linked"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "slot": 4,
+        "englishName": "Unbroken Splendor",
+        "sourceName": "Esplendor inquebrantable",
+        "sourceLocale": "es",
+        "unlockStar": 8,
+        "parts": [
+          {
+            "when": "combat_start",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "fire_received",
+                    "pct": [
+                      -7.5,
+                      -9,
+                      -10.5,
+                      -12.75,
+                      -15
+                    ]
+                  }
+                ],
+                "dur": "combat",
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          },
+          {
+            "when": "each",
+            "selfCond": "troops_below_50",
+            "actions": [
+              {
+                "t": "mod",
+                "mods": [
+                  {
+                    "stat": "dmg_received",
+                    "pct": [
+                      -7.5,
+                      -9,
+                      -10.5,
+                      -12.75,
+                      -15
+                    ]
+                  }
+                ],
+                "dur": 1,
+                "tgt": {
+                  "side": "self"
+                }
+              },
+              {
+                "t": "purge",
+                "chance": [
+                  25,
+                  30,
+                  35,
+                  42.5,
+                  50
+                ],
+                "tgt": {
+                  "side": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slot": 5,
+        "englishName": "Adaptive Glory",
+        "sourceName": "Gloria adaptable",
+        "sourceLocale": "es",
+        "unlockStar": 10,
+        "parts": [
+          {
+            "when": "on_damaged",
+            "branches": {
+              "fire": [
+                {
+                  "t": "heal",
+                  "pct": [
+                    30,
+                    39,
+                    48,
+                    60,
+                    75
+                  ],
+                  "scaleStat": "inst",
+                  "tgt": {
+                    "side": "self"
+                  }
+                }
+              ],
+              "tactical": [
+                {
+                  "t": "mod",
+                  "mods": [
+                    {
+                      "stat": "dmg_dealt",
+                      "pct": [
+                        12,
+                        15.6,
+                        19.2,
+                        24,
+                        30
+                      ]
+                    }
+                  ],
+                  "dur": 1,
+                  "tgt": {
+                    "side": "ally",
+                    "count": 1,
+                    "select": "most_troops"
+                  }
+                }
+              ],
+              "physical": [
+                {
+                  "t": "mod",
+                  "mods": [
+                    {
+                      "stat": "dmg_dealt",
+                      "pct": [
+                        -12,
+                        -15.6,
+                        -19.2,
+                        -24,
+                        -30
+                      ]
+                    }
+                  ],
+                  "dur": 1,
+                  "tgt": {
+                    "side": "enemy",
+                    "count": 1,
+                    "select": "most_troops"
+                  }
+                }
+              ],
+              "basic": [
+                {
+                  "t": "mod",
+                  "mods": [
+                    {
+                      "stat": "inst",
+                      "pct": [
+                        12,
+                        15.6,
+                        19.2,
+                        24,
+                        30
+                      ]
+                    },
+                    {
+                      "stat": "init",
+                      "pct": [
+                        6,
+                        7.8,
+                        9.6,
+                        12,
+                        15
+                      ]
+                    }
+                  ],
+                  "dur": 1,
+                  "tgt": {
+                    "side": "self"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

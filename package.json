@@ -1,11 +1,13 @@
 {
   "name": "dragonfire-war-council",
   "private": true,
-  "version": "0.14.0",
+  "version": "0.15.0",
   "type": "module",
   "scripts": {
-    "sync:data": "node scripts/sync-dragon-data.mjs && node scripts/sync-mechanics-data.mjs",
+    "sync:data": "node scripts/sync-dragon-data.mjs && node scripts/sync-mechanics-data.mjs && node scripts/sync-community-habits.mjs",
     "sync:mechanics": "node scripts/sync-mechanics-data.mjs",
+    "sync:habits": "node scripts/sync-community-habits.mjs",
+    "report:mechanics": "node scripts/report-mechanics-gaps.mjs",
     "check:data": "node scripts/validate-dragon-data.mjs",
     "check": "npm run check:data && node --check simulation-engine.js && node --check product.js && node scripts/check-simulation-engine.mjs && node scripts/check-team-builder-scenario.mjs"
   },

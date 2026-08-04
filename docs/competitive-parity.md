@@ -10,7 +10,7 @@ Dragonfire War Council should match the useful workflow of established Dragonfir
 | Combat engine | Claimed round-by-round calibration from game captures | Seeded prototype with incomplete formulas | Highest-priority rebuild |
 | Formation search | Thousands of lineups, lanes, and troop combinations | Core-dragon exhaustive partner/lane/troop search plus disjoint multi-army heuristic | Run the real engine inside both search paths |
 | Scenarios | PvP, PvE, and Siege | PvP prototype plus budget Siege allocation | Add scenario-specific rules and benchmarks |
-| Dragon mechanics | Stats, Orders, Vanguards, affinities, Habits | Cross-checked base stats, complete English Command/Vanguard text, affinities, partial Habit model | Structure and verify every effect |
+| Dragon mechanics | Stats, Orders, Vanguards, affinities, Habits | Cross-checked base stats, complete English Command/Vanguard text, affinities, 165/165 sourced and executable Habit tables | Validate formulas and reactive timing |
 | Results | Win rate, best troop, upgrade priority | Prototype outcome rate and explainable heuristic reasons | Add confidence intervals, counters, and marginal upgrade value |
 | Rankings | Computed tier list | Publication-gated Data Lab | Keep the gate; publish only after calibration |
 | Persistence | Browser and optional cloud | Browser-local JSON import/export and saved teams | Keep private default; add optional account sync later |
@@ -30,7 +30,7 @@ Dragonfire War Council should match the useful workflow of established Dragonfir
 
 ### P0: credible combat data
 
-1. Encode all 33 Orders/Commands, 33 Vanguards, and 165 Habits as structured effects.
+1. Keep all 33 Orders/Commands, 33 Vanguards, and 165 Habit datasets versioned; move remaining hand-coded Commands and Vanguards into the declarative interpreter.
 2. Store the official English name separately from localized source text. Never produce an English name through literal translation when a sourced English label exists.
 3. Derive Strength, Instinct, Intelligence, Initiative, Power, and troop capacity from level, rarity, Stars, and account modifiers.
 4. Add versioned fixtures from anonymized battle captures and fit each formula against observed results.

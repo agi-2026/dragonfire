@@ -6,7 +6,7 @@
   };
   const battleOverrides = { a: null, b: null };
   const SAVED_FORMATIONS_KEY = "dragonfire-saved-formations-v1";
-  const CATALOG_URL = "/data/dragon-catalog.v1.json?v=2";
+  const CATALOG_URL = "/data/dragon-catalog.v1.json?v=3";
   let canonicalCatalog = null;
   let canonicalCatalogError = null;
   let canonicalByName = new Map();
@@ -822,7 +822,7 @@
         <div class="result-side ${stronger === "B" ? "winner" : ""}"><small>FORMATION B · ${TROOPS[result.troopB]}</small><h3>${stronger === "B" ? "Favored" : stronger === "draw" ? "Even" : "Underdog"}</h3><div class="formation-names">${esc(teamLabel(result.teamB.map((dragon, lane) => ({ dragon, lane }))))}</div></div>
       </div>
       <div class="result-stats"><div class="stat"><b>${rateA.toFixed(1)} / ${rateB.toFixed(1)}</b><span>A / B win percentage</span></div><div class="stat"><b>${(result.totalRounds / result.count).toFixed(1)}</b><span>Average rounds</span></div><div class="stat"><b>${(result.healthA / result.count * 100).toFixed(0)}% / ${(result.healthB / result.count * 100).toFixed(0)}%</b><span>Average health A / B</span></div><div class="stat"><b>${result.draws}</b><span>Draws in ${result.count}</span></div></div>
-      <div class="assumption-bar"><b>Engine v${window.DragonfireSimulation.VERSION}:</b> real base attributes, Power progression, troop affinity, lane targeting, structured Commands and Vanguard effects, known Habits, statuses, durations, and seeded variance are modeled. Unknown Habits are neutral; damage curves still require battle-log calibration. Formation A coverage: ${window.DragonfireSimulation.coverage(result.teamA).known}/${window.DragonfireSimulation.coverage(result.teamA).total}. Seed: <code>${esc(result.seedText)}</code>.</div>
+      <div class="assumption-bar"><b>Engine v${window.DragonfireSimulation.VERSION}:</b> base attributes, Power progression, troop affinity, lane targeting, structured Commands and Vanguard effects, and community-sourced Habit mechanics are modeled. Habit data is not official verification; damage and progression curves still require battle-report calibration. Formation A executable coverage: ${window.DragonfireSimulation.coverage(result.teamA).known}/${window.DragonfireSimulation.coverage(result.teamA).total}. Seed: <code>${esc(result.seedText)}</code>.</div>
     </section><section class="panel combat-log"><div class="combat-log-head"><h3>Representative battle log</h3><span class="count">Run 1 of ${result.count}</span></div>${log}</section>`;
     document.querySelector("#battleResults").scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -853,7 +853,7 @@
       ["Cross-checked attributes", `${dragons.length * 4}/132`, "Every level-one stat agrees across two community datasets", dragons.length / 33],
       ["Structured Commands", `${structured.commands}/33`, "All sourced Commands execute through explicit round triggers, targets, damage types, and statuses", structured.commands / 33],
       ["Structured Vanguards", `${structured.vanguards}/33`, "Vanguard effects apply only from the center lane to their stated flank targets", structured.vanguards / 33],
-      ["Structured Habits", `${structured.habits}/165`, "Known level scaling is modeled; every other Habit stays neutral and visible as missing coverage", structured.habits / 165],
+      ["Sourced Habit mechanics", `${structured.habitData}/165 sourced, ${structured.habits} running`, "All rank tables and trigger forms execute; calibration remains community-derived", structured.habits / 165],
     ].map(([label, value, copy, progress]) => `<article class="panel evidence-milestone"><span>${esc(label)}</span><b>${esc(value)}</b><p>${esc(copy)}</p><div><i style="width:${Math.round(progress * 100)}%"></i></div></article>`).join("");
   }
 
@@ -872,7 +872,7 @@
     document.querySelector("#rankingsBody").innerHTML = rows.map((dragon, index) => {
       const rosterDragon = DEFAULT_ROSTER.find((item) => item.name === dragon.name);
       const mechanicCount = 2 + dragon.habits.filter((habit, habitIndex) => window.DragonfireSimulation.isHabitEncoded(dragon.name, habitIndex)).length;
-      return `<tr><td class="rank-num">${index + 1}</td><td><span class="rank-dragon">${rosterDragon ? dragonAvatar(rosterDragon,"rank-avatar") : ""}<span><b>${esc(dragon.name)}</b><small>${esc(dragon.rarity)} · ${esc(dragon.breed)} · Lv1 base</small></span></span></td><td><b class="base-stat str">${dragon.baseStats.strength}</b></td><td><b class="base-stat inst">${dragon.baseStats.instinct}</b></td><td><b class="base-stat int">${dragon.baseStats.intelligence}</b></td><td><b class="base-stat init">${dragon.baseStats.initiative}</b></td><td><span class="mechanic-coverage sourced">2/2 ability texts</span><small class="coverage-detail">${mechanicCount}/7 effects encoded</small></td><td><span class="source-stack"><a class="source-link" href="https://wyrmtable.com/dragons" target="_blank" rel="noreferrer">Stats ↗</a><a class="source-link" href="https://dragonfire-hub.com/" target="_blank" rel="noreferrer">Abilities ↗</a></span></td></tr>`;
+      return `<tr><td class="rank-num">${index + 1}</td><td><span class="rank-dragon">${rosterDragon ? dragonAvatar(rosterDragon,"rank-avatar") : ""}<span><b>${esc(dragon.name)}</b><small>${esc(dragon.rarity)} · ${esc(dragon.breed)} · Lv1 base</small></span></span></td><td><b class="base-stat str">${dragon.baseStats.strength}</b></td><td><b class="base-stat inst">${dragon.baseStats.instinct}</b></td><td><b class="base-stat int">${dragon.baseStats.intelligence}</b></td><td><b class="base-stat init">${dragon.baseStats.initiative}</b></td><td><span class="mechanic-coverage sourced">7/7 effect datasets</span><small class="coverage-detail">${mechanicCount}/7 executable</small></td><td><span class="source-stack"><a class="source-link" href="https://wyrmtable.com/dragons" target="_blank" rel="noreferrer">Stats ↗</a><a class="source-link" href="https://dragonfire-hub.com/" target="_blank" rel="noreferrer">Abilities ↗</a><a class="source-link" href="https://dragonfiresim.com/" target="_blank" rel="noreferrer">Habit model ↗</a></span></td></tr>`;
     }).join("") || `<tr><td colspan="8">No dragons match these filters.</td></tr>`;
   }
 
@@ -939,7 +939,7 @@
     button.disabled = true;
     status.textContent = "Sending…";
     try {
-      const response = await fetch("/api/contribute-roster", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modelVersion: "0.12.0", consentVersion: "2026-07-29", roster: active }) });
+      const response = await fetch("/api/contribute-roster", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modelVersion: "0.15.0", consentVersion: "2026-07-29", roster: active }) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Contribution service is not connected yet");
       status.textContent = "Thank you — snapshot received.";

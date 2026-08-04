@@ -1,23 +1,36 @@
 (function (global) {
   "use strict";
 
-  const VERSION = "0.14.0";
+  const VERSION = "0.15.0";
   const POSITIONS = ["Left flank", "Vanguard", "Right flank"];
   const COMMAND_NAMES = new Set([
     "Caraxes", "Crimson", "Kalspire", "Malachite", "Seasmoke", "Sheepstealer", "Sunfyre", "Syrax", "Venator", "Vhagar",
     "Daemoros", "Feskar", "Rhysarion", "Shadowsong", "Tairax", "Tashix", "Tessarion", "Vaeldra", "Velar", "Vermax", "Zivern",
     "Antares", "Arrax", "Arulix", "Bevlorin", "Dawnseeker", "Jagadrix", "Nyrena", "Shadowrend", "Shimmer", "Solstryker", "Thunderstrike", "Vesper",
   ]);
-  const HABIT_NAMES = new Set([
-    "Vhagar:0", "Vhagar:1", "Venator:1", "Kalspire:0", "Caraxes:0",
-    "Syrax:0", "Tessarion:0", "Tessarion:1", "Vaeldra:0", "Shadowsong:0", "Zivern:0",
-  ]);
+  const HABIT_NAMES = new Set();
   const VANGUARD_NAMES = new Set(COMMAND_NAMES);
+  const SUPPORTED_HABIT_TRIGGERS = new Set(["combat_start", "each", "rounds", "odd", "on_damaged", "on_ally_damaged"]);
+  const SUPPORTED_HABIT_ACTIONS = new Set(["mod", "dmg", "status", "heal", "stack", "copy", "cleanse", "cmd_chance", "purge"]);
   let catalog = new Map();
+
+  function isHabitDefinitionExecutable(habit) {
+    return Array.isArray(habit?.effects) && habit.effects.length > 0 && habit.effects.every((part) => {
+      if (!SUPPORTED_HABIT_TRIGGERS.has(part.when)) return false;
+      const actions = Array.isArray(part.actions) ? part.actions : Object.values(part.branches || {}).flat();
+      return actions.length > 0 && actions.every((action) => SUPPORTED_HABIT_ACTIONS.has(action.t));
+    });
+  }
 
   function configureCatalog(value) {
     const dragons = Array.isArray(value) ? value : value?.dragons;
-    if (Array.isArray(dragons)) catalog = new Map(dragons.map((dragon) => [dragon.name, dragon]));
+    if (Array.isArray(dragons)) {
+      catalog = new Map(dragons.map((dragon) => [dragon.name, dragon]));
+      HABIT_NAMES.clear();
+      dragons.forEach((dragon) => dragon.habits?.forEach((habit, index) => {
+        if (isHabitDefinitionExecutable(habit)) HABIT_NAMES.add(`${dragon.name}:${index}`);
+      }));
+    }
   }
 
   function hashSeed(text) {
@@ -80,8 +93,11 @@
       affinity, initiative: stats.initiative,
       dealt: { physical: 1, tactical: 1, fire: 1, all: 1 },
       received: { physical: 1, tactical: 1, fire: 1, all: 1 },
+      commandDealt: { physical: 1, tactical: 1, fire: 1, all: 1 },
+      commandReceived: { physical: 1, tactical: 1, fire: 1, all: 1 },
       recoveryMultiplier: 1, recoveryReceived: 1,
-      statuses: {}, stacks: {}, lastRecoveredRound: -99,
+      statuses: {}, stacks: {}, temporaryMods: [], cmdChance: {}, lastRecoveredRound: -99,
+      reactedThisRound: false, allyReactedThisRound: false, allies: null, enemies: null,
     };
   }
 
@@ -104,35 +120,48 @@
     return sameLane(attacker, enemies) || weakest(enemies);
   }
 
-  function status(target, name, rounds, value = true) {
+  function status(target, name, rounds, value = true, caster = null) {
     const current = target.statuses[name];
-    if (!current || current.rounds < rounds) target.statuses[name] = { rounds, value };
+    if (!current || current.rounds < rounds) target.statuses[name] = { rounds, value: name === "taunt" && caster ? caster : value, caster };
   }
+
+  function statusMagnitude(effect, fallback) { return typeof effect?.value === "number" ? effect.value : fallback; }
 
   function defenseStat(type) {
-    return type === "physical" ? "strength" : type === "fire" ? "intelligence" : "instinct";
+    return type === "physical" ? "instinct" : type === "fire" ? "initiative" : "intelligence";
   }
 
-  function deal(attacker, targets, type, coefficient, random, log, round, label = "Command") {
+  function deal(attacker, targets, type, coefficient, random, log, round, label = "Command", suppressReactive = false) {
     const list = (Array.isArray(targets) ? targets : [targets]).filter((target) => target?.alive);
     for (const target of list) {
+      const evasion = target.statuses.evade;
+      if (evasion && random() < statusMagnitude(evasion, 0.30)) {
+        addEvent(log, round, `${target.dragon.name} evades ${attacker.dragon.name}'s attack.`, "status");
+        continue;
+      }
       const attack = attacker.stats[type === "physical" ? "strength" : type === "fire" ? "intelligence" : "instinct"];
       const defense = target.stats[defenseStat(type)];
       const statCurve = Math.max(0.62, Math.min(1.55, attack / Math.max(1, defense)));
       const powerScale = Math.sqrt(Math.max(1, Number(attacker.dragon.power) || 1) / 30000);
       const panic = attacker.statuses.panic ? 0.8 : 1;
-      const vulnerable = target.statuses.vulnerable ? 1 + target.statuses.vulnerable.value : 1;
-      const weakened = attacker.statuses.weakened ? 0.85 : 1;
+      const vulnerable = target.statuses.vulnerable ? 1 + statusMagnitude(target.statuses.vulnerable, 0.10) : 1;
+      const resistance = target.statuses.resistance ? 1 - statusMagnitude(target.statuses.resistance, 0.10) : 1;
+      const weakened = attacker.statuses.weakened ? 1 - statusMagnitude(attacker.statuses.weakened, 0.15) : 1;
+      const advantage = attacker.statuses.advantage ? 1 + statusMagnitude(attacker.statuses.advantage, 0.15) : 1;
       const variance = 0.96 + random() * 0.08;
       const tessarionRank = attacker.dragon.name === "Tessarion" ? habitRank(attacker.dragon, 0) : 0;
       const sharpened = tessarionRank && ["physical", "fire"].includes(type) ? 1 + rankAt([0.07, 0.084, 0.098, 0.119, 0.14], tessarionRank) * (attacker.hp / attacker.maxHp > 0.75 || attacker.statuses.advantage ? 2 : 1) : 1;
-      const amount = 155 * coefficient * powerScale * statCurve * attacker.affinity * attacker.dealt.all * attacker.dealt[type] * target.received.all * target.received[type] * panic * vulnerable * weakened * sharpened * variance;
+      const isBasic = label === "Basic";
+      const commandDealt = isBasic ? 1 : attacker.commandDealt.all * attacker.commandDealt[type];
+      const commandReceived = isBasic ? 1 : target.commandReceived.all * target.commandReceived[type];
+      const amount = 155 * coefficient * powerScale * statCurve * attacker.affinity * attacker.dealt.all * attacker.dealt[type] * commandDealt * target.received.all * target.received[type] * commandReceived * panic * vulnerable * resistance * weakened * advantage * sharpened * variance;
       target.hp = Math.max(0, target.hp - amount);
       addEvent(log, round, `${attacker.dragon.name} ${label === "Basic" ? "hits" : "uses " + label + " on"} ${target.dragon.name} for ${Math.round(amount).toLocaleString()} ${type} damage.`, label === "Basic" ? "" : "command");
       if (target.hp <= 0) {
         target.alive = false;
         addEvent(log, round, `${target.dragon.name} is defeated.`, "ko");
       }
+      if (amount > 0 && !suppressReactive) triggerReactiveHabits(target, label === "Basic" ? "basic" : type, round, random, log);
     }
   }
 
@@ -173,48 +202,214 @@
     addEvent(log, 0, `${name}'s Vanguard effect is applied to its actual lane targets.`, "status");
   }
 
-  function applyHabits(team, enemies, log) {
+  const STAT_KEYS = { str: "strength", inst: "instinct", int: "intelligence", init: "initiative" };
+  const STATUS_KEYS = { first_strike: "firstStrike", double_strike: "doubleStrike" };
+  const HABIT_SCALE_DIVISOR = 2470;
+
+  function ranked(value, rank) { return Array.isArray(value) ? rankAt(value, rank) : value; }
+  function probability(value, rank) {
+    const selected = Number(ranked(value ?? 1, rank));
+    return selected > 1 ? selected / 100 : selected;
+  }
+  function healthRatio(fighter) { return fighter.hp / Math.max(1, fighter.maxHp); }
+  function hasStatus(fighter, name) { return Boolean(fighter?.statuses?.[STATUS_KEYS[name] || name]); }
+  function conditionMet(condition, source, target, allies, enemies) {
+    if (!condition) return true;
+    if (Array.isArray(condition)) return condition.some((item) => conditionMet(item, source, target, allies, enemies));
+    if (condition === "troops_below_50" || condition === "self:troops_below_50") return healthRatio(source) < 0.5;
+    if (condition === "troops_below_75" || condition === "self:troops_below_75") return healthRatio(source) < 0.75;
+    if (condition === "self:troops_above_75") return healthRatio(source) > 0.75;
+    if (condition === "self:advantage") return hasStatus(source, "advantage");
+    if (condition === "target:troops_below_75") return healthRatio(target) < 0.75;
+    if (condition === "target:troops_below_50") return healthRatio(target) < 0.5;
+    if (condition === "target:troops_below_25") return healthRatio(target) < 0.25;
+    if (condition === "target:healed") return target?.lastRecoveredRound >= 0;
+    if (condition === "target:control") return ["stun", "stagger", "taunt", "panic", "slow"].some((name) => hasStatus(target, name));
+    if (condition.startsWith("target:")) return hasStatus(target, condition.slice(7));
+    if (condition === "enemy:healed") return alive(enemies).some((fighter) => fighter.lastRecoveredRound >= 0);
+    if (condition.startsWith("enemy:")) return alive(enemies).some((fighter) => hasStatus(fighter, condition.slice(6)));
+    if (condition.startsWith("stacks_")) {
+      const match = condition.match(/^stacks_(.+)_(\d+)$/);
+      return match ? Number(source.stacks[match[1]] || 0) >= Number(match[2]) : false;
+    }
+    return false;
+  }
+
+  function targetPool(source, allies, enemies, target = {}) {
+    if (target.side === "self") return [source];
+    return alive(target.side === "enemy" ? enemies : allies);
+  }
+
+  function selectHabitTargets(source, allies, enemies, target = {}, linked = []) {
+    if (target.select === "linked") return linked.filter((fighter) => fighter.alive);
+    let pool = targetPool(source, allies, enemies, target);
+    const select = target.select || "any";
+    const laneCode = select.split(":")[1];
+    const lane = { L: 0, C: 1, R: 2 }[laneCode];
+    if (select === "same_lane") pool = pool.filter((fighter) => fighter.lane === source.lane);
+    else if (select === "adjacency") pool = pool.filter((fighter) => Math.abs(fighter.lane - source.lane) <= 1);
+    else if (select.startsWith("dealer:")) pool = pool.filter((fighter) => fighter.dragon.damageType === laneCode);
+    else if (select.startsWith("prefer_dealer:")) pool = [...pool].sort((a, b) => Number(b.dragon.damageType === laneCode) - Number(a.dragon.damageType === laneCode));
+    else if (select.startsWith("prefer_lane:")) pool = [...pool].sort((a, b) => Number(b.lane === lane) - Number(a.lane === lane));
+    else if (select.startsWith("prefer_status:")) pool = [...pool].sort((a, b) => Number(hasStatus(b, laneCode)) - Number(hasStatus(a, laneCode)));
+    else if (select.startsWith("prefer_not_status:")) pool = [...pool].sort((a, b) => Number(hasStatus(a, laneCode)) - Number(hasStatus(b, laneCode)));
+    else if (select === "least_troops") pool = [...pool].sort((a, b) => healthRatio(a) - healthRatio(b));
+    else if (select === "most_troops") pool = [...pool].sort((a, b) => healthRatio(b) - healthRatio(a));
+    else if (select === "highest_str") pool = [...pool].sort((a, b) => b.stats.strength - a.stats.strength);
+    else if (select.startsWith("highest:")) pool = [...pool].sort((a, b) => b.stats[STAT_KEYS[laneCode]] - a.stats[STAT_KEYS[laneCode]]);
+    const count = target.count === "all" || target.select === "all" ? pool.length : Math.max(1, Number(target.count) || 1);
+    return pool.slice(0, count);
+  }
+
+  function modifierLocation(fighter, stat, exceptBasic) {
+    if (STAT_KEYS[stat]) return [fighter.stats, STAT_KEYS[stat]];
+    if (stat === "dmg_dealt") return [exceptBasic ? fighter.commandDealt : fighter.dealt, "all"];
+    if (stat === "dmg_received") return [exceptBasic ? fighter.commandReceived : fighter.received, "all"];
+    const match = stat.match(/^(physical|tactical|fire)_(dealt|received)$/);
+    if (match) {
+      if (match[2] === "dealt") return [exceptBasic ? fighter.commandDealt : fighter.dealt, match[1]];
+      return [exceptBasic ? fighter.commandReceived : fighter.received, match[1]];
+    }
+    if (stat === "recovery") return [fighter, "recoveryMultiplier"];
+    if (stat === "recovery_received") return [fighter, "recoveryReceived"];
+    return null;
+  }
+
+  function applyModifier(target, modifier, rank, scale, duration, round) {
+    const location = modifierLocation(target, modifier.stat, modifier.exceptBasic);
+    if (!location) return false;
+    const [container, key] = location;
+    const pct = Number(ranked(modifier.pct, rank));
+    const flat = Number(ranked(modifier.flat, rank));
+    let temporary;
+    if (Number.isFinite(pct)) {
+      const factor = Math.max(0.01, 1 + pct * scale / 100);
+      container[key] *= factor;
+      temporary = { mode: "multiply", factor };
+    } else if (Number.isFinite(flat)) {
+      container[key] += flat;
+      temporary = { mode: "add", delta: flat };
+    } else return false;
+    if (duration !== "combat" && Number.isFinite(Number(duration))) {
+      target.temporaryMods.push({ container, key, ...temporary, expiresAt: round + Number(duration) });
+    }
+    return true;
+  }
+
+  function expireModifiers(team, round) {
     for (const fighter of team) {
-      const dragon = fighter.dragon;
-      const h1 = habitRank(dragon, 0);
-      if (dragon.name === "Vhagar" && h1) fighter.received.all *= 1 - rankAt([0.035, 0.042, 0.049, 0.06, 0.07], h1);
-      if (dragon.name === "Caraxes" && h1) {
-        const reduction = rankAt([0.058, 0.07, 0.082, 0.10, 0.117], h1);
-        enemies.forEach((enemy) => { enemy.dealt.all *= 1 - reduction; enemy.stats.initiative *= 1 - reduction; });
+      const remaining = [];
+      for (const modifier of fighter.temporaryMods) {
+        if (modifier.expiresAt <= round) {
+          if (modifier.mode === "multiply") modifier.container[modifier.key] /= modifier.factor;
+          else modifier.container[modifier.key] -= modifier.delta;
+        }
+        else remaining.push(modifier);
       }
-      if (dragon.name === "Vaeldra" && h1) {
-        fighter.dealt.all *= 1 + rankAt([0.083, 0.10, 0.117, 0.142, 0.167], h1);
-        fighter.received.all *= 1 - rankAt([0.05, 0.06, 0.07, 0.085, 0.10], h1);
+      fighter.temporaryMods = remaining;
+    }
+  }
+
+  function executeHabitActions(source, allies, enemies, actions, rank, round, random, log, suppressReactive = false) {
+    const context = { linked: [] };
+    for (const action of actions || []) {
+      const targets = selectHabitTargets(source, allies, enemies, action.tgt, context.linked);
+      const applied = [];
+      for (const target of targets) {
+        if (!conditionMet(action.onlyIf, source, target, allies, enemies)) continue;
+        let actionChance = probability(action.chance, rank);
+        if (action.bonusChance && conditionMet(action.bonusChance.cond, source, target, allies, enemies)) actionChance = probability(action.bonusChance.chance, rank);
+        if (actionChance < 1 && random() >= actionChance) continue;
+        if (action.t === "mod") {
+          const modifiers = action.bonus && conditionMet(action.bonus.cond, source, target, allies, enemies) ? action.bonus.mods : action.mods;
+          const scale = action.scaleStat ? 1 + source.stats[STAT_KEYS[action.scaleStat]] / HABIT_SCALE_DIVISOR : 1;
+          for (const modifier of modifiers || []) applyModifier(target, modifier, rank, scale, action.dur, round);
+          applied.push(target);
+        } else if (action.t === "dmg") {
+          const pct = action.bonus && conditionMet(action.bonus.cond, source, target, allies, enemies) ? ranked(action.bonus.pct, rank) : ranked(action.pct, rank);
+          deal(source, target, action.dt, Number(pct) / 100, random, log, round, evidence(source.dragon).habits?.[0]?.name || "Habit", suppressReactive);
+          applied.push(target);
+        } else if (action.t === "status") {
+          const statusName = STATUS_KEYS[action.st] || action.st;
+          const scale = action.scaleStat ? 1 + source.stats[STAT_KEYS[action.scaleStat]] / HABIT_SCALE_DIVISOR : 1;
+          const rawValue = ranked(action.val, rank);
+          const value = Number.isFinite(Number(rawValue)) ? Number(rawValue) * scale / 100 : true;
+          status(target, statusName, action.dur === "combat" ? 99 : Number(action.dur) || 1, value, source);
+          applied.push(target);
+        } else if (action.t === "heal") {
+          const pct = action.bonus && conditionMet(action.bonus.cond, source, target, allies, enemies) ? ranked(action.bonus.pct, rank) : ranked(action.pct, rank);
+          const scale = action.scaleStat ? 1 + source.stats[STAT_KEYS[action.scaleStat]] / HABIT_SCALE_DIVISOR : 1;
+          recover(source, target, Number(pct) * scale / 100, log, round);
+          applied.push(target);
+        } else if (action.t === "stack") {
+          const next = Math.min(Number(action.max) || 99, Number(target.stacks[action.id] || 0) + 1);
+          if (next > Number(target.stacks[action.id] || 0)) {
+            target.stacks[action.id] = next;
+            for (const modifier of action.mods || []) applyModifier(target, modifier, rank, 1, "combat", round);
+          }
+          applied.push(target);
+        } else if (action.t === "cmd_chance") {
+          source.cmdChance[action.st] = probability(ranked(action.val, rank), rank);
+          applied.push(source);
+        } else if (action.t === "cleanse") {
+          const negative = Object.keys(target.statuses).filter((name) => ["burn", "bleed", "panic", "stun", "stagger", "slow", "weakened", "vulnerable", "taunt"].includes(name));
+          negative.slice(0, Number(action.n) || 1).forEach((name) => delete target.statuses[name]);
+          applied.push(target);
+        } else if (action.t === "purge") {
+          delete target.statuses.vulnerable;
+          applied.push(target);
+        } else if (action.t === "copy") {
+          const from = alive(action.from === "enemy" ? enemies : allies).find((fighter) => (action.of || []).some((name) => hasStatus(fighter, name)));
+          if (from) (action.of || []).forEach((name) => { if (hasStatus(from, name)) status(target, STATUS_KEYS[name] || name, Number(action.dur) || 1, from.statuses[STATUS_KEYS[name] || name].value, source); });
+          applied.push(target);
+        }
       }
-      if (dragon.name === "Syrax" && h1) {
-        const value = rankAt([0.038, 0.046, 0.054, 0.065, 0.076], h1);
-        team.forEach((ally) => { ally.stats.initiative *= 1 + value; });
-      }
-      if (dragon.name === "Kalspire" && h1) {
-        const value = rankAt([0.05, 0.06, 0.07, 0.085, 0.10], h1);
-        fighter.dealt.all *= 1 + value;
-        fighter.stats.initiative *= 1 + value * 0.55;
-      }
-      if (dragon.name === "Venator" && habitRank(dragon, 1)) fighter.dealt.physical *= 1 + rankAt([0.04, 0.048, 0.056, 0.068, 0.08], habitRank(dragon, 1));
-      if (dragon.name === "Zivern" && h1) {
-        const value = rankAt([0.025, 0.03, 0.035, 0.043, 0.05], h1);
-        enemies.forEach((enemy) => { enemy.dealt.all *= 1 - value; });
-      }
-      if (dragon.name === "Shadowsong" && h1) {
-        const value = rankAt([0.15, 0.18, 0.21, 0.255, 0.30], h1);
-        adjacentTo(fighter, enemies).slice(0, 2).forEach((enemy) => { enemy.stats.instinct *= 1 - value; enemy.stats.initiative *= 1 - value; });
-      }
-      if (dragon.name === "Tessarion" && habitRank(dragon, 1)) {
-        const fireAlly = team.filter((ally) => ally !== fighter && ally.dragon.damageType === "fire").sort((a, b) => a.lane - b.lane)[0];
-        if (fireAlly) fireAlly.dealt.fire *= 1 + rankAt([0.10, 0.12, 0.14, 0.17, 0.20], habitRank(dragon, 1));
+      if (action.linkNext) context.linked = applied;
+    }
+  }
+
+  function triggerReactiveHabits(target, damageBranch, round, random, log) {
+    if (!target.allies || !target.enemies) return;
+    if (!target.reactedThisRound) {
+      target.reactedThisRound = true;
+      const habits = evidence(target.dragon).habits || [];
+      for (let index = 0; index < unlockedCount(target.dragon); index += 1) {
+        const rank = habitRank(target.dragon, index);
+        for (const part of habits[index]?.effects || []) {
+          const actions = part.when === "on_damaged" ? part.branches?.[damageBranch] : null;
+          if (actions) executeHabitActions(target, target.allies, target.enemies, actions, rank, round, random, log, true);
+        }
       }
     }
-    const vhagar = team.find((fighter) => fighter.dragon.name === "Vhagar" && habitRank(fighter.dragon, 1));
-    const right = team[2];
-    if (vhagar && right?.dragon.damageType === "physical") {
-      const value = rankAt([0.125, 0.15, 0.175, 0.2125, 0.25], habitRank(vhagar.dragon, 1));
-      right.dealt.physical *= 1 + value;
-      addEvent(log, 0, `Vhagar's Battle Leader grants ${Math.round(value * 100)}% physical damage to right-flank ${right.dragon.name}.`, "status");
+    for (const source of alive(target.allies)) {
+      if (source === target || source.allyReactedThisRound) continue;
+      const habits = evidence(source.dragon).habits || [];
+      for (let index = 0; index < unlockedCount(source.dragon); index += 1) {
+        const rank = habitRank(source.dragon, index);
+        for (const part of habits[index]?.effects || []) {
+          const actions = part.when === "on_ally_damaged" ? part.branches?.[damageBranch] : null;
+          if (!actions) continue;
+          source.allyReactedThisRound = true;
+          executeHabitActions(source, source.allies, source.enemies, actions, rank, round, random, log, true);
+        }
+      }
+    }
+  }
+
+  function applyHabitTrigger(team, enemies, when, round, random, log) {
+    for (const source of alive(team)) {
+      const habits = evidence(source.dragon).habits || [];
+      for (let index = 0; index < unlockedCount(source.dragon); index += 1) {
+        const rank = habitRank(source.dragon, index);
+        for (const part of habits[index]?.effects || []) {
+          if (part.when !== when) continue;
+          if (when === "rounds" && !part.rounds?.includes(round)) continue;
+          if (when === "odd" && round % 2 !== 1) continue;
+          if (!conditionMet(part.selfCond, source, source, team, enemies)) continue;
+          if (probability(part.chance, rank) < 1 && random() >= probability(part.chance, rank)) continue;
+          executeHabitActions(source, team, enemies, part.actions, rank, round, random, log);
+        }
+      }
     }
   }
 
@@ -236,10 +431,10 @@
       if ([4, 6, 8, 10].includes(round) && chance(0.40)) status(fighter, "doubleStrike", 2);
     } else if (name === "Kalspire") {
       hit(target(), "tactical", 0.50, "Wyrm Cunning");
-      adj(2).slice(1).forEach((enemy) => { if (chance(0.30)) status(enemy, "bleed", 2, 0.025); });
+      adj(2).slice(1).forEach((enemy) => { if (chance(0.30)) status(enemy, "bleed", 2, 0.025, fighter); });
     } else if (name === "Tairax") {
-      if (round % 2 === 1 && chance(0.25)) status(target(), "stagger", 1);
-      if ([2, 5, 8].includes(round)) { const victim = target("nonBurn"); hit(victim, "fire", 1.15, "Gleaming Flame"); if (victim?.alive && chance(0.50)) status(victim, "burn", 2, 0.025); }
+      if (round % 2 === 1 && chance(fighter.cmdChance.stagger ?? 0.25)) status(target(), "stagger", 1);
+      if ([2, 5, 8].includes(round)) { const victim = target("nonBurn"); hit(victim, "fire", 1.15, "Gleaming Flame"); if (victim?.alive && chance(0.50)) status(victim, "burn", 2, 0.025, fighter); }
     } else if (name === "Malachite" && [2, 4, 7, 9].includes(round)) {
       hit(target(), "tactical", 1.00, "Verdant Renewal"); recover(fighter, alive(allies), 0.07, log, round);
     } else if (name === "Caraxes" && [3, 6, 9].includes(round)) hit(all(), "fire", fighter.statuses.firstStrike ? 1.50 : 1.00, "Blood Wyrm");
@@ -254,7 +449,7 @@
     else if (name === "Vaeldra") { all().forEach((enemy) => { if (chance(0.25)) status(enemy, "taunt", 2, fighter); }); if (round % 2 === 1) hit(adj(2), "physical", 0.45, "Iron Wing"); }
     else if (name === "Zivern" && [1, 4, 6, 9].includes(round)) { const victim = target(); if (victim && chance(0.40)) victim.received.tactical *= 1.15; hit(adj(2), "tactical", 0.75, "Storm Rend"); }
     else if (name === "Seasmoke" && [3, 6, 9].includes(round)) hit(target(), "fire", 1.90, "Sea Flame");
-    else if (name === "Sunfyre" && [1, 4, 7, 10].includes(round)) { const count = fighter.hp / fighter.maxHp < 0.75 ? 2 : 1; hit(adj(count), "tactical", 1.10, "Golden Assault"); if (fighter.hp / fighter.maxHp < 0.5) adj(count).forEach((enemy) => { hit(enemy, "fire", 0.55, "Golden Flame"); if (chance(0.50)) status(enemy, "burn", 2, 0.025); }); }
+    else if (name === "Sunfyre" && [1, 4, 7, 10].includes(round)) { const count = fighter.hp / fighter.maxHp < 0.75 ? 2 : 1; hit(adj(count), "tactical", 1.10, "Golden Assault"); if (fighter.hp / fighter.maxHp < 0.5) adj(count).forEach((enemy) => { hit(enemy, "fire", 0.55, "Golden Flame"); if (chance(0.50)) status(enemy, "burn", 2, 0.025, fighter); }); }
     else if (name === "Tessarion") { if ([1, 4, 7].includes(round)) { const victim = target("physicalDealer"); hit(victim, "fire", 0.95, "Blue Flame"); if (victim && chance(0.50)) victim.dealt.all *= victim.dragon.damageType === "physical" ? 0.80 : 0.90; } if ([3, 6, 9].includes(round)) hit(target(), "physical", 0.60, "Wing Strike"); }
     else if (name === "Tashix" && [3, 6, 9].includes(round)) hit(adj(1), "fire", 2.00, "Blazing Hoard");
     else if (name === "Jagadrix") { const victim = target(); if (victim && chance(0.30)) { victim.stats.instinct *= 0.85; victim.stats.initiative *= 0.85; } if ([2, 5, 8].includes(round)) hit(victim, "fire", 1.20, "Jagged Flame"); }
@@ -264,7 +459,7 @@
     else if (name === "Shadowrend") { const victim = target(); if (victim && chance(0.25)) { status(victim, "panic", 2); victim.dealt.all *= 1.20; } if ([4, 7, 9, 10].includes(round)) hit(adj(2), "physical", 0.80, "Shadow Rend"); }
     else if (name === "Dawnseeker") { if (chance(0.30)) { fighter.stats.instinct *= 1.20; fighter.stats.initiative *= 1.20; } if ([1, 2, 4, 7].includes(round)) hit(target(), "tactical", 0.50, "Dawn Tactics"); if ([2, 5, 8].includes(round)) recover(fighter, adjacentTo(fighter, allies).slice(0, 2), 0.03, log, round); }
     else if (name === "Shimmer") { const strongest = [...alive(allies)].sort((a, b) => b.stats.strength - a.stats.strength)[0]; if (strongest && chance(0.30)) { strongest.stats.strength *= 1.18; strongest.stats.initiative *= 1.09; } hit(adj(2), "tactical", 0.50, "Shimmering Blow"); }
-    else if (name === "Daemoros" && round % 2 === 1) { const victim = target(); hit(victim, "physical", 1.25, "Ashen Claw"); if (victim && chance(0.20)) status(victim, "burn", 2, 0.025); }
+    else if (name === "Daemoros" && round % 2 === 1) { const victim = target(); hit(victim, "physical", 1.25, "Ashen Claw"); if (victim && chance(0.20)) status(victim, "burn", 2, 0.025, fighter); }
     else if (name === "Rhysarion") { if ([1, 4, 7].includes(round)) hit(adj(2), "physical", 0.70, "Rending Talons"); if ([2, 5, 8].includes(round)) hit(all(), "fire", all().some((enemy) => enemy.statuses.stun || enemy.statuses.stagger || enemy.statuses.taunt) ? 0.30 : 0.20, "Controlled Flame"); }
     else if (name === "Velar") { if ([2, 4, 6, 8].includes(round) && chance(0.20)) alive(allies).slice(0, 2).forEach((ally) => { ally.dealt.all *= 1.15; }); if ([3, 5, 7, 9].includes(round)) hit(all(), "tactical", 0.45, "Velar's Reach"); }
     else if (name === "Bevlorin") { if ([1, 5, 9].includes(round)) hit(all(), "physical", 0.30, "Broad Assault"); if ([3, 7].includes(round)) hit(target(), "physical", 0.90, "Focused Assault"); }
@@ -277,21 +472,26 @@
     else if (name === "Sheepstealer" && [1, 4, 7, 10].includes(round)) { const recovered = alive(enemies).find((enemy) => round - enemy.lastRecoveredRound <= 1); hit(recovered || target(), "fire", recovered ? 2.00 : 1.00, "Prey Hunter"); }
   }
 
-  function tick(team, round, log) {
+  function tick(team, round, log, random) {
     for (const fighter of alive(team)) {
       for (const name of ["burn", "bleed"]) {
         const effect = fighter.statuses[name];
         if (effect) {
-          const amount = fighter.maxHp * Number(effect.value || 0.025);
-          fighter.hp = Math.max(0, fighter.hp - amount);
-          addEvent(log, round, `${fighter.dragon.name} takes ${Math.round(amount).toLocaleString()} ${name} damage.`, "status");
-          if (fighter.hp <= 0) { fighter.alive = false; addEvent(log, round, `${fighter.dragon.name} is defeated by ${name}.`, "ko"); }
+          if (effect.caster?.alive) deal(effect.caster, fighter, name === "burn" ? "fire" : "physical", statusMagnitude(effect, 0.20), random, log, round, name, false);
+          else {
+            const amount = fighter.maxHp * statusMagnitude(effect, 0.025);
+            fighter.hp = Math.max(0, fighter.hp - amount);
+            addEvent(log, round, `${fighter.dragon.name} takes ${Math.round(amount).toLocaleString()} ${name} damage.`, "status");
+            if (fighter.hp <= 0) { fighter.alive = false; addEvent(log, round, `${fighter.dragon.name} is defeated by ${name}.`, "ko"); }
+          }
         }
       }
       for (const [name, effect] of Object.entries(fighter.statuses)) {
         effect.rounds -= 1;
         if (effect.rounds <= 0) delete fighter.statuses[name];
       }
+      fighter.reactedThisRound = false;
+      fighter.allyReactedThisRound = false;
     }
   }
 
@@ -303,23 +503,33 @@
     const log = options.record ? {} : null;
     const a = teamAData.map((dragon, lane) => makeFighter(dragon, lane, "A", troopA));
     const b = teamBData.map((dragon, lane) => makeFighter(dragon, lane, "B", troopB));
+    a.forEach((fighter) => { fighter.allies = a; fighter.enemies = b; });
+    b.forEach((fighter) => { fighter.allies = b; fighter.enemies = a; });
     applyVanguard(a, b, log); applyVanguard(b, a, log);
-    applyHabits(a, b, log); applyHabits(b, a, log);
+    applyHabitTrigger(a, b, "combat_start", 0, random, log);
+    applyHabitTrigger(b, a, "combat_start", 0, random, log);
     let completedRound = 0;
     for (let round = 1; round <= maxRounds && alive(a).length && alive(b).length; round += 1) {
       completedRound = round;
-      const actors = [...alive(a), ...alive(b)].sort((x, y) => (y.stats.initiative * (1 - (y.statuses.slow?.value || 0))) - (x.stats.initiative * (1 - (x.statuses.slow?.value || 0))) || random() - 0.5);
+      expireModifiers(a, round); expireModifiers(b, round);
+      for (const trigger of ["each", "rounds", "odd"]) {
+        applyHabitTrigger(a, b, trigger, round, random, log);
+        applyHabitTrigger(b, a, trigger, round, random, log);
+      }
+      const actors = [...alive(a), ...alive(b)].sort((x, y) => Number(Boolean(y.statuses.firstStrike)) - Number(Boolean(x.statuses.firstStrike)) || (y.stats.initiative * (1 - (y.statuses.slow ? statusMagnitude(y.statuses.slow, 0.20) : 0))) - (x.stats.initiative * (1 - (x.statuses.slow ? statusMagnitude(x.statuses.slow, 0.20) : 0))) || random() - 0.5);
       for (const fighter of actors) {
         if (!fighter.alive) continue;
         const allies = fighter.side === "A" ? a : b;
         const enemies = fighter.side === "A" ? b : a;
         if (!alive(enemies).length) break;
-        if (fighter.statuses.stun || fighter.statuses.stagger) { addEvent(log, round, `${fighter.dragon.name} loses its action to control.`, "status"); continue; }
+        if (fighter.statuses.stun) { addEvent(log, round, `${fighter.dragon.name} loses its action to Stun.`, "status"); continue; }
         const taunter = alive(enemies).find((enemy) => fighter.statuses.taunt?.value === enemy);
-        deal(fighter, taunter || chooseTarget(fighter, enemies), fighter.dragon.damageType || "physical", 0.55, random, log, round, "Basic");
-        if (alive(enemies).length) command(fighter, allies, enemies, round, random, log);
+        const basicHits = fighter.statuses.doubleStrike ? 2 : 1;
+        for (let hit = 0; hit < basicHits && alive(enemies).length; hit += 1) deal(fighter, taunter || chooseTarget(fighter, enemies), fighter.dragon.damageType || "physical", 0.55, random, log, round, "Basic");
+        if (alive(enemies).length && !fighter.statuses.stagger && !fighter.statuses.overwhelm) command(fighter, allies, enemies, round, random, log);
+        else if (fighter.statuses.stagger || fighter.statuses.overwhelm) addEvent(log, round, `${fighter.dragon.name}'s Command is suppressed by control.`, "status");
       }
-      tick(a, round, log); tick(b, round, log);
+      tick(a, round, log, random); tick(b, round, log, random);
     }
     const health = (team) => Math.max(0, team.reduce((sum, fighter) => sum + fighter.hp, 0) / team.reduce((sum, fighter) => sum + fighter.maxHp, 0));
     const healthA = health(a), healthB = health(b);
@@ -344,7 +554,7 @@
     let known = 0, total = 0;
     const details = [];
     team.forEach((dragon, lane) => {
-      total += 2;
+      total += lane === 1 ? 2 : 1;
       const vanguard = lane === 1 && VANGUARD_NAMES.has(dragon.name);
       const commandKnown = COMMAND_NAMES.has(dragon.name);
       if (vanguard) known += 1;
@@ -361,7 +571,8 @@
   }
 
   function registryCoverage() {
-    return { commands: COMMAND_NAMES.size, vanguards: VANGUARD_NAMES.size, habits: HABIT_NAMES.size, total: COMMAND_NAMES.size + VANGUARD_NAMES.size + HABIT_NAMES.size };
+    const habitData = [...catalog.values()].reduce((sum, dragon) => sum + (dragon.habits || []).filter((habit) => Array.isArray(habit.effects) && habit.effects.length).length, 0);
+    return { commands: COMMAND_NAMES.size, vanguards: VANGUARD_NAMES.size, habits: HABIT_NAMES.size, habitData, total: COMMAND_NAMES.size + VANGUARD_NAMES.size + HABIT_NAMES.size };
   }
 
   function isHabitEncoded(name, index) { return HABIT_NAMES.has(`${name}:${index}`); }
@@ -374,11 +585,11 @@
     const raw = team.reduce((sum, dragon) => sum + (Number(dragon.power) || 0), 0);
     const preview = team.map((dragon, lane) => makeFighter(dragon, lane, "A", troop));
     applyVanguard(preview, [], null);
-    applyHabits(preview, [], null);
+    applyHabitTrigger(preview, [], "combat_start", 0, seededRandom(hashSeed(`profile:${team.map((dragon) => dragon.name).join(":")}`)), null);
     const score = preview.reduce((sum, fighter) => {
       const attackType = fighter.dragon.damageType || "physical";
-      const attack = fighter.dealt[attackType] * fighter.dealt.all;
-      const durability = 1 / Math.max(0.5, fighter.received.all);
+      const attack = fighter.dealt[attackType] * fighter.dealt.all * (0.45 + 0.55 * fighter.commandDealt[attackType] * fighter.commandDealt.all);
+      const durability = 1 / Math.max(0.5, fighter.received.all * (0.45 + 0.55 * fighter.commandReceived[attackType] * fighter.commandReceived.all));
       const statValue = (fighter.stats.strength + fighter.stats.instinct + fighter.stats.intelligence + fighter.stats.initiative) / 4;
       const baseStatValue = Object.values(scaledStats(fighter.dragon)).reduce((total, value) => total + value, 0) / 4;
       return sum + fighter.dragon.power * fighter.affinity * (attack * 0.55 + durability * 0.30 + statValue / baseStatValue * 0.15);
