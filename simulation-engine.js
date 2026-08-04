@@ -1,7 +1,7 @@
 (function (global) {
   "use strict";
 
-  const VERSION = "0.13.0";
+  const VERSION = "0.14.0";
   const POSITIONS = ["Left flank", "Vanguard", "Right flank"];
   const COMMAND_NAMES = new Set([
     "Caraxes", "Crimson", "Kalspire", "Malachite", "Seasmoke", "Sheepstealer", "Sunfyre", "Syrax", "Venator", "Vhagar",
@@ -352,7 +352,9 @@
       details.push(`${dragon.name}: Command ${commandKnown ? "encoded" : "unknown"}${lane === 1 ? `, Vanguard ${vanguard ? "encoded" : "unknown"}` : ""}`);
       for (let index = 0; index < unlockedCount(dragon); index += 1) {
         total += 1;
-        if (HABIT_NAMES.has(`${dragon.name}:${index}`)) known += 1;
+        const encoded = HABIT_NAMES.has(`${dragon.name}:${index}`);
+        if (encoded) known += 1;
+        details.push(`${dragon.name} H${index + 1}: ${encoded ? "encoded" : "unknown"}`);
       }
     });
     return { known, total, ratio: total ? known / total : 0, details };
@@ -364,13 +366,18 @@
 
   function isHabitEncoded(name, index) { return HABIT_NAMES.has(`${name}:${index}`); }
 
+  function unknownHabits(team) {
+    return team.flatMap((dragon) => Array.from({ length: unlockedCount(dragon) }, (_, index) => ({ dragon: dragon.name, index, rank: habitRank(dragon, index) }))).filter((habit) => !isHabitEncoded(habit.dragon, habit.index));
+  }
+
   function formationProfile(team, troop) {
     const raw = team.reduce((sum, dragon) => sum + (Number(dragon.power) || 0), 0);
     const preview = team.map((dragon, lane) => makeFighter(dragon, lane, "A", troop));
     applyVanguard(preview, [], null);
     applyHabits(preview, [], null);
     const score = preview.reduce((sum, fighter) => {
-      const attack = (fighter.dealt.physical + fighter.dealt.tactical + fighter.dealt.fire) / 3 * fighter.dealt.all;
+      const attackType = fighter.dragon.damageType || "physical";
+      const attack = fighter.dealt[attackType] * fighter.dealt.all;
       const durability = 1 / Math.max(0.5, fighter.received.all);
       const statValue = (fighter.stats.strength + fighter.stats.instinct + fighter.stats.intelligence + fighter.stats.initiative) / 4;
       const baseStatValue = Object.values(scaledStats(fighter.dragon)).reduce((total, value) => total + value, 0) / 4;
@@ -389,7 +396,8 @@
       if (habitRank(center, 1)) reasons.push({ points: 0, text: right?.damageType === "physical" ? `Battle Leader buffs right-flank ${right.name}'s physical damage.` : `Battle Leader does not buff right-flank ${right?.name}; it is not a physical dealer.`, warn: right?.damageType !== "physical" });
     }
     reasons.push({ points: 0, text: `${c.known}/${c.total} formation effects are structured; unknown effects are neutral.`, warn: c.ratio < 1 });
-    return { raw, score, bonus: score - raw, reasons, coverage: c };
+    const synergy = raw ? score / raw - 1 : 0;
+    return { raw, score, bonus: score - raw, synergy, reasons, coverage: c, unknownHabits: unknownHabits(team) };
   }
 
   function evaluateFormation(team, troop, benchmarks, options = {}) {
@@ -406,12 +414,14 @@
       healthEdge += (forward.healthA - forward.healthB) / forward.count + (reverse.healthB - reverse.healthA) / reverse.count;
     }
     const winRate = games ? wins / games : 0.5;
-    const score = winRate * 100000 + healthEdge * 1000;
-    return { score, winRate, games, coverage: coverage(team) };
+    const profile = formationProfile(team, troop);
+    const synergyIndex = Math.max(0, Math.min(1, 0.5 + profile.synergy * 2));
+    const score = (winRate * 0.82 + synergyIndex * 0.18) * 100000 + healthEdge * 500;
+    return { score, winRate, games, synergy: profile.synergy, synergyIndex, coverage: profile.coverage, unknownHabits: profile.unknownHabits };
   }
 
   global.DragonfireSimulation = {
     VERSION, POSITIONS, configureCatalog, hashSeed, seededRandom, runBattle, simulateMatchup,
-    evaluateFormation, formationProfile, coverage, registryCoverage, isHabitEncoded, habitRank, unlockedCount,
+    evaluateFormation, formationProfile, coverage, registryCoverage, isHabitEncoded, unknownHabits, habitRank, unlockedCount,
   };
 })(typeof window !== "undefined" ? window : globalThis);

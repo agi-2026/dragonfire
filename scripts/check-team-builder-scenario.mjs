@@ -9,7 +9,8 @@ const product = fs.readFileSync(new URL("product.js", root), "utf8");
 const simulation = fs.readFileSync(new URL("simulation-engine.js", root), "utf8");
 const catalog = JSON.parse(fs.readFileSync(new URL("data/dragon-catalog.v1.json", root), "utf8"));
 const rosterPath = process.env.DRAGONFIRE_TEST_ROSTER;
-const roster = rosterPath ? JSON.parse(fs.readFileSync(rosterPath, "utf8")) : null;
+const rosterPayload = rosterPath ? JSON.parse(fs.readFileSync(rosterPath, "utf8")) : null;
+const roster = rosterPayload ? (Array.isArray(rosterPayload) ? rosterPayload : rosterPayload.roster) : null;
 
 const $ = cheerio.load(html);
 const inline = $("script:not([src])").first().html();
@@ -94,7 +95,7 @@ context.window.scrollTo = () => {};
 context.innerWidth = 1400;
 context.innerHeight = 900;
 
-const exposedInline = `${inline}\n;globalThis.__engine={get roster(){return roster},scoreOrder,buildCandidates,unlockedCount,habitRank,habitName};`;
+const exposedInline = `${inline}\n;globalThis.__engine={get roster(){return roster},scoreOrder,buildCandidates,projectOptimizerDragon,unlockedCount,habitRank,habitName};`;
 const exposedProduct = product.replace(/\}\)\(\);\s*$/, "globalThis.__teamBuilder={projectedDragon,bestCoreFormations};})();");
 vm.runInContext(simulation, context, { filename: "simulation-engine.js" });
 vm.runInContext(exposedInline, context, { filename: "index.inline.js" });
@@ -107,7 +108,8 @@ const result = vm.runInContext(`(() => {
   const projectedCore = projectedPool.find((dragon) => dragon.name === "Vhagar");
   const current = __teamBuilder.bestCoreFormations(core, active);
   const potential = __teamBuilder.bestCoreFormations(projectedCore, projectedPool);
-  const optimizer = __engine.buildCandidates(active, "pvp").slice(0, 5).map((candidate) => ({ names: candidate.ids.map((id) => active.find((dragon) => dragon.id === id).name), troop: candidate.troop, winRate: candidate.simulation.winRate }));
+  const optimizerPool = active.map((dragon) => __engine.projectOptimizerDragon(dragon, "level50"));
+  const optimizer = __engine.buildCandidates(optimizerPool, "pvp").slice(0, 5).map((candidate) => ({ names: candidate.ids.map((id) => optimizerPool.find((dragon) => dragon.id === id).name), troop: candidate.troop, winRate: candidate.simulation.winRate, games: candidate.simulation.games }));
   const partnerRank = (formations, name) => formations.findIndex((formation) => formation.order.some((dragon) => dragon.name === name)) + 1;
   const venator = projectedPool.find((dragon) => dragon.name === "Venator");
   const malachite = projectedPool.find((dragon) => dragon.name === "Malachite");
@@ -145,6 +147,8 @@ assert.equal(result.malachite.habitRanks[1], 2, "Malachite H2 must unlock at the
 assert(result.venatorPotentialRank <= 5, "Venator should remain a top-five option when its 4★ physical-damage Habit unlocks");
 assert(result.explicitVenatorReasons.some((reason) => reason.includes("Battle Leader") && reason.includes("Venator")), "Vhagar and Venator must expose their right-flank physical interaction");
 assert(!result.explicitVenatorReasons.some((reason) => reason.includes("Vanguard") && reason.includes("right-flank physical")), "Battle Leader must not be mislabeled or double-counted as a Vanguard effect");
+assert.equal(result.optimizer[0].games, 192, "Optimizer finalists must use 192 symmetric seeded battles");
+assert(!result.optimizer.slice(0, 5).some((item) => item.names.join("/") === "Caraxes/Kalspire/Vhagar"), "The low-utilization Caraxes/Kalspire/Vhagar lane order must not survive the finalist ranking");
 
 console.log(`Team Builder scenario valid: Venator #${result.venatorPotentialRank}, Malachite #${result.malachitePotentialRank}; top five ${result.topPotential.join(" | ")}`);
 console.log(`Optimizer top five: ${result.optimizer.map((item) => `${item.names.join(" / ")} ${(item.winRate * 100).toFixed(1)}%`).join(" | ")}`);

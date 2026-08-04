@@ -47,4 +47,9 @@ const venatorScore = engine.evaluateFormation(venatorTeam, "shieldbearers", benc
 const tairaxScore = engine.evaluateFormation(tairaxTeam, "shieldbearers", benchmarks, { runs: 20, seed: "vhagar-choice" });
 assert(venatorScore.winRate > tairaxScore.winRate, "The explicit Vhagar/Venator physical interaction must beat the otherwise equal Tairax variant in this regression fixture");
 
+const caraxes = { ...base("Caraxes", "fire", [2]), power: 36520, starRank: 3, reignLevel: 47 };
+const kalspireCenter = engine.formationProfile([caraxes, kalspire, vhagar], "shieldbearers");
+const caraxesCenter = engine.formationProfile([kalspire, caraxes, vhagar], "shieldbearers");
+assert(caraxesCenter.synergy > kalspireCenter.synergy, "Actual damage-type and lane utilization must prefer Caraxes Vanguard over the weaker fixed-trio lane order");
+
 console.log(`Simulation engine valid: deterministic results, lane-specific Battle Leader, ${coverage.known}/${coverage.total} effects encoded.`);
